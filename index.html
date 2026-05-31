@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RestWerks — AI Powered Support for Residential AV</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 400; color: #1a1a18; background: #faf9f6; line-height: 1.6; }
+
+  /* NAV */
+  nav { position: sticky; top: 0; background: rgba(250,249,246,0.92); backdrop-filter: blur(8px); border-bottom: 0.5px solid #d3d1c7; z-index: 100; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .nav-logo { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -0.3px; color: #1a1a18; text-decoration: none; }
+  .nav-logo span { color: #1D9E75; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+  .nav-links a { font-size: 14px; color: #5f5e5a; text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: #1a1a18; }
+  .nav-cta { background: #1D9E75 !important; color: #fff !important; padding: 8px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; transition: background 0.2s !important; }
+  .nav-cta:hover { background: #0F6E56 !important; }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+
+  /* HERO */
+  .hero { max-width: 1000px; margin: 0 auto; padding: 100px 2rem 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+  @media (max-width: 800px) { .hero { grid-template-columns: 1fr; gap: 3rem; padding: 60px 2rem; } }
+  .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #0F6E56; background: #E1F5EE; padding: 5px 14px; border-radius: 20px; margin-bottom: 24px; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(36px, 5vw, 58px); line-height: 1.1; letter-spacing: -1px; color: #1a1a18; margin-bottom: 20px; }
+  .hero-sub { font-size: 17px; color: #5f5e5a; max-width: 460px; line-height: 1.7; margin-bottom: 32px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn-primary { background: #1D9E75; color: #fff; padding: 13px 24px; border-radius: 8px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.2s; white-space: nowrap; }
+  .btn-primary:hover { background: #0F6E56; }
+  .btn-secondary { background: transparent; color: #1a1a18; padding: 13px 24px; border-radius: 8px; font-size: 15px; border: 0.5px solid #888780; text-decoration: none; transition: border-color 0.2s, background 0.2s; white-space: nowrap; }
+  .btn-secondary:hover { background: #f1efe8; border-color: #444441; }
+  .hero-stats { display: flex; gap: 2rem; padding-top: 1.5rem; border-top: 0.5px solid #d3d1c7; }
+  .hero-stat-num { font-family: 'DM Serif Display', serif; font-size: 28px; color: #1a1a18; line-height: 1; margin-bottom: 4px; }
+  .hero-stat-label { font-size: 12px; color: #888780; line-height: 1.4; }
+
+  /* PHONE DEMO */
+  .phone-wrap { position: relative; }
+  .mockup-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #888780; margin-bottom: 16px; font-weight: 500; text-align: center; }
+  .scenario-pills { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .pill-btn { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #d3d1c7; background: #fff; color: #5f5e5a; cursor: pointer; transition: all 0.2s; }
+  .pill-btn.active { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+  .phone-frame { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 20px; padding: 20px 16px; max-width: 340px; margin: 0 auto; min-height: 340px; }
+  .phone-header { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 0.5px solid #d3d1c7; margin-bottom: 16px; }
+  .phone-avatar { width: 34px; height: 34px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
+  .phone-name { font-size: 13px; font-weight: 500; }
+  .phone-number { font-size: 11px; color: #888780; }
+  .convo { display: none; }
+  .convo.active { display: block; }
+  .bubble-row { display: flex; margin-bottom: 8px; }
+  .bubble-row.r { justify-content: flex-end; }
+  .bubble { max-width: 82%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+  .bubble.agent { background: #f1efe8; color: #1a1a18; border-bottom-left-radius: 3px; }
+  .bubble.client { background: #1D9E75; color: #fff; border-bottom-right-radius: 3px; }
+  .bubble-time { font-size: 11px; color: #b4b2a9; text-align: center; margin-bottom: 10px; }
+
+  /* SECTIONS */
+  .section-divider { max-width: 900px; margin: 0 auto; border: none; border-top: 0.5px solid #d3d1c7; }
+  .section { max-width: 900px; margin: 0 auto; padding: 80px 2rem; }
+  .section-label { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #888780; margin-bottom: 12px; }
+  .section-h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 16px; color: #1a1a18; }
+  .section-intro { font-size: 17px; color: #5f5e5a; max-width: 560px; line-height: 1.7; margin-bottom: 48px; }
+
+  /* HOW IT WORKS */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 48px; }
+  .step { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 24px 20px; }
+  .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .step-num { width: 30px; height: 30px; min-width: 30px; background: #E1F5EE; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0F6E56; }
+  .step h3 { font-size: 15px; font-weight: 500; line-height: 1.3; color: #1a1a18; }
+  .step p { font-size: 14px; color: #5f5e5a; line-height: 1.6; }
+
+  /* TWO WAY CALLOUT */
+  .callout { background: #1a1a18; border-radius: 12px; padding: 40px 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  @media (max-width: 640px) { .callout { grid-template-columns: 1fr; padding: 28px 24px; } }
+  .callout h3 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 3vw, 30px); color: #faf9f6; letter-spacing: -0.3px; line-height: 1.2; margin-bottom: 12px; }
+  .callout p { font-size: 15px; color: #888780; line-height: 1.7; }
+  .callout-features { list-style: none; margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .callout-features li { font-size: 14px; color: #b4b2a9; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+  .callout-features li::before { content: ''; display: block; width: 14px; height: 14px; min-width: 14px; background: #1D9E75; border-radius: 50%; margin-top: 3px; }
+  .callout-phone { background: #2c2c2a; border-radius: 16px; padding: 18px 14px; }
+  .callout-phone-header { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 0.5px solid #444441; margin-bottom: 14px; }
+  .callout-avatar { width: 30px; height: 30px; border-radius: 50%; background: #085041; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #5DCAA5; flex-shrink: 0; }
+  .callout-name { font-size: 13px; font-weight: 500; color: #faf9f6; }
+  .callout-num { font-size: 11px; color: #888780; }
+  .c-bubble-row { display: flex; margin-bottom: 8px; }
+  .c-bubble-row.right { justify-content: flex-end; }
+  .c-bubble { max-width: 85%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+  .c-bubble.inbound { background: #3a3a38; color: #d3d1c7; border-bottom-left-radius: 3px; }
+  .c-bubble.outbound { background: #1D9E75; color: #fff; border-bottom-right-radius: 3px; }
+  .c-bubble.tech-out { background: #0F6E56; color: #E1F5EE; border-bottom-right-radius: 3px; }
+  .c-sender { font-size: 10px; color: #5f5e5a; margin-bottom: 2px; margin-left: 2px; }
+  .c-sender.right-align { text-align: right; margin-right: 2px; }
+
+  /* PROACTIVE */
+  .proactive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  @media (max-width: 640px) { .proactive-grid { grid-template-columns: 1fr; } }
+  .cadence { border-left: 2px solid #d3d1c7; padding-left: 0; list-style: none; }
+  .cadence-item { display: flex; gap: 1rem; padding: 0.75rem 0 0.75rem 1.25rem; position: relative; }
+  .cadence-item::before { content: ''; position: absolute; left: -5px; top: 1.2rem; width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; border: 2px solid #faf9f6; }
+  .cadence-time { font-size: 11px; font-weight: 700; color: #1D9E75; min-width: 60px; padding-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cadence-text strong { display: block; font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .cadence-text span { font-size: 13px; color: #888780; line-height: 1.5; }
+  .proactive-insight { background: #E1F5EE; border-radius: 10px; padding: 1.25rem; border-left: 3px solid #1D9E75; margin-top: 1.25rem; }
+  .proactive-insight p { font-size: 14px; color: #0F6E56; line-height: 1.6; }
+  .proactive-example { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.5rem; }
+  .proactive-example-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #1D9E75; margin-bottom: 0.75rem; }
+  .proactive-example p { font-size: 14px; color: #5f5e5a; line-height: 1.6; }
+
+  /* INTELLIGENCE */
+  .intel-section { background: #f1efe8; border-radius: 12px; padding: 2rem; margin-top: 2rem; }
+  .intel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .intel-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: #fef3cd; color: #856404; border: 0.5px solid #fcd34d; white-space: nowrap; }
+  .intel-title { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .intel-body { font-size: 14px; color: #5f5e5a; }
+  .intel-message { background: #1D9E75; color: #fff; border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.6; max-width: 420px; margin-bottom: 1rem; }
+  .intel-message-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+  .intel-privacy { font-size: 13px; color: #888780; font-style: italic; padding-top: 0.75rem; border-top: 0.5px solid #d3d1c7; }
+
+  /* WHAT ANDI DOES */
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 0; }
+  .feature-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 24px 20px; }
+  .feature-icon { font-size: 22px; margin-bottom: 10px; }
+  .feature-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .feature-body { font-size: 14px; color: #5f5e5a; line-height: 1.6; }
+
+  /* REPLACES */
+  .replaces-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 2rem; }
+  @media (max-width: 640px) { .replaces-grid { grid-template-columns: 1fr; } }
+  .replaces-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.5rem; }
+  .replaces-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .replaces-cost { font-size: 13px; color: #888780; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #f1efe8; }
+  .replaces-problem { font-size: 13px; color: #5f5e5a; line-height: 1.6; }
+  .replaces-bottom { text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 0.5px solid #d3d1c7; }
+  .replaces-bottom p { font-size: 16px; color: #5f5e5a; margin-bottom: 6px; }
+  .replaces-bottom strong { font-family: 'DM Serif Display', serif; font-size: 32px; color: #1D9E75; }
+
+  /* PRICING */
+  .pricing-single { max-width: 460px; margin: 2.5rem auto 0; background: #1a1a18; border-radius: 16px; padding: 2.5rem; color: #fff; }
+  .pricing-single-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1D9E75; margin-bottom: 0.75rem; }
+  .pricing-single-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; margin-bottom: 4px; }
+  .pricing-single-sub { font-size: 14px; color: #888780; margin-bottom: 1.5rem; }
+  .price-num { font-family: 'DM Serif Display', serif; font-size: 60px; color: #fff; line-height: 1; }
+  .price-period { font-size: 16px; color: #888780; margin-left: 4px; }
+  .price-setup { font-size: 13px; color: #888780; margin-top: 4px; margin-bottom: 1.5rem; }
+  .price-setup strong { color: rgba(255,255,255,0.6); }
+  .pricing-features { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 8px; }
+  .pricing-features li { font-size: 14px; color: rgba(255,255,255,0.7); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+  .pricing-features li::before { content: ''; display: block; width: 14px; height: 14px; min-width: 14px; background: #1D9E75; border-radius: 50%; margin-top: 3px; }
+  .pricing-cta-btn { display: block; text-align: center; background: #1D9E75; color: #fff; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.2s; }
+  .pricing-cta-btn:hover { background: #0F6E56; }
+  .pricing-note { font-size: 12px; color: #888780; text-align: center; margin-top: 12px; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  @media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; } }
+  .about-text p { font-size: 16px; color: #5f5e5a; line-height: 1.7; margin-bottom: 16px; }
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stat-box { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 10px; padding: 20px; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 34px; color: #1D9E75; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 13px; color: #5f5e5a; }
+
+  /* CONTACT */
+  .contact-wrap { background: #1a1a18; border-radius: 16px; padding: 60px 48px; text-align: center; }
+  @media (max-width: 640px) { .contact-wrap { padding: 40px 24px; } }
+  .contact-h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 42px); color: #faf9f6; letter-spacing: -0.5px; margin-bottom: 16px; }
+  .contact-wrap p { font-size: 17px; color: #888780; max-width: 480px; margin: 0 auto 36px; line-height: 1.7; }
+  .contact-email { display: inline-block; font-size: 18px; font-weight: 500; color: #1D9E75; text-decoration: none; border-bottom: 1px solid #1D9E75; padding-bottom: 2px; }
+  .contact-email:hover { color: #5DCAA5; border-color: #5DCAA5; }
+
+  /* FOOTER */
+  footer { max-width: 900px; margin: 0 auto; padding: 40px 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-top: 0.5px solid #d3d1c7; }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 18px; color: #1a1a18; text-decoration: none; }
+  .footer-logo span { color: #1D9E75; }
+  .footer-links { display: flex; gap: 24px; list-style: none; flex-wrap: wrap; }
+  .footer-links a { font-size: 13px; color: #888780; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: #1a1a18; }
+  .footer-copy { font-size: 12px; color: #b4b2a9; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Rest<span>Werks</span></a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a class="nav-cta" href="#contact">Get started</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <span class="hero-eyebrow">Meet Andi, your AI texting agent</span>
+    <h1>After hours support,<br><em style="font-style:italic;color:#1D9E75;">without the after hours.</em></h1>
+    <p class="hero-sub">Andi handles client texts around the clock, resolves common issues without a tech, follows up with every client automatically, and keeps your relationships alive between jobs.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Get started — $299/mo</a>
+      <a href="#how-it-works" class="btn-secondary">See how it works</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">26</div>
+        <div class="hero-stat-label">Years of AV experience<br>in every response</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">24/7</div>
+        <div class="hero-stat-label">Client coverage,<br>no on-call required</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">$0</div>
+        <div class="hero-stat-label">Cost to resolve a<br>battery alert at 11pm</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-wrap">
+    <p class="mockup-label">Andi in action. No tech involved.</p>
+    <div class="scenario-pills">
+      <button class="pill-btn active" onclick="showScenario(0, this)">Internet down</button>
+      <button class="pill-btn" onclick="showScenario(1, this)">Battery alert</button>
+      <button class="pill-btn" onclick="showScenario(2, this)">Follow up</button>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-header">
+        <div class="phone-avatar">AV</div>
+        <div>
+          <div class="phone-name">Andi for Your AV Company</div>
+          <div class="phone-number">Your number</div>
+        </div>
+      </div>
+
+      <div class="convo active" id="convo-0">
+        <div class="bubble-time">Tonight, 10:47 PM</div>
+        <div class="bubble-row r"><div class="bubble client">Internet is down again. Nothing is working.</div></div>
+        <div class="bubble-row"><div class="bubble agent">On it. Checking your provider for outages right now.</div></div>
+        <div class="bubble-row"><div class="bubble agent">No outage showing. Can you head to your equipment rack and tell me what you see?</div></div>
+        <div class="bubble-row r"><div class="bubble client">All lights are off except the bottom box</div></div>
+        <div class="bubble-row"><div class="bubble agent">That bottom box is your UPS. Press the ON button. If pressing doesn't work hold it for a couple seconds. Let me know if other devices in the rack start turning on after that.</div></div>
+        <div class="bubble-row r"><div class="bubble client">Everything came back on!</div></div>
+        <div class="bubble-row"><div class="bubble agent">Nice. Let me know if it goes out again.</div></div>
+      </div>
+
+      <div class="convo" id="convo-1">
+        <div class="bubble-time">Tonight, 11:23 PM</div>
+        <div class="bubble-row r"><div class="bubble client">Something in the rack is beeping every 30 seconds</div></div>
+        <div class="bubble-row"><div class="bubble agent">That is a battery alert from your UPS backup. The battery needs to be replaced. Not an emergency tonight. I will flag it for the team to get on the schedule.</div></div>
+        <div class="bubble-row r"><div class="bubble client">Is there any way to silence it?</div></div>
+        <div class="bubble-row"><div class="bubble agent">You can silence the beep by pressing the MUTE button on the front of the unit. Someone will be in touch to get that battery swapped out.</div></div>
+        <div class="bubble-row r"><div class="bubble client">Perfect thank you</div></div>
+        <div class="bubble-row"><div class="bubble agent">No bother at all.</div></div>
+      </div>
+
+      <div class="convo" id="convo-2">
+        <div class="bubble-time">9:15 AM — 30 days after install</div>
+        <div class="bubble-row"><div class="bubble agent">Hey Sarah, it has been about a month since we wrapped up your project. How is everything feeling? Any questions on how things work?</div></div>
+        <div class="bubble-row r"><div class="bubble client">Everything has been great! Actually we were thinking about adding speakers to the patio</div></div>
+        <div class="bubble-row"><div class="bubble agent">That would be perfect out there. I will let the team know you are interested and have someone reach out to talk through options.</div></div>
+        <div class="bubble-row r"><div class="bubble client">Amazing thank you!</div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <p class="section-label">How it works</p>
+  <h2 class="section-h2">Andi handles it first.<br>Your team stays in control.</h2>
+  <p class="section-intro">Andi connects to your clients through a dedicated number that represents your company. Andi handles support conversations around the clock, and your whole team can jump in anytime from the same number.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><h3>Client texts in</h3></div>
+      <p>Your client texts the number you give them. Casual, misspelled, incomplete. Andi understands all of it and knows their system before saying a word.</p>
+    </div>
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><h3>Andi guides resolution</h3></div>
+      <p>Andi walks them through the exact steps for their specific equipment. Not generic instructions. Steps built from 26 years of real residential AV work.</p>
+    </div>
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><h3>Resolved or escalated</h3></div>
+      <p>Most issues close without tech involvement. Anything that needs a person gets escalated with full context. Your team has access at all hours if needed.</p>
+    </div>
+    <div class="step">
+      <div class="step-header"><div class="step-num">4</div><h3>You get a summary</h3></div>
+      <p>Wake up to a clear record of every conversation. What happened, what was resolved, what needs follow-up. Everything logged automatically.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div>
+      <h3>Andi and your team share the same number.</h3>
+      <p>One consistent number your clients always recognize, whether the message comes from Andi or a person on your team.</p>
+      <ul class="callout-features">
+        <li>Follow up after a service visit from a number clients already trust</li>
+        <li>Announce upgrades, new products, or seasonal check-ins</li>
+        <li>Jump into any Andi conversation manually when you want to</li>
+        <li>Send proactive maintenance reminders and client outreach</li>
+      </ul>
+    </div>
+    <div class="callout-phone">
+      <div class="callout-phone-header">
+        <div class="callout-avatar">AV</div>
+        <div><div class="callout-name">Andi for Your AV Company</div><div class="callout-num">Andi + your whole team</div></div>
+      </div>
+      <div class="c-sender">Andi, 6:42 AM</div>
+      <div class="c-bubble-row"><div class="c-bubble inbound">Heads up, your Sonos system lost connection overnight. I walked the client through a reboot and it resolved.</div></div>
+      <div style="margin-top:10px;">
+        <div class="c-sender right-align">Tech, 9:15 AM</div>
+        <div class="c-bubble-row right"><div class="c-bubble tech-out">Thanks Andi. Just checking in this morning, everything still working great?</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="c-bubble-row right"><div class="c-bubble outbound">Also your annual system check is coming up next month. Want to schedule a time?</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- PROACTIVE OUTREACH -->
+<section class="section" id="proactive">
+  <p class="section-label">Proactive outreach</p>
+  <h2 class="section-h2">The follow up that never happened<br>is the sale you never made.</h2>
+  <p class="section-intro">Andi sends follow ups automatically from the number your clients already respond to. Every schedule is configurable by your team per client.</p>
+  <div class="proactive-grid">
+    <div>
+      <ul class="cadence">
+        <li class="cadence-item">
+          <div class="cadence-time">Day 30</div>
+          <div class="cadence-text"><strong>Post-install check in</strong><span>How is everything working. Any questions. Anything feel off.</span></div>
+        </li>
+        <li class="cadence-item">
+          <div class="cadence-time">Day 60</div>
+          <div class="cadence-text"><strong>Feature check</strong><span>Anything you are not using that we set up. Anything you want to add.</span></div>
+        </li>
+        <li class="cadence-item">
+          <div class="cadence-time">Day 90</div>
+          <div class="cadence-text"><strong>Quarter touch</strong><span>System health note. Natural opener for upgrade conversations.</span></div>
+        </li>
+        <li class="cadence-item">
+          <div class="cadence-time">6 months</div>
+          <div class="cadence-text"><strong>Seasonal outreach</strong><span>Outdoor audio season. Holiday prep. Timely and relevant.</span></div>
+        </li>
+        <li class="cadence-item">
+          <div class="cadence-time">Annual</div>
+          <div class="cadence-text"><strong>Anniversary touch</strong><span>Year in review. What has worked. What is next.</span></div>
+        </li>
+      </ul>
+      <div class="proactive-insight">
+        <p>All sent from the number your clients already use for support. Not a marketing blast from an unknown number. Your team can customize the schedule and message for any client.</p>
+      </div>
+    </div>
+    <div>
+      <div class="proactive-example">
+        <div class="proactive-example-label">Real scenario</div>
+        <p>Client has outdoor speakers on the sales order but never moved forward on install. Andi sends a 6 month touch. Client responds. Conversation leads to a $12,000 outdoor audio and shading quote. That conversation never would have happened without a follow up from someone they already trust.</p>
+      </div>
+      <div style="margin-top:1.25rem; background:#fff; border:0.5px solid #d3d1c7; border-radius:12px; padding:1.5rem;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#888780;margin-bottom:0.75rem;">Why it works</div>
+        <p style="font-size:14px;color:#5f5e5a;line-height:1.6;">Every integrator knows the feeling. A great install, a happy client, and then silence. Andi closes that loop automatically, from a number clients already respond to, on a schedule your team controls.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <p class="section-label">What Andi does</p>
+  <h2 class="section-h2">Built for every issue<br>residential AV clients face.</h2>
+  <p class="section-intro">Andi handles the full range of client issues: network and internet, AV and audio, lighting, control systems, security, cameras, batteries, thermostats, and more. If a client texts it, Andi knows it.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🌙</div>
+      <div class="feature-title">After hours AI support</div>
+      <div class="feature-body">Andi responds in seconds, guides clients through resolution using real AV domain knowledge, and escalates cleanly when a tech is needed. Your clients never feel ignored.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📤</div>
+      <div class="feature-title">Proactive client outreach</div>
+      <div class="feature-body">Automated follow ups tied to project completion date. 30, 60, 90 days and ongoing. Sent from the number clients trust. Configurable per client by your team. Surfaces upsell opportunities that would otherwise be lost.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏠</div>
+      <div class="feature-title">Living client records</div>
+      <div class="feature-body">Upload a sales order and the team builds out a complete system record. The record updates as clients mention changes and techs add notes. Knowledge that compounds over time.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Two way team messaging</div>
+      <div class="feature-body">Andi handles overnight volume. Your techs share the same number and can jump into any conversation manually. Clients always see one trusted number whether the message comes from Andi or a person.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Client self service</div>
+      <div class="feature-body">Clients retrieve service history, check ticket status, get stored passwords, and add new numbers to their account. All over SMS. No app, no portal, no login required.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-title">Issue intelligence alerts</div>
+      <div class="feature-body">RestWerks identifies issue patterns across the platform and pushes proactive alerts to affected households before clients know something is wrong. Only possible because RestWerks sees across all integrators simultaneously.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- INTELLIGENCE -->
+<section class="section" id="intelligence">
+  <p class="section-label">Issue intelligence</p>
+  <h2 class="section-h2">The platform that gets smarter<br>with every integrator who joins.</h2>
+  <p class="section-intro">When an issue pattern emerges with one integrator, every integrator on the platform benefits. A fix identified in Miami makes Andi smarter for a client in Seattle.</p>
+  <div class="intel-section">
+    <div class="intel-header">
+      <div>
+        <div class="intel-title">Apple TV software update breaks CEC control</div>
+        <div class="intel-body">Pattern identified across multiple households. Andi pushes a proactive alert to every affected household before clients even text in.</div>
+      </div>
+      <span class="intel-badge">Pattern detected</span>
+    </div>
+    <div class="intel-message">
+      <div class="intel-message-label">Andi sends to every household with Apple TV</div>
+      Hey, just a heads up. A recent Apple TV update changed how some remotes communicate with the TV. If you notice your volume or input buttons not working the way they used to, here is the quick fix to get everything back to normal.
+    </div>
+    <div class="intel-privacy">Client data is never shared across integrators. Only anonymized resolution patterns are used to improve intelligence for everyone on the platform. Your clients are always yours.</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- REPLACES -->
+<section class="section" id="replaces">
+  <p class="section-label">What RestWerks replaces</p>
+  <h2 class="section-h2">Stop paying for tools that were<br>never built for this industry.</h2>
+  <p class="section-intro">Most integrators are patching together a generic ticketing tool, a messaging platform, and after hours on-call labor. None of it talks to each other and none of it knows anything about AV.</p>
+  <div class="replaces-grid">
+    <div class="replaces-card">
+      <div class="replaces-name">Generic ticketing tools</div>
+      <div class="replaces-cost">$200 to $600 per month</div>
+      <div class="replaces-problem">Built for software companies. Stores tickets. Does not know what a WattBox is or why UPS lights being on does not mean the outlets are working. Your techs spend more time entering data than solving problems.</div>
+    </div>
+    <div class="replaces-card">
+      <div class="replaces-name">Generic messaging platforms</div>
+      <div class="replaces-cost">$300 to $600 per month</div>
+      <div class="replaces-problem">SMS and reputation management built for any business. No AV domain knowledge. No proactive outreach tied to project dates. No issue intelligence. Just another number clients do not recognize.</div>
+    </div>
+    <div class="replaces-card">
+      <div class="replaces-name">After hours on-call labor</div>
+      <div class="replaces-cost">$1,500 to $3,000 per month</div>
+      <div class="replaces-problem">A tech on call whether the phone rings or not. Overtime rates when they respond. Truck rolls for issues Andi resolves in three texts. Every night of the year, including weekends and holidays.</div>
+    </div>
+  </div>
+  <div class="replaces-bottom">
+    <p>RestWerks replaces all three at</p>
+    <strong>$299 per month</strong>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-h2">Simple. One price.<br>Everything included.</h2>
+  <p class="section-intro">No tiers. No feature gating. No per-agent seats. Every integrator gets everything Andi has to offer from day one.</p>
+  <div class="pricing-single">
+    <div class="pricing-single-label">Early access pricing</div>
+    <div class="pricing-single-title">RestWerks</div>
+    <div class="pricing-single-sub">Everything included. Unlimited clients.</div>
+    <div style="display:flex;align-items:baseline;gap:4px;">
+      <div class="price-num">$299</div>
+      <span class="price-period">/ month</span>
+    </div>
+    <div class="price-setup"><strong>$299</strong> one-time onboarding fee</div>
+    <ul class="pricing-features">
+      <li>Andi AI support agent active 24/7</li>
+      <li>Full issue coverage across every category</li>
+      <li>Proactive outreach with configurable follow up cadence</li>
+      <li>Issue intelligence and proactive alerts</li>
+      <li>Client self service via SMS</li>
+      <li>Two way messaging for your whole team</li>
+      <li>Living client records and system documentation</li>
+      <li>Morning summary and ticket notifications</li>
+      <li>Unlimited clients and conversations</li>
+    </ul>
+    <a href="#contact" class="pricing-cta-btn">Get started with Andi</a>
+    <div class="pricing-note">Early access pricing. Price increases as ticketing, dashboards, and the full portal ship. Lock in now.</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="section-label">About RestWerks</p>
+      <h2 class="section-h2" style="font-size:clamp(26px,3.5vw,38px);">Andi is built on 26 years of real residential AV experience.</h2>
+      <p>Andi is the AI twin of Andy Hepola, founder of RestWerks. Every troubleshooting flow, escalation decision, and client communication style inside Andi comes from 26 years of real residential AV installation and home automation programming.</p>
+      <p>Generic support tools do not know what a WattBox is. They do not know that a Qolsys keypad trouble code means something different than a DSC. They do not know that UPS lights being on does not mean the outlets are working. Andi does. That domain knowledge is the product.</p>
+    </div>
+    <div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">26</div><div class="stat-label">Years of residential AV experience inside every Andi response</div></div>
+        <div class="stat-box"><div class="stat-num">62%</div><div class="stat-label">Of service calls that can be resolved without rolling a truck</div></div>
+        <div class="stat-box"><div class="stat-num">24/7</div><div class="stat-label">Andi is always on. You do not have to be.</div></div>
+        <div class="stat-box"><div class="stat-num">~$0</div><div class="stat-label">Cost for Andi to resolve a battery alert at 11pm</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="contact-wrap">
+    <h2 class="contact-h2">Ready to put Andi to work?</h2>
+    <p>RestWerks is currently in early access with select residential AV integrators. Reach out to get started.</p>
+    <a class="contact-email" href="mailto:andy@restwerks.com">andy@restwerks.com</a>
+  </div>
+</section>
+
+<footer>
+  <a class="footer-logo" href="#">Rest<span>Werks</span></a>
+  <ul class="footer-links">
+    <li><a href="https://restwerks.com/privacy">Privacy Policy</a></li>
+    <li><a href="https://restwerks.com/terms">Terms of Service</a></li>
+    <li><a href="mailto:andy@restwerks.com">Contact</a></li>
+    <li><a href="https://restwerks.com/dashboard">Dashboard</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 RestWerks LLC</span>
+</footer>
+
+<script>
+  function showScenario(index, btn) {
+    document.querySelectorAll('.convo').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('convo-' + index).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
