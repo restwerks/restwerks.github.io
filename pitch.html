@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RestWerks | Powered by Andi</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-mid: #9FE1CB;
+    --cream: #faf9f6;
+    --ink: #1a1a18;
+    --ink-mid: #444441;
+    --ink-light: #888780;
+    --border: rgba(26,26,24,0.1);
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* PASSWORD GATE */
+  #gate {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  #gate .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--green);
+    letter-spacing: -0.02em;
+  }
+  #gate input {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    width: 260px;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  #gate input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; }
+  #gate input:focus { border-color: var(--green); }
+  #gate button {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 260px;
+    transition: background 0.2s;
+  }
+  #gate button:hover { background: var(--green-dark); }
+  #gate .error { color: #F09595; font-size: 0.875rem; min-height: 1.2rem; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(250,249,246,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: var(--green);
+    letter-spacing: -0.02em;
+  }
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+  }
+  .nav-dot.active { background: var(--green); }
+
+  /* SLIDES */
+  #deck { padding-top: 56px; }
+
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    position: relative;
+  }
+
+  .slide-inner {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  /* SLIDE 1: HERO */
+  .slide-hero {
+    background: var(--ink);
+    color: white;
+    text-align: center;
+  }
+  .slide-hero .eyebrow {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--green-mid);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .slide-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+  .slide-hero h1 span { color: var(--green); }
+  .slide-hero p {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.6);
+    max-width: 560px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+  .badge-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.75);
+    padding: 0.5rem 1.1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
+  /* SLIDE 2: PAIN */
+  .slide-pain { background: var(--white); }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 1rem;
+  }
+  .slide-pain h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 3rem;
+    max-width: 700px;
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .pain-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .pain-time {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .pain-card p {
+    font-size: 0.9rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+  .pain-callout {
+    background: var(--ink);
+    color: white;
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    font-size: 1.1rem;
+    line-height: 1.65;
+  }
+  .pain-callout strong { color: var(--green); font-weight: 500; }
+
+  /* SLIDE 3: WHAT IS ANDI */
+  .slide-andi { background: var(--cream); }
+  .slide-andi h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .slide-andi .sub {
+    font-size: 1.05rem;
+    color: var(--ink-mid);
+    margin-bottom: 3rem;
+    max-width: 600px;
+    line-height: 1.65;
+  }
+  .andi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  .andi-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .andi-card .icon {
+    width: 36px; height: 36px;
+    background: var(--green-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+  .andi-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .andi-card p {
+    font-size: 0.875rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  /* SLIDE 4: SMS DEMO */
+  .slide-demo { background: var(--white); }
+  .slide-demo h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .slide-demo .sub {
+    font-size: 1rem;
+    color: var(--ink-mid);
+    margin-bottom: 2.5rem;
+    line-height: 1.65;
+  }
+  .demo-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .demo-tab {
+    padding: 0.5rem 1.1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    color: var(--ink-mid);
+    transition: all 0.2s;
+  }
+  .demo-tab.active {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+  .demo-panels { position: relative; }
+  .demo-panel { display: none; }
+  .demo-panel.active { display: block; }
+
+  .phone-wrap {
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    background: #1c1c1e;
+    border-radius: 40px;
+    padding: 1rem;
+    width: 340px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    border: 6px solid #2c2c2e;
+  }
+  .phone-screen {
+    background: #000;
+    border-radius: 30px;
+    overflow: hidden;
+  }
+  .phone-header {
+    background: #1c1c1e;
+    padding: 0.75rem 1rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .phone-contact {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 2px;
+  }
+  .phone-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+  }
+  .phone-body {
+    background: #000;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 380px;
+  }
+  .msg {
+    max-width: 78%;
+    padding: 0.6rem 0.85rem;
+    border-radius: 18px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .msg.client {
+    background: #3a3a3c;
+    color: rgba(255,255,255,0.88);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.andi {
+    background: #1D9E75;
+    color: white;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .msg-meta {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+    padding: 0 0.85rem;
+  }
+  .msg-meta.right { text-align: right; align-self: flex-end; }
+  .resolved-badge {
+    align-self: center;
+    background: rgba(29,158,117,0.15);
+    color: var(--green);
+    border: 1px solid rgba(29,158,117,0.25);
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.3rem 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  /* SLIDE 5: MORNING SUMMARY */
+  .slide-summary { background: var(--cream); }
+  .slide-summary h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .slide-summary .sub {
+    font-size: 1rem;
+    color: var(--ink-mid);
+    margin-bottom: 2.5rem;
+    line-height: 1.65;
+    max-width: 600px;
+  }
+  .email-mockup {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 680px;
+  }
+  .email-header {
+    background: var(--ink);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .email-header .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--green);
+  }
+  .email-header .date {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+  }
+  .email-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .email-stat {
+    padding: 1.25rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .email-stat:last-child { border-right: none; }
+  .email-stat .num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .email-stat .num.green { color: var(--green); }
+  .email-stat .lbl {
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .email-cards {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .email-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+  }
+  .email-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .email-card-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .pill {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+  }
+  .pill.resolved { background: var(--green-light); color: var(--green-dark); }
+  .pill.escalated { background: #FAECE7; color: #993C1D; }
+  .pill.flagged { background: #FAEEDA; color: #854F0B; }
+  .email-card-row {
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 14px;
+    color: #3d3c38;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .email-card-mindset {
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 13px;
+    color: #5f5e5a;
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* SLIDE 6: HOW IT WORKS */
+  .slide-how { background: var(--white); }
+  .slide-how h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .slide-how .sub {
+    font-size: 1rem;
+    color: var(--ink-mid);
+    margin-bottom: 3rem;
+    line-height: 1.65;
+    max-width: 600px;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .step {
+    padding: 2rem 1.5rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .step:last-child { border-right: none; }
+  .step-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3rem;
+    color: var(--green-light);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .step h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .step p {
+    font-size: 0.85rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  /* SLIDE 7: WHAT IT REPLACES */
+  .slide-replaces { background: var(--cream); }
+  .slide-replaces h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .slide-replaces .sub {
+    font-size: 1rem;
+    color: var(--ink-mid);
+    margin-bottom: 3rem;
+    line-height: 1.65;
+    max-width: 600px;
+  }
+  .replace-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .replace-table th {
+    background: var(--ink);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.9rem 1.5rem;
+    text-align: left;
+  }
+  .replace-table td {
+    padding: 1.1rem 1.5rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .replace-table tr:last-child td { border-bottom: none; }
+  .replace-table .cost-old { color: #993C1D; font-weight: 500; }
+  .replace-table .cost-new { color: var(--green); font-weight: 600; font-size: 1rem; }
+  .replace-table .label-new { color: var(--green); font-weight: 600; }
+  .total-row td { background: var(--green-light); font-weight: 500; }
+
+  /* SLIDE 8: PRICING */
+  .slide-pricing { background: var(--ink); color: white; }
+  .slide-pricing h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    color: white;
+  }
+  .slide-pricing .sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 3rem;
+    line-height: 1.65;
+    max-width: 600px;
+  }
+  .price-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 520px;
+    margin-bottom: 2rem;
+  }
+  .price-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 4.5rem;
+    color: var(--green);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .price-period {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 2rem;
+    margin-top: 0.25rem;
+  }
+  .price-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .price-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+  }
+  .check {
+    width: 20px; height: 20px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    color: white;
+  }
+  .price-note {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  /* SLIDE 9: CLOSING */
+  .slide-close {
+    background: var(--green);
+    color: white;
+    text-align: center;
+  }
+  .slide-close h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    color: white;
+    line-height: 1.15;
+  }
+  .slide-close p {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.75);
+    max-width: 540px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+  .close-details {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .close-detail .label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.35rem;
+  }
+  .close-detail .value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* FADE IN */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="logo">RestWerks</div>
+  <input type="password" id="pw-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()" />
+  <button onclick="checkPw()">Enter</button>
+  <div class="error" id="pw-error"></div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav" style="display:none;">
+  <div class="nav-logo">RestWerks</div>
+  <div class="nav-dots" id="nav-dots"></div>
+</nav>
+
+<!-- DECK -->
+<div id="deck" style="display:none;">
+
+  <!-- SLIDE 1: HERO -->
+  <section class="slide-hero" id="slide-0">
+    <div class="slide-inner fade-in">
+      <div class="eyebrow">Residential AV Support, Reinvented</div>
+      <h1>Your clients get help at 10pm.<br><span>You get to sleep.</span></h1>
+      <p>RestWerks is an AI-powered text support agent built specifically for residential AV integrators. Your clients text in. Andi handles it. You wake up to a summary.</p>
+      <div class="badge-row">
+        <div class="badge">Built on 26 years of AV experience</div>
+        <div class="badge">52,798 real client messages analyzed</div>
+        <div class="badge">Live with Admit One Systems</div>
+      </div>
+    </div>
+    <div class="scroll-hint">↓ scroll</div>
+  </section>
+
+  <!-- SLIDE 2: PAIN -->
+  <section class="slide-pain" id="slide-1">
+    <div class="slide-inner fade-in">
+      <div class="section-label">The problem</div>
+      <h2>You are the one getting called at night. That should not be your job.</h2>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-time">10pm</div>
+          <p>Client texts. Internet is down. You are done for the day. Do you ignore it or lose your evening?</p>
+        </div>
+        <div class="pain-card">
+          <div class="pain-time">62%</div>
+          <p>Of after hours calls are self-resolvable. Battery alerts, reboots, internet outages, smoke detector confusion.</p>
+        </div>
+        <div class="pain-card">
+          <div class="pain-time">$0</div>
+          <p>Revenue from most after hours calls. Just cost. Your time, your evening, your on-call tech's overtime.</p>
+        </div>
+      </div>
+      <div class="pain-callout">
+        Most integrators are stitching together a generic ticketing tool, a messaging platform, and after hours on-call labor. <strong>None of it talks to each other. None of it knows anything about AV.</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: WHAT IS ANDI -->
+  <section class="slide-andi" id="slide-2">
+    <div class="slide-inner fade-in">
+      <div class="section-label">Meet Andi</div>
+      <h2>An AI tech who knows residential AV as well as you do.</h2>
+      <p class="sub">Andi is the AI agent at the center of RestWerks. Built on 26 years of real installation and home automation experience, Andi handles client support via text, 24 hours a day, using real troubleshooting logic, not generic scripts.</p>
+      <div class="andi-grid">
+        <div class="andi-card">
+          <div class="icon">🏠</div>
+          <h3>Knows your clients</h3>
+          <p>Every household record includes equipment, ISP, control system, rack photo, and service history. Andi walks into every conversation with full context.</p>
+        </div>
+        <div class="andi-card">
+          <div class="icon">🔧</div>
+          <h3>Real troubleshooting logic</h3>
+          <p>14 issue categories. Knows the difference between a WattBox UPS and a WattBox IP. Knows when to reboot and when to escalate.</p>
+        </div>
+        <div class="andi-card">
+          <div class="icon">📱</div>
+          <h3>Sounds like a person</h3>
+          <p>Warm, direct, conversational. Clients do not know they are texting an AI unless they ask. Andi never volunteers it.</p>
+        </div>
+        <div class="andi-card">
+          <div class="icon">📋</div>
+          <h3>Every issue logged</h3>
+          <p>Unresolved conversations become structured tickets. Resolved ones feed back into the knowledge base and make Andi smarter over time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: SMS DEMO -->
+  <section class="slide-demo" id="slide-3">
+    <div class="slide-inner fade-in">
+      <div class="section-label">Andi in action</div>
+      <h2>Three conversations Andi handles every night.</h2>
+      <p class="sub">Real troubleshooting logic. Real residential AV knowledge. No tech involved.</p>
+      <div class="demo-tabs">
+        <button class="demo-tab active" onclick="showDemo(0)">Internet down</button>
+        <button class="demo-tab" onclick="showDemo(1)">Battery alert</button>
+        <button class="demo-tab" onclick="showDemo(2)">TV before the game</button>
+        <button class="demo-tab" onclick="showDemo(3)">Smoke detector</button>
+      </div>
+      <div class="demo-panels">
+
+        <!-- DEMO 1: Internet -->
+        <div class="demo-panel active" id="demo-0">
+          <div class="phone-wrap">
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-header">
+                  <div class="phone-contact">Admit One Systems</div>
+                  <div class="phone-name">952-997-0101</div>
+                </div>
+                <div class="phone-body">
+                  <div class="msg client">Hey our wifi is completely out. Nothing is working</div>
+                  <div class="msg-meta right">10:14 PM</div>
+                  <div class="msg andi">Not showing any outages from Mediacom in your area right now. Can you head to your rack and let me know if anything looks dark or has no lights?</div>
+                  <div class="msg-meta">10:14 PM</div>
+                  <div class="msg client">Yeah the WattBox at the top has no lights at all</div>
+                  <div class="msg-meta right">10:16 PM</div>
+                  <div class="msg andi">Unplug it from the wall, wait about 10 seconds, then plug it back in.</div>
+                  <div class="msg andi">Let me know once the lights come back.</div>
+                  <div class="msg-meta">10:16 PM</div>
+                  <div class="msg client">Ok lights are back and wifi is working. Thank you!</div>
+                  <div class="msg-meta right">10:19 PM</div>
+                  <div class="msg andi">Good. Hope the rest of the night goes smooth.</div>
+                  <div class="msg-meta">10:19 PM</div>
+                  <div class="resolved-badge">✓ Resolved without a tech</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEMO 2: Battery -->
+        <div class="demo-panel" id="demo-1">
+          <div class="phone-wrap">
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-header">
+                  <div class="phone-contact">Admit One Systems</div>
+                  <div class="phone-name">952-997-0101</div>
+                </div>
+                <div class="phone-body">
+                  <div class="msg client">Something in our rack is beeping. Kind of a slow beep every few minutes</div>
+                  <div class="msg-meta right">11:02 PM</div>
+                  <div class="msg andi">That sounds like the UPS battery backup at the bottom of your rack. It usually beeps when it detected a power flicker earlier.</div>
+                  <div class="msg andi">Can you look for a black box near the bottom with a small screen or buttons on the front?</div>
+                  <div class="msg-meta">11:02 PM</div>
+                  <div class="msg client">Yes I see it. It has a screen and says something about battery</div>
+                  <div class="msg-meta right">11:04 PM</div>
+                  <div class="msg andi">Press and hold the button on the front for about 3 seconds. That should silence it.</div>
+                  <div class="msg-meta">11:04 PM</div>
+                  <div class="msg client">Done. It stopped. Everything still working?</div>
+                  <div class="msg-meta right">11:06 PM</div>
+                  <div class="msg andi">Yep everything is fine. The battery did its job. We will keep an eye on it.</div>
+                  <div class="msg andi">Get some rest.</div>
+                  <div class="msg-meta">11:06 PM</div>
+                  <div class="resolved-badge">✓ Resolved without a tech</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEMO 3: TV -->
+        <div class="demo-panel" id="demo-2">
+          <div class="phone-wrap">
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-header">
+                  <div class="phone-contact">Admit One Systems</div>
+                  <div class="phone-name">952-997-0101</div>
+                </div>
+                <div class="phone-body">
+                  <div class="msg client">TV in the family room is just black. Game starts in 20 minutes</div>
+                  <div class="msg-meta right">6:38 PM</div>
+                  <div class="msg andi">Is the TV completely off or is it on with a black screen?</div>
+                  <div class="msg-meta">6:38 PM</div>
+                  <div class="msg client">On with black screen. The soundbar is on too</div>
+                  <div class="msg-meta right">6:39 PM</div>
+                  <div class="msg andi">Does anything else work on that TV? Try switching to a different source.</div>
+                  <div class="msg-meta">6:39 PM</div>
+                  <div class="msg client">Nothing works. All black no matter what</div>
+                  <div class="msg-meta right">6:40 PM</div>
+                  <div class="msg andi">Head to your rack and find the processor. It is the second shelf from the bottom, black box with an Admit One label. Unplug it for 10 seconds and plug it back in.</div>
+                  <div class="msg-meta">6:41 PM</div>
+                  <div class="msg client">Did it. TV came right back. Perfect timing haha</div>
+                  <div class="msg-meta right">6:44 PM</div>
+                  <div class="msg andi">Good timing. Enjoy the game.</div>
+                  <div class="msg-meta">6:44 PM</div>
+                  <div class="resolved-badge">✓ Resolved without a tech</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEMO 4: Smoke Detector -->
+        <div class="demo-panel" id="demo-3">
+          <div class="phone-wrap">
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-header">
+                  <div class="phone-contact">Admit One Systems</div>
+                  <div class="phone-name">952-997-0101</div>
+                </div>
+                <div class="phone-body">
+                  <div class="msg client">Our smoke detector is going off. Is something wrong with the security system?</div>
+                  <div class="msg-meta right">10:09 PM</div>
+                  <div class="msg andi">First things first. Is everyone safe and still in the house?</div>
+                  <div class="msg-meta">10:09 PM</div>
+                  <div class="msg client">Yes everyone is fine. Nothing is burning. It just started beeping</div>
+                  <div class="msg-meta right">10:10 PM</div>
+                  <div class="msg andi">Good. Where is the beeping coming from? Is it a round disc on the ceiling or a keypad on the wall?</div>
+                  <div class="msg-meta">10:10 PM</div>
+                  <div class="msg client">Ceiling. Round white disc, kind of high up</div>
+                  <div class="msg-meta right">10:11 PM</div>
+                  <div class="msg andi">That one is not part of our security system. That is a high voltage smoke detector your electrician installed when the house was built. We did not install it and it runs on its own circuit completely separate from us.</div>
+                  <div class="msg andi">A slow chirp every minute or two is almost always a low battery. There should be a battery compartment on the side or bottom of the unit.</div>
+                  <div class="msg-meta">10:12 PM</div>
+                  <div class="msg client">Oh I had no idea. So the security system is totally fine?</div>
+                  <div class="msg-meta right">10:13 PM</div>
+                  <div class="msg andi">Security system is fine. Not showing any alerts on our end.</div>
+                  <div class="msg andi">Swap the battery in that ceiling unit and the chirping should stop. Usually a 9 volt.</div>
+                  <div class="msg-meta">10:13 PM</div>
+                  <div class="msg client">Perfect, that makes so much more sense. Thank you!</div>
+                  <div class="msg-meta right">10:14 PM</div>
+                  <div class="msg andi">Glad we got that sorted. Hope the rest of your night is quiet.</div>
+                  <div class="msg-meta">10:14 PM</div>
+                  <div class="resolved-badge">✓ Resolved without a tech</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: MORNING SUMMARY -->
+  <section class="slide-summary" id="slide-4">
+    <div class="slide-inner fade-in">
+      <div class="section-label">The morning summary</div>
+      <h2>You wake up knowing exactly what happened overnight.</h2>
+      <p class="sub">Every morning at 7am, Andi sends a summary of the night. Resolved issues, escalated tickets, follow-up flags, and a read on how each client was feeling. No digging through texts.</p>
+      <div class="email-mockup">
+        <div style="padding:20px 24px 12px;border-bottom:1px solid #e5e3de;background:#faf9f6;">
+          <div style="font-family:'DM Sans',Arial,sans-serif;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Rest<span style="color:#1D9E75;">Werks</span></div>
+          <div style="font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#888780;">Daily summary for Admit One Systems</div>
+          <div style="font-family:'DM Sans',Arial,sans-serif;font-size:14px;color:#888780;">Thursday, June 5, 2026</div>
+        </div>
+        <div class="email-stats">
+          <div class="email-stat">
+            <div class="num">6</div>
+            <div class="lbl">Total</div>
+          </div>
+          <div class="email-stat">
+            <div class="num" style="color:#1D9E75;">4</div>
+            <div class="lbl">Resolved</div>
+          </div>
+          <div class="email-stat">
+            <div class="num" style="color:#cc4400;">1</div>
+            <div class="lbl">Open</div>
+          </div>
+          <div class="email-stat">
+            <div class="num" style="color:#2D7DD2;">2</div>
+            <div class="lbl">Follow Up</div>
+          </div>
+        </div>
+        <div class="email-cards">
+          <div style="font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888780;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e3de;">After Hours</div>
+          <div class="email-card">
+            <div class="email-card-top">
+              <div class="email-card-name">Robyn Green</div>
+              <div style="font-size:13px;color:#888780;">11:42 PM</div>
+            </div>
+            <div class="email-card-row"><strong>Status:</strong> <span style="color:#1D9E75;font-weight:600;">Resolved</span></div>
+            <div class="email-card-row"><strong>Issue:</strong> Internet outage. No connectivity on any device.</div>
+            <div class="email-card-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div>
+            <div class="email-card-mindset">Client was calm and thanked us. No follow up needed.</div>
+          </div>
+          <div class="email-card">
+            <div class="email-card-top">
+              <div class="email-card-name">Shannon Happe</div>
+              <div style="font-size:13px;color:#888780;">10:17 PM</div>
+            </div>
+            <div class="email-card-row"><strong>Status:</strong> <span style="color:#cc4400;font-weight:600;">Unresolved</span></div>
+            <div class="email-card-row"><strong>Issue:</strong> No audio on 2 TVs in main living areas.</div>
+            <div class="email-card-row"><strong>Andi:</strong> Walked through AVR reboot. Audio did not restore. Ticket created for morning.</div>
+            <div class="email-card-row" style="color:#2D7DD2;"><strong>Follow up:</strong> Needs tech visit. Client mentioned guests coming Friday.</div>
+            <div class="email-card-mindset">Client was frustrated but appreciative that someone responded. Worth a morning call.</div>
+          </div>
+          <div class="email-card">
+            <div class="email-card-top">
+              <div class="email-card-name">Joel Fischer</div>
+              <div style="font-size:13px;color:#888780;">9:51 PM</div>
+            </div>
+            <div class="email-card-row"><strong>Status:</strong> <span style="color:#1D9E75;font-weight:600;">Resolved</span></div>
+            <div class="email-card-row"><strong>Issue:</strong> Pro Control remote not responding.</div>
+            <div class="email-card-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div>
+            <div class="email-card-mindset">Quick fix. Client was happy.</div>
+          </div>
+          <div class="email-card">
+            <div class="email-card-top">
+              <div class="email-card-name">Roseanne Everson</div>
+              <div style="font-size:13px;color:#888780;">10:09 PM</div>
+            </div>
+            <div class="email-card-row"><strong>Status:</strong> <span style="color:#1D9E75;font-weight:600;">Resolved</span></div>
+            <div class="email-card-row"><strong>Issue:</strong> Smoke detector beeping. Client assumed it was the security system.</div>
+            <div class="email-card-row"><strong>Andi:</strong> Identified as a high voltage ceiling detector, not our security device. Explained the difference and directed client to replace the battery in the electrician-installed unit.</div>
+            <div class="email-card-row" style="color:#2D7DD2;"><strong>Follow up:</strong> Worth a note at next visit that ceiling detectors are not our equipment.</div>
+            <div class="email-card-mindset">Client was relieved. Responded well to the explanation. No panic.</div>
+          </div>
+          <div class="email-card">
+            <div class="email-card-top">
+              <div class="email-card-name">Tom Rydeen</div>
+              <div style="font-size:13px;color:#888780;">8:33 PM</div>
+            </div>
+            <div class="email-card-row"><strong>Status:</strong> <span style="color:#1D9E75;font-weight:600;">Resolved</span></div>
+            <div class="email-card-row"><strong>Issue:</strong> ELAN controller offline. No control from remotes or app.</div>
+            <div class="email-card-row"><strong>Andi:</strong> Guided client through processor reboot via rack. System back online within 3 minutes.</div>
+            <div class="email-card-mindset">Client was straightforward. In and out fast.</div>
+          </div>
+        </div>
+        <div style="font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#aaa9a4;text-align:center;padding:16px 24px;border-top:1px solid #e5e3de;">Sent by Andi for Admit One Systems via RestWerks. This is an automated summary.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: HOW IT WORKS -->
+  <section class="slide-how" id="slide-5">
+    <div class="slide-inner fade-in">
+      <div class="section-label">Getting started</div>
+      <h2>Live in under 30 minutes.</h2>
+      <p class="sub">Onboarding is a guided wizard. You add your clients, your equipment info, and you are live. No IT setup, no developers, no complicated integrations.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Sign up and onboard</h3>
+          <p>Create your account, add your company info, and go through the setup wizard at restwerks.com. Takes under 30 minutes.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Add your clients</h3>
+          <p>Import your client list. Add household details, equipment info, and any notes that help Andi do its job right from day one.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Give clients the number</h3>
+          <p>Your dedicated SMS number is yours to brand. Send it to clients however you normally communicate. They text it and Andi answers.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h3>Wake up to a summary</h3>
+          <p>Every morning at 7am, the daily summary hits your inbox. Review what happened, act on what needs a tech, ignore the rest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: WHAT IT REPLACES -->
+  <section class="slide-replaces" id="slide-6">
+    <div class="slide-inner fade-in">
+      <div class="section-label">The economics</div>
+      <h2>Cheaper than what you are already paying. And it actually works.</h2>
+      <p class="sub">Most integrators are paying $2,000 to $4,000 a month for a patchwork of tools that do not talk to each other and know nothing about AV. RestWerks replaces all of it at $299.</p>
+      <table class="replace-table">
+        <thead>
+          <tr>
+            <th>What you are paying for</th>
+            <th>Typical monthly cost</th>
+            <th>The problem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Generic ticketing tools</td>
+            <td class="cost-old">$200 to $600</td>
+            <td>Built for software companies. Stores tickets. Knows nothing about AV.</td>
+          </tr>
+          <tr>
+            <td>Generic messaging platforms</td>
+            <td class="cost-old">$300 to $600</td>
+            <td>SMS and reputation management. No AV logic. No proactive outreach tied to project dates.</td>
+          </tr>
+          <tr>
+            <td>After hours on-call labor</td>
+            <td class="cost-old">$1,500 to $3,000</td>
+            <td>A tech on call every night. Overtime when they respond. Truck rolls for issues Andi fixes in 3 texts.</td>
+          </tr>
+          <tr class="total-row">
+            <td class="label-new">RestWerks</td>
+            <td class="cost-new">$299</td>
+            <td>Replaces all three. Purpose built for residential AV. Gets smarter every month.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: PRICING -->
+  <section class="slide-pricing" id="slide-7">
+    <div class="slide-inner fade-in">
+      <div class="section-label" style="color: var(--green-mid);">Pricing</div>
+      <h2>One price. Everything included.</h2>
+      <p class="sub">No tiers. No per-client fees. No surprises. Early access pricing locks in for the life of your subscription.</p>
+      <div class="price-card">
+        <div class="price-amount">$299</div>
+        <div class="price-period">per month + $299 one-time onboarding</div>
+        <ul class="price-features">
+          <li><div class="check">✓</div> Andi AI support agent, 24 hours a day</li>
+          <li><div class="check">✓</div> Dedicated SMS number for your company</li>
+          <li><div class="check">✓</div> Daily 7am morning summary email</li>
+          <li><div class="check">✓</div> Structured ticket logging for unresolved issues</li>
+          <li><div class="check">✓</div> Household records for every client</li>
+          <li><div class="check">✓</div> Photo troubleshooting via MMS</li>
+          <li><div class="check">✓</div> Proactive client outreach tools</li>
+          <li><div class="check">✓</div> Knowledge base that grows with every conversation</li>
+        </ul>
+      </div>
+      <p class="price-note">Early access subscribers lock in $299 per month for life. Price increases as ticketing, dashboards, and the full portal ship. The integrators who get in now pay the lowest rate this product will ever be.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: CLOSE -->
+  <section class="slide-close" id="slide-8">
+    <div class="slide-inner fade-in">
+      <h2>Ready to stop being on call?</h2>
+      <p>RestWerks is live and working right now. The number you texted earlier is Andi. Your clients can have the same thing running for them this week.</p>
+      <div class="close-details">
+        <div class="close-detail">
+          <div class="label">Website</div>
+          <div class="value">restwerks.com</div>
+        </div>
+        <div class="close-detail">
+          <div class="label">Try Andi now</div>
+          <div class="value">952-997-0101</div>
+        </div>
+        <div class="close-detail">
+          <div class="label">Email</div>
+          <div class="value">andy@restwerks.com</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  function checkPw() {
+    const val = document.getElementById('pw-input').value;
+    if (val === 'Reggie817!') {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('main-nav').style.display = 'flex';
+      document.getElementById('deck').style.display = 'block';
+      buildDots();
+      observeSlides();
+    } else {
+      document.getElementById('pw-error').textContent = 'Incorrect password.';
+      document.getElementById('pw-input').value = '';
+    }
+  }
+
+  const slideCount = 9;
+
+  function buildDots() {
+    const container = document.getElementById('nav-dots');
+    for (let i = 0; i < slideCount; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.onclick = () => {
+        document.getElementById('slide-' + i).scrollIntoView({ behavior: 'smooth' });
+      };
+      container.appendChild(btn);
+    }
+  }
+
+  function observeSlides() {
+    const dots = document.querySelectorAll('.nav-dot');
+    const fadeEls = document.querySelectorAll('.fade-in');
+
+    const slideObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const idx = parseInt(e.target.id.replace('slide-', ''));
+          dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+
+    for (let i = 0; i < slideCount; i++) {
+      const el = document.getElementById('slide-' + i);
+      if (el) slideObserver.observe(el);
+    }
+    fadeEls.forEach(el => fadeObserver.observe(el));
+  }
+
+  function showDemo(idx) {
+    document.querySelectorAll('.demo-tab').forEach((t, i) => {
+      t.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.demo-panel').forEach((p, i) => {
+      p.classList.toggle('active', i === idx);
+    });
+  }
+</script>
+</body>
+</html>
