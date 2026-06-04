@@ -433,7 +433,7 @@
     <div class="header-logo">Rest<span>Werks</span> <span style="font-family:var(--sans);font-size:13px;color:rgba(255,255,255,0.3);font-weight:400;margin-left:8px;">Ops</span></div>
     <div class="header-right">
       <div class="progress-pill" id="global-progress">0% complete</div>
-      <div class="header-meta" id="last-updated">Updated May 31 2026</div>
+      <div class="header-meta" id="last-updated">Updated June 3 2026</div>
     </div>
   </header>
 
@@ -507,7 +507,7 @@
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Build Andi AI agent with 14 issue categories</div>
-            <div class="task-note">Completed. Built from 52,798 real client messages and 26 years of AV experience. System prompt v4 live.</div>
+            <div class="task-note">Completed. System prompt v7 live June 3 2026. Two-text responses, 22 closing lines, rack position language, photo handling. Split into systemPrompt.js for easy updates.</div>
           </div>
         </div>
         <div class="task done" id="t-telnyx-built" onclick="toggle(this)">
@@ -521,21 +521,21 @@
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Submit Telnyx 10DLC brand and campaign</div>
-            <div class="task-note">Brand verified May 28. Campaign CD8XZ8H resubmitted May 30 after 804 failure. restwerks.com live. Pending Telnyx Review.</div>
+            <div class="task-note">Brand verified May 28. Campaign CD8XZ8H resubmitted May 30 after 804 failure. Approved June 3 2026. All MNOs cleared.</div>
           </div>
         </div>
-        <div class="task" id="t-campaign-approved" onclick="toggle(this)">
+        <div class="task done" id="t-campaign-approved" onclick="toggle(this)">
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Telnyx campaign approved</div>
-            <div class="task-note">Watch accounts@restwerks.com. Expected 24 to 48 hours from May 30 resubmission.</div>
+            <div class="task-note">Approved June 3 2026. Campaign CD8XZ8H. All three numbers assigned to campaign. Messaging profile: RestWerks.</div>
           </div>
         </div>
-        <div class="task" id="t-sms-test" onclick="toggle(this)">
+        <div class="task done" id="t-sms-test" onclick="toggle(this)">
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Assign numbers to campaign and run live SMS test</div>
-            <div class="task-note">Assign 952 997 0101 and 952 997 0100. Text as a client would. Confirm Andi responds correctly.</div>
+            <div class="task-note">Completed June 3 2026. All numbers assigned. Live SMS test passed. MMS photo reading confirmed working. Todd Moitz onboarded as first external client.</div>
           </div>
         </div>
         <div class="task" id="t-isp" onclick="toggle(this)">
@@ -591,7 +591,28 @@
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Build Andi retrieval layer (pgvector + embeddings)</div>
-            <div class="task-note">Completed June 2 2026. pgvector enabled in Railway PostgreSQL. 403 resolution records processed from iMessage history and service log. Voyage AI voyage-3 embeddings. Top 5 most relevant past resolutions injected into every Andi response. Resolved conversations write back automatically every morning.</div>
+            <div class="task-note">Completed June 2 2026. pgvector enabled in Railway PostgreSQL. 403 resolution records embedded with Voyage AI voyage-3. Top 5 most relevant past resolutions injected into every Andi response. Resolved conversations write back automatically every morning.</div>
+          </div>
+        </div>
+        <div class="task done" id="t-split-files" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Split codebase into modular files</div>
+            <div class="task-note">Completed June 3 2026. index.js, systemPrompt.js, scenarios.js, email.js. Each file has one responsibility. System prompt updates never touch index.js. Apostrophe syntax errors eliminated by using backtick strings throughout.</div>
+          </div>
+        </div>
+        <div class="task done" id="t-demo-seeder" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Build 100-scenario demo seeder</div>
+            <div class="task-note">Completed June 3 2026. 100 realistic demo scenarios covering all 14 issue categories. 10 seeded daily at 6am CT using date-based rotation. Keeps morning summary populated during beta. Remove when live traffic is consistent across 3 to 4 active households.</div>
+          </div>
+        </div>
+        <div class="task done" id="t-todd-onboard" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Onboard Todd and Brittany Moitz as first external household</div>
+            <div class="task-note">Completed June 3 2026. Household ID 3. Wayzata MN. ELAN SC300 (PoE, never remote reboot). Luma cameras, Lutron, Alarm.com, 3x WattBoxes. Todd and Brittany both in client_phones with individual labels.</div>
           </div>
         </div>
         <div class="task" id="t-slack-ingest" onclick="toggle(this)">
@@ -661,11 +682,25 @@
             <div class="task-note">Direct HTTP API for outlet control. Remote reboots without client touching equipment.</div>
           </div>
         </div>
-        <div class="task" id="t-photo" onclick="toggle(this)">
+        <div class="task done" id="t-photo" onclick="toggle(this)">
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Build photo analysis feature</div>
-            <div class="task-note">Client texts a photo of rack, equipment, or error screen. Andi analyzes and responds with specific instructions.</div>
+            <div class="task-note">Completed June 3 2026. Client texts a photo, Andi fetches from Telnyx, base64 encodes, passes to Claude vision. Confirmed working in live test. Andi correctly identified equipment location from rack photo.</div>
+          </div>
+        </div>
+        <div class="task" id="t-photo-annotation" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Build rack photo annotation</div>
+            <div class="task-note">Andi fetches client rack photo from R2, draws arrow or circle on target equipment using sharp or canvas library, uploads annotated image back to R2, sends public URL via Telnyx MMS. Client gets a visual showing exactly what to look for.</div>
+          </div>
+        </div>
+        <div class="task" id="t-photo-capture" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Build rack photo capture from SMS</div>
+            <div class="task-note">If no rack photo is on file and client sends a photo during troubleshooting, Andi saves it to R2 under the household folder and sets rack_photo_on_file = true. Same result as uploading during onboarding. System prompt already instructs Andi to ask for a rack photo when none is on file.</div>
           </div>
         </div>
         <div class="task" id="t-passwords" onclick="toggle(this)">
@@ -708,6 +743,13 @@
           <div class="task-body">
             <div class="task-title">Migrate app hosting to AWS or Render</div>
             <div class="task-note">Railway does not autoscale. Migrate at around 20 to 25 integrators.</div>
+          </div>
+        </div>
+        <div class="task" id="t-equipment-filter" onclick="toggle(this)">
+          <div class="check"><div class="checkmark"></div></div>
+          <div class="task-body">
+            <div class="task-title">Build equipment filtering in portal</div>
+            <div class="task-note">Integrators query households by equipment type. Show me all households with DirecTV. Show me all households with ELAN SC300. Useful for proactive outreach when a manufacturer pushes an update. Feeds into issue intelligence. Built from equipment columns already on the household record.</div>
           </div>
         </div>
       </div>
@@ -786,13 +828,12 @@
             <div class="task-note">Completed May 30 2026. Live on GitHub Pages with full marketing site and legal pages.</div>
           </div>
         </div>
-        <div class="task" id="t-campaign-gtm" onclick="toggle(this)">
+        <div class="task done" id="t-campaign-gtm" onclick="toggle(this)">
           <div class="check"><div class="checkmark"></div></div>
           <div class="task-body">
             <div class="task-title">Telnyx campaign approved and SMS test passes</div>
-            <div class="task-note">Watch accounts@restwerks.com. Assign 952 997 0101 and 952 997 0100 to campaign. Text as a client would. Confirm Andi responds correctly.</div>
+            <div class="task-note">Completed June 3 2026. Campaign CD8XZ8H approved. All numbers assigned. Live SMS and MMS photo confirmed working.</div>
           </div>
-          <span class="task-tag tag-urgent">Blocking</span>
         </div>
         <div class="task" id="t-admit-one-live" onclick="toggle(this)">
           <div class="check"><div class="checkmark"></div></div>
