@@ -264,7 +264,7 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
     </div>
     <button class="login-btn" onclick="doLogin()">Sign in</button>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">john@admitonesystems.com</div>
+    <div class="login-hint">andy@restwerks.com</div>
   </div>
   <div class="login-footer">Powered by <span>RestWerks</span></div>
 </div>
@@ -594,27 +594,66 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
 </div>
 
 <script>
-const INTEGRATORS = {
-  'john@admitonesystems.com': { password:'AdmitOne2026', name:'Admit One', accent:'#A23535', number:'952-997-0101', userName:'John Svobodny', initials:'JS' }
-};
+const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
 
-function doLogin() {
+async function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pw = document.getElementById('login-pw').value;
-  const i = INTEGRATORS[email];
-  if (i && pw === i.password) {
-    document.documentElement.style.setProperty('--i-brand', i.accent);
-    document.getElementById('sb-name').innerHTML = i.name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
-    document.getElementById('sb-number').textContent = i.number;
-    document.getElementById('sb-username').textContent = i.userName;
-    document.getElementById('sb-avatar').textContent = i.initials;
-    document.getElementById('sb-avatar').style.background = i.accent;
+  const errEl = document.getElementById('login-error');
+  const btn = document.querySelector('.login-btn');
+
+  if (!email || !pw) { errEl.textContent = 'Email and password required.'; return; }
+
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+  errEl.textContent = '';
+
+  try {
+    const res = await fetch(`${PORTAL_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password: pw })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Incorrect email or password.';
+      document.getElementById('login-pw').value = '';
+      btn.textContent = 'Sign in';
+      btn.disabled = false;
+      return;
+    }
+
+    applyIntegratorContext(data);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-  } else {
-    document.getElementById('login-error').textContent = 'Incorrect email or password.';
-    document.getElementById('login-pw').value = '';
+
+  } catch (err) {
+    errEl.textContent = 'Connection error. Please try again.';
+    btn.textContent = 'Sign in';
+    btn.disabled = false;
   }
+}
+
+function applyIntegratorContext(user) {
+  const accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
+  const name = user.integrator_name || 'RestWerks';
+  const number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
+  const firstName = user.first_name || '';
+  const lastName = user.last_name || '';
+  const fullName = `${firstName} ${lastName}`.trim();
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+
+  document.documentElement.style.setProperty('--i-brand', accent);
+  document.getElementById('sb-name').innerHTML = name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
+  document.getElementById('sb-number').textContent = number;
+  document.getElementById('sb-username').textContent = fullName;
+  document.getElementById('sb-avatar').textContent = initials;
+  document.getElementById('sb-avatar').style.background = accent;
+
+  window._rwUser = user;
 }
 
 const panelTitles = { dashboard:'Dashboard', conversations:'Conversations', resolved:'Resolved', tickets:'Tickets', followups:'Follow Ups', households:'Households', summaries:'Summaries', analytics:'Analytics', settings:'Settings' };
