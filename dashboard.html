@@ -197,6 +197,9 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .reply-box { padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end; }
 .reply-textarea { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:40px;max-height:120px;line-height:1.5; }
 .reply-send { background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+.handback-bar { display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1.25rem;background:var(--blue-bg);border-bottom:1px solid var(--blue);font-size:0.78rem;color:var(--blue); }
+.handback-btn { background:var(--blue);color:white;border:none;border-radius:7px;padding:0.3rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer; }
+.handback-btn:hover { opacity:0.85; }
 /* CONVERSATION CARDS - redesigned */
 .conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
 .conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
@@ -205,9 +208,10 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-card { display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;position:relative; }
 .conv-card:last-child { border-bottom:none; }
 .conv-card:hover { background:var(--canvas-warm); }
-.conv-unread-indicator { width:4px;background:transparent;border-radius:0;flex-shrink:0;align-self:stretch; }
-.conv-card.unread .conv-unread-indicator { background:var(--green); }
-.conv-card-body { flex:1;padding:0.85rem 1rem 0.75rem 0.85rem;min-width:0; }
+.conv-unread-indicator { width:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.conv-unread-dot { width:8px;height:8px;border-radius:50%;background:transparent; }
+.conv-card.unread .conv-unread-dot { background:var(--green); }
+.conv-card-body { flex:1;padding:0.6rem 1rem 0.55rem 0.5rem;min-width:0; }
 .conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.2rem; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
 .conv-card.unread .conv-name { font-weight:700; }
@@ -562,6 +566,13 @@ function startSSE() {
       appendLiveMessage(data);
     }
   });
+  _sseSource.addEventListener('handback', function(e) {
+    var data = JSON.parse(e.data);
+    if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
+      var bar = document.getElementById('handback-bar');
+      if (bar) bar.remove();
+    }
+  });
   _sseSource.onerror = function() {
     _sseSource.close(); _sseSource = null;
     setTimeout(startSSE, 5000);
@@ -620,7 +631,7 @@ function renderConvList(threads) {
     card.setAttribute('data-ep', ep);
     card.setAttribute('data-name', name);
     card.innerHTML =
-      '<div class="conv-unread-indicator"></div>' +
+      '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
         '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
         '<div class="conv-preview">' + preview + '</div>' +
@@ -684,15 +695,27 @@ async function openRealConv(encodedPhone, name) {
     var messages = await res.json();
     if (!Array.isArray(messages)) throw new Error('Not an array');
     var html = buildThreadHTML(messages, name);
+    var hasHuman = messages.some(function(m) { return m.role === 'human'; });
+    var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
+    var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
+    var andiActive = !hasHuman || (lastHandback && lastHuman && new Date(lastHandback.created_at) > new Date(lastHuman.created_at));
+    var handbackBar = (!andiActive) ?
+      '<div class="handback-bar" id="handback-bar"><span>You are handling this conversation. Andi is silent.</span><button class="handback-btn" id="handback-btn">Hand back to Andi</button></div>' : '';
     document.getElementById('conv-detail-content').innerHTML =
       '<div class="detail-card">' +
         '<div class="detail-header"><div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div></div>' +
+        handbackBar +
         '<div class="sms-thread" id="live-thread">' + html + '</div>' +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
         '</div>' +
       '</div>';
+    if (document.getElementById('handback-btn')) {
+      document.getElementById('handback-btn').addEventListener('click', function() {
+        doHandback(decodeURIComponent(encodedPhone));
+      });
+    }
     document.getElementById('send-btn').addEventListener('click', sendReply);
     document.getElementById('reply-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
@@ -770,19 +793,22 @@ async function sendReply() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ to: phone, message: message })
     });
-    if (res.ok) {
-      var user = window._rwUser;
-      var bubbleColor = user ? user.bubble_color : '#1D9E75';
-      var senderName = user ? (user.first_name + ' ' + user.last_name).trim() : 'Team';
-      var now = new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-      var thread = document.getElementById('live-thread');
-      thread.innerHTML += '<div class="sms-msg sms-human" style="background:' + bubbleColor + '">' + message + '</div>' +
-                          '<div class="sms-sender">' + senderName + '</div>' +
-                          '<div class="sms-time">' + now + '</div>';
-      thread.scrollTop = thread.scrollHeight;
-    } else { alert('Failed to send. Please try again.'); }
+    if (!res.ok) { alert('Failed to send. Please try again.'); }
   } catch (err) { alert('Connection error. Please try again.'); }
   input.disabled = false; input.focus();
+}
+
+async function doHandback(phone) {
+  try {
+    var res = await rwFetch('/api/handback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone })
+    });
+    if (res.ok) {
+      var bar = document.getElementById('handback-bar');
+      if (bar) bar.remove();
+    }
+  } catch(err) { console.error('Handback failed:', err); }
 }
 
 // ── NAV ──────────────────────────────────────────────────────────────────────
