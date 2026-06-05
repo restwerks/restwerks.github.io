@@ -123,7 +123,7 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .detail-header { padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between; }
 .detail-name { font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:4px; }
 .detail-meta { font-size:0.75rem;color:var(--ink-soft); }
-.sms-thread { padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem;background:#f8f8f8;max-height:500px;overflow-y:auto; }
+.sms-thread { padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem;background:#f8f8f8; }
 body.dark .sms-thread { background:#0d0d0c; }
 .sms-msg { max-width:75%;padding:0.55rem 0.85rem;border-radius:16px;font-size:0.85rem;line-height:1.5; }
 .sms-client { background:#e0e0e0;color:#1a1a18;align-self:flex-end;border-bottom-right-radius:4px; }
@@ -468,6 +468,15 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 <script>
 const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
 
+function rwFetch(path, opts) {
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  var token = localStorage.getItem('rw-token');
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  opts.credentials = 'include';
+  return fetch(PORTAL_URL + path, opts);
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pw = document.getElementById('login-pw').value;
@@ -476,7 +485,7 @@ async function doLogin() {
   if (!email || !pw) { errEl.textContent = 'Email and password required.'; return; }
   btn.textContent = 'Signing in...'; btn.disabled = true; errEl.textContent = '';
   try {
-    const res = await fetch(`${PORTAL_URL}/auth/login`, {
+    const res = await fetch(PORTAL_URL + '/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
       body: JSON.stringify({ email, password: pw, rememberMe: document.getElementById('remember-me').checked })
     });
@@ -485,6 +494,7 @@ async function doLogin() {
       errEl.textContent = data.error || 'Incorrect email or password.';
       document.getElementById('login-pw').value = ''; btn.textContent = 'Sign in'; btn.disabled = false; return;
     }
+    if (data.auth_token) localStorage.setItem('rw-token', data.auth_token);
     applyIntegratorContext(data);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -493,6 +503,25 @@ async function doLogin() {
     errEl.textContent = 'Connection error. Please try again.'; btn.textContent = 'Sign in'; btn.disabled = false;
   }
 }
+
+async function tryAutoLogin() {
+  const token = localStorage.getItem('rw-token');
+  if (!token) return;
+  try {
+    const res = await fetch(PORTAL_URL + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + token }, credentials: 'include'
+    });
+    if (!res.ok) { localStorage.removeItem('rw-token'); return; }
+    const data = await res.json();
+    applyIntegratorContext(data);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadRealConversations();
+  } catch (err) {
+    // Network error, leave login screen up
+  }
+}
+tryAutoLogin();
 
 function applyIntegratorContext(user) {
   const accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
@@ -515,7 +544,7 @@ async function loadRealConversations() {
   const body = document.getElementById('real-convs-body');
   body.innerHTML = '<div class="loading-row">Loading...</div>';
   try {
-    const res = await fetch(PORTAL_URL + '/api/conversations', { credentials: 'include' });
+    const res = await rwFetch('/api/conversations');
     if (!res.ok) { body.innerHTML = '<div class="loading-row">No live conversations yet.</div>'; return; }
     const threads = await res.json();
     if (!threads.length) { body.innerHTML = '<div class="loading-row">No live conversations yet. Text 952-997-0100 to start one.</div>'; return; }
@@ -541,7 +570,7 @@ async function openRealConv(encodedPhone, name) {
   window._currentPhone = encodedPhone;
   window._currentName = name;
   try {
-    var res = await fetch(PORTAL_URL + '/api/thread?phone=' + encodedPhone, { credentials: 'include' });
+    var res = await rwFetch('/api/thread?phone=' + encodedPhone);
     if (!res.ok) throw new Error('Status ' + res.status);
     var messages = await res.json();
     if (!Array.isArray(messages)) throw new Error('Not an array');
@@ -573,12 +602,10 @@ async function openRealConv(encodedPhone, name) {
     document.getElementById('reply-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
     });
-requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var threadEl = document.getElementById('live-thread');
-        if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
-      });
-    });
+    setTimeout(function() {
+      var threadEl = document.getElementById('live-thread');
+      if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
+    }, 50);
   } catch (err) {
     document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
   }
@@ -591,8 +618,8 @@ async function sendReply() {
   var phone = decodeURIComponent(window._currentPhone);
   input.value = ''; input.disabled = true;
   try {
-    var res = await fetch(PORTAL_URL + '/api/send', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    var res = await rwFetch('/api/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ to: phone, message: message })
     });
     if (res.ok) {
