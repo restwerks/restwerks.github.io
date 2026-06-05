@@ -576,7 +576,7 @@ async function openRealConv(encodedPhone, name) {
     setTimeout(function() {
       var threadEl = document.getElementById('live-thread');
       if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
-    }, 50);
+    }, 300);
   } catch (err) {
     document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
   }
