@@ -746,7 +746,11 @@ async function openRealConv(encodedPhone, name) {
         <div class="detail-header">
           <div><div class="detail-name">${name}</div><div class="detail-meta">Live conversation</div></div>
         </div>
-        <div class="sms-thread">${thread}</div>
+        <div class="sms-thread" id="live-thread">${thread}</div>
+        <div style="padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end;">
+          <textarea id="reply-input" placeholder="Type a reply..." style="flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:40px;max-height:120px;line-height:1.5;" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply('${encodeURIComponent(phone)}','${name}');}"></textarea>
+          <button onclick="sendReply('${encodeURIComponent(phone)}','${name}')" style="background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap;">Send</button>
+        </div>
       </div>`;
 
   } catch (err) {
@@ -944,6 +948,42 @@ function resolveFollowup(id, user) {
   const badge = document.querySelector('.nav-badge.blue');
   if (fuRemaining === 0) { countEl.textContent = 'All done'; if (badge) badge.style.display = 'none'; }
   else { countEl.textContent = fuRemaining + ' remaining'; if (badge) badge.textContent = fuRemaining; }
+}
+
+async function sendReply(encodedPhone, name) {
+  const input = document.getElementById('reply-input');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const phone = decodeURIComponent(encodedPhone);
+  input.value = '';
+  input.disabled = true;
+
+  try {
+    const res = await fetch(`${PORTAL_URL}/api/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ to: phone, message })
+    });
+
+    if (res.ok) {
+      const user = window._rwUser;
+      const bubbleColor = user ? user.bubble_color : '#1D9E75';
+      const senderName = user ? `${user.first_name} ${user.last_name}`.trim() : 'Team';
+      const now = new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      const thread = document.getElementById('live-thread');
+      thread.innerHTML += `<div class="sms-msg sms-human" style="background:${bubbleColor}">${message}</div><div class="sms-sender">${senderName}</div><div class="sms-time">${now}</div>`;
+      thread.scrollTop = thread.scrollHeight;
+    } else {
+      alert('Failed to send. Please try again.');
+    }
+  } catch (err) {
+    alert('Connection error. Please try again.');
+  }
+
+  input.disabled = false;
+  input.focus();
 }
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
