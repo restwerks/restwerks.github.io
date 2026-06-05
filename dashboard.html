@@ -197,7 +197,6 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .reply-box { padding:0.65rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end; }
 .reply-textarea { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:36px;max-height:80px;line-height:1.4;overflow-y:auto; }
 .reply-send { background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap; }
-/* THREE COLUMN THREAD LAYOUT */
 .thread-shell { display:flex;gap:0;height:calc(100vh - var(--topbar-h) - 2.5rem);min-height:0; }
 .thread-main { flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white); }
 .equipment-panel { width:280px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
@@ -210,7 +209,6 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .eq-label { color:var(--ink-soft);flex-shrink:0;margin-right:0.5rem; }
 .eq-value { color:var(--ink);font-weight:500;text-align:right; }
 .eq-notes { font-size:0.78rem;color:var(--ink-mid);line-height:1.5;padding:0.4rem 0;font-style:italic; }
-/* PHOTO GALLERY */
 .photo-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-top:0.5rem; }
 .photo-thumb { aspect-ratio:4/3;border-radius:7px;overflow:hidden;cursor:pointer;background:var(--canvas-warm);border:1px solid var(--border);position:relative; }
 .photo-thumb img { width:100%;height:100%;object-fit:cover;transition:opacity 0.15s; }
@@ -219,7 +217,6 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .photo-upload-btn:hover { border-color:var(--brand);color:var(--brand); }
 .photo-lightbox { position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:zoom-out; }
 .photo-lightbox img { max-width:90vw;max-height:90vh;border-radius:8px;object-fit:contain; }
-/* SYSTEM MESSAGE (handback, session labels) */
 .sms-system { text-align:center;font-size:0.7rem;color:var(--ink-soft);padding:0.5rem 1rem;user-select:none; }
 .sms-system-line { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0; }
 .sms-system-line .sline { flex:1;height:1px;background:var(--border); }
@@ -228,7 +225,6 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .sms-system-line.green span { color:var(--green); }
 .handback-btn { background:none;color:var(--blue);border:1px solid var(--blue);border-radius:7px;padding:0.25rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer;white-space:nowrap; }
 .handback-btn:hover { background:var(--blue);color:white; }
-/* CONVERSATION CARDS - redesigned */
 .conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
 .conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
 .conv-search:focus { border-color:var(--brand); }
@@ -244,11 +240,11 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
 .conv-card.unread .conv-name { font-weight:700; }
 .conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
+.conv-household { font-size:0.72rem;color:var(--ink-soft);margin-bottom:0.1rem; }
 .conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0.15rem; }
 .conv-card.unread .conv-preview { color:var(--ink-mid); }
 .conv-card-bottom { display:flex;align-items:center;justify-content:flex-end; }
 .conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
-/* SESSION DIVIDERS */
 .session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
 .session-line { flex:1;height:2px;background:var(--green);border-radius:100px;opacity:0.5; }
 .session-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);white-space:nowrap;opacity:0.8; }
@@ -257,7 +253,6 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .session-summary-card .ss-row { margin-bottom:0.2rem; }
 .session-summary-card .ss-row strong { color:var(--ink);font-weight:600; }
 .session-summary-card .ss-mindset { font-style:italic;color:var(--ink-soft);margin-top:0.3rem; }
-
 </style>
 </head>
 <body>
@@ -418,12 +413,12 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
           <div class="panel-chrome-header"><div class="panel-chrome-title">Resolved by Andi · last 24 hours</div></div>
           <div style="padding:1.1rem 1.25rem;">
             <div class="section-divider">During Hours</div>
-            <div class="conv-card" onclick="openConv('weiss')"><div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('fischer')"><div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="conv-card" onclick="openConv('weiss')"><div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div></div>
+            <div class="conv-card" onclick="openConv('fischer')"><div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div></div>
             <div class="section-divider">After Hours</div>
-            <div class="conv-card" onclick="openConv('everson')"><div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('rydeen')"><div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('green')"><div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="conv-card" onclick="openConv('everson')"><div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div></div>
+            <div class="conv-card" onclick="openConv('rydeen')"><div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div></div>
+            <div class="conv-card" onclick="openConv('green')"><div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div></div>
           </div>
         </div>
       </div>
@@ -558,7 +553,7 @@ async function tryAutoLogin() {
     document.getElementById('app').style.display = 'block';
     loadRealConversations();
     startSSE();
-  } catch (err) { /* leave login screen */ }
+  } catch (err) {}
 }
 tryAutoLogin();
 
@@ -604,7 +599,6 @@ function startSSE() {
       if (slot) slot.innerHTML = '';
       var statusEl = document.getElementById('thread-status');
       if (statusEl) statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
-      // Inject system message into thread
       var thread = document.getElementById('live-thread');
       if (thread) {
         var sys = document.createElement('div');
@@ -678,46 +672,24 @@ async function loadRealConversations() {
 function renderConvList(threads) {
   var body = document.getElementById('real-convs-body');
   if (!threads.length) { body.innerHTML = '<div class="loading-row">No conversations yet. Text 952-997-0100 to start one.</div>'; return; }
-  var html = '';
-  threads.forEach(function(t) {
-    var name = t.display_name || t.client_name || t.label || t.phone_number;
-    var ep = encodeURIComponent(t.phone_number);
-    var safeName = name.replace(/'/g, "\\'");
-    var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-    var unread = isUnread(t.phone_number, t.last_message_at);
-    var preview = t.last_message ? t.last_message : '';
-    var count = t.message_count || '';
-    var cls = 'conv-card' + (unread ? ' unread' : '');
-    var card = document.createElement('div');
-    card.className = cls;
-    card.setAttribute('data-ep', ep);
-    card.setAttribute('data-name', name);
-    card.innerHTML =
-      '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
-      '<div class="conv-card-body">' +
-        '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
-        '<div class="conv-preview">' + preview + '</div>' +
-        '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
-      '</div>';
-    card.addEventListener('click', function() {
-      openRealConv(ep, name);
-    });
-    body.appendChild(card);
-  });
   body.innerHTML = '';
   threads.forEach(function(t) {
-    var name = t.client_name || t.label || t.phone_number;
+    var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : null;
+    var name = fullName || t.phone_number;
+    var household = t.household_name || null;
     var ep = encodeURIComponent(t.phone_number);
     var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
     var unread = isUnread(t.phone_number, t.last_message_at);
     var preview = t.last_message ? t.last_message : '';
     var count = t.message_count || '';
+    var householdHtml = household ? '<div class="conv-household">' + household + '</div>' : '';
     var card = document.createElement('div');
     card.className = 'conv-card' + (unread ? ' unread' : '');
     card.innerHTML =
       '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
         '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
+        householdHtml +
         '<div class="conv-preview">' + preview + '</div>' +
         '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
       '</div>';
@@ -725,6 +697,7 @@ function renderConvList(threads) {
     body.appendChild(card);
   });
 }
+
 function updateConvBadge(threads) {
   var unreadCount = threads.filter(function(t) { return isUnread(t.phone_number, t.last_message_at); }).length;
   setBadge('conversations', unreadCount);
@@ -736,9 +709,10 @@ function filterConvs(query) {
   if (!query) { renderConvList(_allThreads); return; }
   var q = query.toLowerCase();
   var filtered = _allThreads.filter(function(t) {
-    var name = (t.client_name || t.label || t.phone_number).toLowerCase();
+    var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : '';
+    var household = t.household_name || '';
     var preview = (t.last_message || '').toLowerCase();
-    return name.includes(q) || preview.includes(q);
+    return fullName.toLowerCase().includes(q) || household.toLowerCase().includes(q) || preview.includes(q) || t.phone_number.includes(q);
   });
   renderConvList(filtered);
 }
@@ -756,7 +730,8 @@ async function openRealConv(encodedPhone, name) {
     if (!res.ok) throw new Error('Status ' + res.status);
     var data = await res.json();
     var messages = Array.isArray(data) ? data : (data.messages || []);
-    var displayName = (data.clientLabel) || name;
+    var displayName = data.clientName || name;
+    var householdName = data.householdName || null;
     var html = buildThreadHTML(messages, displayName);
     var hasHuman = messages.some(function(m) { return m.role === 'human'; });
     var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
@@ -769,7 +744,11 @@ async function openRealConv(encodedPhone, name) {
     '<div class="thread-shell">' +
       '<div class="thread-main">' +
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
-          '<div><div class="detail-name">' + displayName + '</div><div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div></div>' +
+          '<div>' +
+            '<div class="detail-name">' + displayName + '</div>' +
+            (householdName ? '<div style="font-size:0.72rem;color:var(--ink-soft);margin-top:1px;">' + householdName + '</div>' : '') +
+            '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
+          '</div>' +
           '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
         '</div>' +
         '<div class="sms-thread" id="live-thread">' + html + '</div>' +
@@ -816,21 +795,14 @@ async function openRealConv(encodedPhone, name) {
 function buildThreadHTML(messages, clientName) {
   if (!messages.length) return '';
   var html = '';
-  // Opening session divider
   var firstTime = new Date(messages[0].created_at);
   var sessionLabel = firstTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
                      firstTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   html += '<div class="sms-system-line green"><div class="sline"></div><span>' + sessionLabel + '</span><div class="sline"></div></div>';
 
-  var lastSummaryIdx = -1;
-  for (var i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === 'summary') { lastSummaryIdx = i; break; }
-  }
-
   for (var i = 0; i < messages.length; i++) {
     var m = messages[i];
     if (m.role === 'summary') {
-      // Render summary card
       try {
         var s = typeof m.message === 'string' ? JSON.parse(m.message) : m.message;
         html += '<div class="session-summary-card">' +
@@ -838,16 +810,14 @@ function buildThreadHTML(messages, clientName) {
           (s.andi_action ? '<div class="ss-row"><strong>Andi:</strong> ' + s.andi_action + '</div>' : '') +
           (s.client_mindset ? '<div class="ss-mindset">' + s.client_mindset + '</div>' : '') +
         '</div>';
-        // Close line after summary
         html += '<div class="sms-system-line"><div class="sline"></div></div>';
-        // If there are more messages after this, open a new session divider
         if (i < messages.length - 1) {
           var nextTime = new Date(messages[i+1].created_at);
           var nextLabel = nextTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
                           nextTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
           html += '<div class="sms-system-line green"><div class="sline"></div><span>' + nextLabel + '</span><div class="sline"></div></div>';
         }
-      } catch(e) { /* skip malformed summary */ }
+      } catch(e) {}
       continue;
     }
     if (m.role === 'handback') {
@@ -881,9 +851,7 @@ async function sendReply() {
     });
     if (!res.ok) { alert('Failed to send. Please try again.'); }
     else {
-      // Inject handback bar and flip status if not already showing
       if (!document.getElementById('handback-bar')) {
-        var threadMain = document.querySelector('.thread-main');
         var slot = document.getElementById('handback-slot');
         if (slot && !slot.querySelector('.handback-btn')) {
           var btn = document.createElement('button');
@@ -937,14 +905,14 @@ async function loadEquipmentPanel(phone) {
 
     body.innerHTML = '';
 
-    // Client info
+    // Household info
     var clientSection = document.createElement('div');
     clientSection.className = 'eq-section';
-    clientSection.innerHTML = '<div class="eq-section-title">Client</div>';
-    if (h.client_name) {
+    clientSection.innerHTML = '<div class="eq-section-title">Household</div>';
+    if (h.name) {
       var nameRow = document.createElement('div');
       nameRow.className = 'eq-row';
-      nameRow.innerHTML = '<span class="eq-label">Name</span><span class="eq-value">' + h.client_name + '</span>';
+      nameRow.innerHTML = '<span class="eq-label">Name</span><span class="eq-value">' + h.name + '</span>';
       clientSection.appendChild(nameRow);
     }
     if (h.address) {
@@ -983,7 +951,6 @@ async function loadEquipmentPanel(phone) {
     photoSection.innerHTML = '<div class="eq-section-title">Photos</div><div id="photo-grid-container"><div style="color:var(--ink-soft);font-size:0.75rem;">Loading photos...</div></div>';
     body.appendChild(photoSection);
 
-    // Upload button
     var uploadLabel = document.createElement('label');
     uploadLabel.className = 'photo-upload-btn';
     uploadLabel.textContent = '+ Add Photo';
@@ -1000,6 +967,7 @@ async function loadEquipmentPanel(phone) {
     body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.78rem;">Could not load system info.</div>';
   }
 }
+
 async function loadPhotos(phone) {
   var container = document.getElementById('photo-grid-container');
   if (!container) return;
@@ -1044,10 +1012,10 @@ async function uploadPhoto(input, phone) {
     });
     if (res.ok) {
       label.textContent = '+ Add Photo';
-      var newInp2 = document.createElement('input');
-      newInp2.type = 'file'; newInp2.accept = 'image/*'; newInp2.style.display = 'none';
-      newInp2.addEventListener('change', function() { uploadPhoto(this, phone); });
-      label.insertBefore(newInp2, label.firstChild);
+      var newInp = document.createElement('input');
+      newInp.type = 'file'; newInp.accept = 'image/*'; newInp.style.display = 'none';
+      newInp.addEventListener('change', function() { uploadPhoto(this, phone); });
+      label.insertBefore(newInp, label.firstChild);
       loadPhotos(phone);
     } else {
       label.textContent = 'Upload failed. Try again.';
@@ -1078,7 +1046,7 @@ function nav(name, el) {
   if (name === 'conversations') loadRealConversations();
 }
 
-// ── DEMO CONV DATA (pitch/resolved panel) ───────────────────────────────────
+// ── DEMO CONV DATA ───────────────────────────────────────────────────────────
 var convData = {
   weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
     {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
@@ -1098,18 +1066,7 @@ var convData = {
     {from:'client',text:'That did it. Thanks',time:'9:54 PM'},
     {from:'andi',text:'Good. Let me know if it keeps happening.',time:'9:54 PM'}
   ]},
-  happe: { name:'Shannon Happe', time:'10:17 PM', status:'open', issue:'No audio on 2 TVs in main living areas. AVR reboot did not resolve.', andi_action:'Walked through AVR reboot. Audio did not restore. Ticket created.', follow_up:'Needs tech visit. Client mentioned guests coming Friday.', mindset:'Client was frustrated but appreciative.', thread:[
-    {from:'client',text:'No sound on the TV in the living room or the kitchen',time:'10:17 PM'},
-    {from:'andi',text:'Both at the same time is usually the AVR. Can you find the receiver in your rack?',time:'10:17 PM'},
-    {from:'client',text:'Found it. Denon',time:'10:19 PM'},
-    {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in.',time:'10:19 PM'},
-    {from:'client',text:'Still nothing. Tried twice',time:'10:24 PM'},
-    {from:'andi',text:'Ugh. That tells me something needs a closer look. I am going to create a ticket so someone can get out to you.',time:'10:24 PM'},
-    {from:'client',text:'Ok thank you. I have people coming Friday so hoping it can be fixed before then',time:'10:26 PM'},
-    {from:'andi',text:'Noted. We will make sure that gets communicated.',time:'10:26 PM'},
-    {from:'human',text:'Shannon this is Andy. I am scheduling a visit for Thursday morning.',time:'8:02 AM',sender:'Andy Hepola'}
-  ]},
-  everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping. Client assumed it was the security system.', andi_action:'Identified as a high voltage ceiling detector. Directed client to replace battery.', follow_up:'Note at next visit that ceiling detectors are not our equipment.', mindset:'Client was relieved.', thread:[
+  everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping.', andi_action:'Identified as high voltage ceiling detector. Client replaced battery.', mindset:'Client was relieved.', thread:[
     {from:'client',text:'Our smoke detector is going off. Is something wrong with the security system?',time:'10:09 PM'},
     {from:'andi',text:'First things first. Is everyone safe and still in the house?',time:'10:09 PM'},
     {from:'client',text:'Yes everyone is fine. It just started beeping',time:'10:10 PM'},
@@ -1118,7 +1075,7 @@ var convData = {
     {from:'client',text:'Perfect that makes so much more sense. Thank you!',time:'10:14 PM'},
     {from:'andi',text:'Glad we got that sorted. Hope the rest of your night is quiet.',time:'10:15 PM'}
   ]},
-  rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline. No control from remotes or app.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
+  rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
     {from:'client',text:'Nothing is working. Remotes dead and the app is not connecting',time:'8:33 PM'},
     {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack.',time:'8:33 PM'},
     {from:'client',text:'Got it',time:'8:35 PM'},
@@ -1126,7 +1083,7 @@ var convData = {
     {from:'client',text:'All good. Everything came back',time:'8:37 PM'},
     {from:'andi',text:'Good. Let me know if it happens again.',time:'8:37 PM'}
   ]},
-  green: { name:'Robyn Green', time:'11:42 PM', status:'resolved', issue:'Internet outage. No connectivity on any device.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
+  green: { name:'Robyn Green', time:'11:42 PM', status:'resolved', issue:'Internet outage.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
     {from:'client',text:'Hey our wifi is completely out. Nothing is working',time:'11:42 PM'},
     {from:'andi',text:'Can you head to your rack and tell me if anything looks dark?',time:'11:42 PM'},
     {from:'client',text:'Yeah the WattBox at the top has no lights at all',time:'11:44 PM'},
@@ -1210,7 +1167,7 @@ function resolveFollowup(id, user) {
   var now = new Date();
   label.textContent = 'Resolved by ' + user + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   fuRemaining--;
-  var countEl = document.getElementById('fu-count'); var badge = document.getElementById('badge-followups');
+  var countEl = document.getElementById('fu-count');
   if (fuRemaining===0) { countEl.textContent='All done'; setBadge('followups', 0); }
   else { countEl.textContent=fuRemaining+' remaining'; setBadge('followups', fuRemaining); }
 }
