@@ -1,1 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RestWerks</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand: #1D9E75; --brand-dark: #0f6e50; --brand-light: #e1f5ee;
+  --ink: #1a1a18; --ink-mid: #444441; --ink-soft: #888780;
+  --canvas: #faf9f6; --canvas-warm: #f1efe8; --white: #ffffff;
+  --border: #e5e3de; --green: #1D9E75; --green-bg: #e1f5ee;
+  --red: #cc4400; --red-bg: #faeee8; --blue: #2D7DD2; --blue-bg: #e8f2fb;
+  --sidebar: #111110; --sidebar-w: 224px; --topbar-h: 52px;
+}
+body.dark { --canvas:#141413;--canvas-warm:#1c1c1a;--white:#1e1e1c;--border:#2a2a27;--ink:#f0efe8;--ink-mid:#c0bfb8;--ink-soft:#6b6a64;--sidebar:#0c0c0b; }
+body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink);font-size:14px;line-height:1.5;min-height:100vh;transition:background 0.2s,color 0.2s; }
+#login-screen { position:fixed;inset:0;background:#0d0d0c;display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:1.5rem; }
+.login-box { background:#1a1a18;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:2.25rem 2.5rem;width:360px;display:flex;flex-direction:column;gap:1.1rem; }
+.login-brand { text-align:center;margin-bottom:0.25rem; }
+.login-brand-name { font-family:'DM Serif Display',serif;font-size:1.75rem;letter-spacing:-0.02em; }
+.login-brand-name .rw { color:white; } .login-brand-name .accent { color:var(--brand); }
+.login-powered { font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:3px; }
+.login-label { font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:5px; }
+.login-input { width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);color:white;padding:0.6rem 0.85rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s; }
+.login-input:focus { border-color:var(--brand); }
+.login-input::placeholder { color:rgba(255,255,255,0.18); }
+.login-btn { width:100%;background:var(--brand);color:white;border:none;padding:0.65rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;cursor:pointer;transition:background 0.2s;margin-top:0.1rem; }
+.login-btn:hover { background:var(--brand-dark); }
+.login-error { font-size:0.78rem;color:#f87171;text-align:center;min-height:1rem; }
+.login-hint { font-size:0.72rem;color:rgba(255,255,255,0.18);text-align:center; }
+.login-footer { font-size:0.7rem;color:rgba(255,255,255,0.15);display:flex;align-items:center;gap:0.35rem; }
+.login-footer span { color:var(--brand); }
+#app { display:none;min-height:100vh; }
+.shell { display:flex;min-height:100vh; }
+.sidebar { width:var(--sidebar-w);background:var(--sidebar);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);z-index:50; }
+.sidebar-logo { padding:1.1rem 1.2rem 1rem;border-bottom:1px solid rgba(255,255,255,0.06); }
+.integrator-name { font-size:1rem;font-weight:600;color:white;letter-spacing:-0.01em; }
+.integrator-accent { color:var(--i-brand,var(--brand)); }
+.integrator-number { font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:0.04em; }
+.sidebar-nav { padding:0.75rem 0;flex:1;overflow-y:auto; }
+.nav-group-label { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);padding:0.6rem 1.2rem 0.3rem; }
+.nav-item { display:flex;align-items:center;gap:0.6rem;padding:0.5rem 1.2rem;font-size:0.85rem;color:rgba(255,255,255,0.75);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;user-select:none; }
+.nav-item:hover { color:white;background:rgba(255,255,255,0.06); }
+.nav-item.active { color:white;background:rgba(255,255,255,0.08);border-left-color:var(--i-brand,var(--brand)); }
+.nav-icon { font-size:0.9rem;width:16px;text-align:center;flex-shrink:0; }
+.nav-badge { margin-left:auto;background:var(--red);color:white;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:100px;min-width:16px;text-align:center; }
+.nav-badge.blue { background:var(--blue); } .nav-badge.green { background:var(--green); }
+.sidebar-user { padding:0.85rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06); }
+.user-row { display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem; }
+.user-avatar { width:26px;height:26px;border-radius:50%;background:var(--i-brand,var(--brand));display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;color:white;flex-shrink:0; }
+.user-name { font-size:0.78rem;color:rgba(255,255,255,0.8);font-weight:500; }
+.user-role { font-size:0.65rem;color:rgba(255,255,255,0.35); }
+.sidebar-rw { font-size:0.62rem;color:rgba(255,255,255,0.18); }
+.sidebar-rw span { color:var(--brand); }
+.main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh; }
+.topbar { background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background 0.2s,border-color 0.2s; }
+.topbar-left { display:flex;align-items:center;gap:0.75rem; }
+.page-title { font-size:0.9rem;font-weight:600;color:var(--ink); }
+.andi-status { display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--ink-soft); }
+.status-dot { width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+.topbar-right { display:flex;align-items:center;gap:0.6rem; }
+.time-filter { display:flex;gap:2px;background:var(--canvas-warm);border:1px solid var(--border);border-radius:7px;padding:2px; }
+.time-btn { padding:0.25rem 0.65rem;border-radius:5px;font-size:0.75rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--ink-soft);transition:all 0.15s;font-family:'DM Sans',sans-serif; }
+.time-btn.active { background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+.mode-toggle { width:30px;height:30px;border-radius:7px;background:var(--canvas-warm);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.15s; }
+.mode-toggle:hover { background:var(--border); }
+.content { padding:1.25rem 1.5rem;flex:1; }
+.panel { display:none; } .panel.active { display:block; }
+.stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:0.875rem;margin-bottom:1.25rem; }
+.stat-card { background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s,border-color 0.15s;user-select:none; }
+.stat-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-2px); }
+.stat-label { font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.3rem; }
+.stat-value { font-size:2rem;font-weight:700;line-height:1;margin-bottom:0.2rem; }
+.stat-value.g { color:var(--green); } .stat-value.r { color:var(--red); } .stat-value.b { color:var(--blue); }
+.stat-sub { font-size:0.68rem;color:var(--ink-soft); }
+.stat-bar { height:2px;background:var(--canvas-warm);border-radius:100px;margin-top:0.65rem;overflow:hidden; }
+.stat-bar-fill { height:100%;border-radius:100px; }
+.panel-chrome { background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:1rem; }
+.panel-chrome-header { padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+.panel-chrome-title { font-size:0.85rem;font-weight:600;color:var(--ink); }
+.panel-chrome-action { font-size:0.75rem;color:var(--brand);cursor:pointer;font-weight:500;padding:0.3rem 0.75rem;border:1px solid var(--brand);border-radius:6px;transition:all 0.15s; }
+.panel-chrome-action:hover { background:var(--brand);color:white; }
+.analytics-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:1rem; }
+.analytics-card { background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.25rem; }
+.analytics-title { font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:1rem; }
+.big-stat { font-size:3rem;font-weight:700;color:var(--green);line-height:1;letter-spacing:-0.02em; }
+.big-stat-label { font-size:0.78rem;color:var(--ink-soft);margin-top:0.3rem; }
+.issue-row { display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem; }
+.issue-row:last-child { margin-bottom:0; }
+.issue-label { font-size:0.82rem;color:var(--ink-mid);width:140px;flex-shrink:0; }
+.issue-bar-wrap { flex:1;height:6px;background:var(--canvas-warm);border-radius:100px;overflow:hidden; }
+.issue-bar { height:100%;border-radius:100px;background:var(--brand); }
+.issue-pct { font-size:0.72rem;color:var(--ink-soft);width:32px;text-align:right;flex-shrink:0; }
+.trend-row { display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border); }
+.trend-row:last-child { border-bottom:none; }
+.trend-label { font-size:0.82rem;color:var(--ink-mid); }
+.trend-val { font-size:0.85rem;font-weight:600;color:var(--ink); }
+.trend-val.up { color:var(--green); } .trend-val.down { color:var(--red); }
+.section-divider { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-soft);padding-bottom:0.6rem;border-bottom:1px solid var(--border);margin-bottom:0.875rem;margin-top:1.1rem; }
+.section-divider:first-child { margin-top:0; }
+.conv-card { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:0.75rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.1s; }
+.conv-card:last-child { margin-bottom:0; }
+.conv-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
+.conv-top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem; }
+.conv-name { font-size:0.9rem;font-weight:600;color:var(--ink); }
+.conv-time { font-size:0.7rem;color:var(--ink-soft);flex-shrink:0;margin-left:0.5rem; }
+.status-pill { display:inline-flex;align-items:center;gap:4px;font-size:0.67rem;font-weight:700;padding:2px 7px;border-radius:100px;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em; }
+.pill-resolved { background:var(--green-bg);color:#0f6e50; } .pill-open { background:var(--red-bg);color:var(--red); }
+.pill-dot { width:4px;height:4px;border-radius:50%;background:currentColor; }
+.conv-row { font-size:0.82rem;color:var(--ink-mid);margin-bottom:4px;line-height:1.55; }
+.conv-row strong { color:var(--ink);font-weight:500; }
+.conv-followup { font-size:0.82rem;color:var(--blue);margin-bottom:4px;line-height:1.55; }
+.conv-followup strong { font-weight:500; }
+.conv-mindset { font-size:0.78rem;color:var(--ink-soft);font-style:italic;margin-top:5px; }
+.conv-detail-hint { font-size:0.7rem;color:var(--brand);margin-top:6px;font-weight:500; }
+.back-btn { display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--ink-soft);cursor:pointer;margin-bottom:1rem;transition:color 0.15s;font-weight:500; }
+.back-btn:hover { color:var(--ink); }
+.detail-card { background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden; }
+.detail-header { padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between; }
+.detail-name { font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:4px; }
+.detail-meta { font-size:0.75rem;color:var(--ink-soft); }
+.sms-thread { padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem;background:#f8f8f8; }
+body.dark .sms-thread { background:#0d0d0c; }
+.sms-msg { max-width:75%;padding:0.55rem 0.85rem;border-radius:16px;font-size:0.85rem;line-height:1.5; }
+.sms-client { background:#e0e0e0;color:#1a1a18;align-self:flex-end;border-bottom-right-radius:4px; }
+body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
+.sms-andi { background:var(--green);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
+.sms-human { background:var(--i-brand,#1D9E75);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
+.sms-sender { font-size:0.62rem;color:var(--ink-soft);padding:0 0.85rem;align-self:flex-start;margin-top:-4px; }
+.sms-time { font-size:0.65rem;color:var(--ink-soft);padding:0 0.85rem; }
+.sms-time.right { text-align:right;align-self:flex-end; }
+.sms-resolved { align-self:center;background:var(--green-bg);color:#0f6e50;border-radius:100px;font-size:0.72rem;font-weight:600;padding:0.25rem 0.85rem;margin-top:0.25rem; }
+.detail-summary { padding:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.4rem; }
+.detail-row { font-size:0.82rem;color:var(--ink-mid);line-height:1.55; }
+.detail-row strong { color:var(--ink);font-weight:500; }
+.detail-followup { font-size:0.82rem;color:var(--blue); }
+.detail-followup strong { font-weight:500; }
+.detail-mindset { font-size:0.78rem;color:var(--ink-soft);font-style:italic; }
+.ticket-row { display:flex;align-items:flex-start;gap:0.75rem;padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s; }
+.ticket-row:last-child { border-bottom:none; }
+.ticket-row:hover { background:var(--canvas-warm); }
+.ticket-icon { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;margin-top:1px; }
+.t-red { background:var(--red-bg); }
+.ticket-body { flex:1;min-width:0; }
+.ticket-client { font-size:0.85rem;font-weight:600;color:var(--ink); }
+.ticket-issue { font-size:0.78rem;color:var(--ink-mid);margin-top:2px;line-height:1.5; }
+.ticket-meta { font-size:0.68rem;color:var(--ink-soft);margin-top:4px; }
+.ticket-right { display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;flex-shrink:0; }
+.t-pill { font-size:0.67rem;font-weight:700;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.04em; }
+.t-open { background:var(--red-bg);color:var(--red); }
+.t-scheduled { background:#fef3e2;color:#b45309; }
+.t-resolved { background:var(--green-bg);color:#0f6e50; }
+.clock-badge { font-size:0.65rem;color:var(--ink-soft);display:flex;align-items:center;gap:3px; }
+.ticket-detail-section { padding:1.1rem 1.25rem;border-bottom:1px solid var(--border); }
+.ticket-detail-section:last-child { border-bottom:none; }
+.ticket-detail-label { font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.5rem; }
+.ticket-detail-value { font-size:0.875rem;color:var(--ink-mid);line-height:1.6; }
+.status-select { display:flex;gap:0.5rem;margin-top:0.5rem; }
+.status-opt { padding:0.35rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:2px solid var(--border);color:var(--ink-soft);transition:all 0.15s;background:var(--white);font-family:'DM Sans',sans-serif; }
+.status-opt:hover { border-color:var(--ink-soft); }
+.status-opt.sel-open { border-color:var(--red);color:var(--red);background:var(--red-bg); }
+.status-opt.sel-scheduled { border-color:#b45309;color:#b45309;background:#fef3e2; }
+.status-opt.sel-resolved { border-color:var(--green);color:#0f6e50;background:var(--green-bg); }
+.clock-display { font-size:1.5rem;font-weight:700;color:var(--red);letter-spacing:-0.02em;margin-bottom:3px; }
+.clock-note { font-size:0.72rem;color:var(--ink-soft); }
+.household-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.875rem;padding:1.1rem 1.25rem; }
+.household-card { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s; }
+.household-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
+.household-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem; }
+.household-avatar { width:32px;height:32px;border-radius:50%;background:var(--canvas-warm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--ink-mid); }
+.h-status { width:7px;height:7px;border-radius:50%; }
+.household-name { font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:2px; }
+.household-address { font-size:0.72rem;color:var(--ink-soft); }
+.household-last { font-size:0.7rem;color:var(--ink-soft);margin-top:0.5rem; }
+.followup-row { display:flex;align-items:flex-start;gap:0.75rem;padding:0.875rem 1.25rem;border-bottom:1px solid var(--border); }
+.followup-row:last-child { border-bottom:none; }
+.followup-row.done { opacity:0.45; }
+.followup-check { width:20px;height:20px;border-radius:5px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s;background:var(--white); }
+.followup-check:hover { border-color:var(--green); }
+.followup-check.checked { background:var(--green);border-color:var(--green); }
+.followup-check.checked::after { content:'✓';font-size:0.65rem;color:white;font-weight:700; }
+.followup-body { flex:1; }
+.followup-client { font-size:0.85rem;font-weight:600;color:var(--ink); }
+.followup-note { font-size:0.78rem;color:var(--ink-mid);margin-top:2px;line-height:1.5; }
+.followup-meta { font-size:0.68rem;color:var(--ink-soft);margin-top:4px; }
+.followup-resolved-note { font-size:0.68rem;color:var(--green);margin-top:3px;display:none; }
+.followup-row.done .followup-resolved-note { display:block; }
+.placeholder-body { padding:3rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;font-style:italic; }
+.loading-row { padding:1.5rem 1.25rem;text-align:center;color:var(--ink-soft);font-size:0.82rem;font-style:italic; }
+.reply-box { padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end; }
+.reply-textarea { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:40px;max-height:120px;line-height:1.5; }
+.reply-send { background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+</style>
+</head>
+<body>
 
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="login-brand-name"><span class="rw">Rest</span><span class="accent">Werks</span></div>
+      <div class="login-powered">Integrator dashboard</div>
+    </div>
+    <div>
+      <div class="login-label">Email</div>
+      <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
+    </div>
+    <div>
+      <div class="login-label">Password</div>
+      <input class="login-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--brand);cursor:pointer;" />
+      <label for="remember-me" style="font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;">Keep me signed in for 30 days</label>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-hint">andy@restwerks.com</div>
+  </div>
+  <div class="login-footer">Powered by <span>RestWerks</span></div>
+</div>
+
+<div id="app">
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="integrator-name" id="sb-name">RestWerks <span class="integrator-accent">AV</span></div>
+      <div class="integrator-number" id="sb-number">952-997-0100</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
+      <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
+      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green">6</span></div>
+      <div class="nav-item" onclick="nav('resolved',this)"><span class="nav-icon">✓</span> Resolved <span class="nav-badge green">5</span></div>
+      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge">1</span></div>
+      <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue">2</span></div>
+      <div class="nav-group-label" style="margin-top:0.5rem;">Clients</div>
+      <div class="nav-item" onclick="nav('households',this)"><span class="nav-icon">🏠</span> Households</div>
+      <div class="nav-group-label" style="margin-top:0.5rem;">Reports</div>
+      <div class="nav-item" onclick="nav('summaries',this)"><span class="nav-icon">📧</span> Summaries</div>
+      <div class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
+      <div class="nav-group-label" style="margin-top:0.5rem;">Account</div>
+      <div class="nav-item" onclick="nav('settings',this)"><span class="nav-icon">⚙</span> Settings</div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-row">
+        <div class="user-avatar" id="sb-avatar">AH</div>
+        <div><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
+      </div>
+      <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="andi-status"><span class="status-dot"></span> Andi is active</div>
+      </div>
+      <div class="topbar-right">
+        <div class="time-filter">
+          <button class="time-btn active" onclick="setTime(this)">24h</button>
+          <button class="time-btn" onclick="setTime(this)">7d</button>
+          <button class="time-btn" onclick="setTime(this)">30d</button>
+        </div>
+        <div class="mode-toggle" onclick="toggleMode()" id="mode-btn">🌙</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div id="panel-dashboard" class="panel active">
+        <div class="stats-grid">
+          <div class="stat-card" onclick="nav('conversations',navItem('conversations'))">
+            <div class="stat-label">Conversations</div><div class="stat-value">6</div>
+            <div class="stat-sub">Last 24 hours</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:100%;background:var(--border);"></div></div>
+          </div>
+          <div class="stat-card" onclick="nav('resolved',navItem('resolved'))">
+            <div class="stat-label">Resolved by Andi</div><div class="stat-value g">5</div>
+            <div class="stat-sub">83% resolution rate</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:83%;background:var(--green);"></div></div>
+          </div>
+          <div class="stat-card" onclick="nav('tickets',navItem('tickets'))">
+            <div class="stat-label">Open tickets</div><div class="stat-value r">1</div>
+            <div class="stat-sub">Needs tech today</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:17%;background:var(--red);"></div></div>
+          </div>
+          <div class="stat-card" onclick="nav('followups',navItem('followups'))">
+            <div class="stat-label">Follow ups</div><div class="stat-value b">2</div>
+            <div class="stat-sub">Review before noon</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:33%;background:var(--blue);"></div></div>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-title">Resolution rate</div>
+            <div class="big-stat">83%</div>
+            <div class="big-stat-label">Andi resolved without a tech · last 24 hours</div>
+            <div style="margin-top:1.1rem;">
+              <div class="trend-row"><div class="trend-label">Last 7 days</div><div class="trend-val up">79%</div></div>
+              <div class="trend-row"><div class="trend-label">Last 30 days</div><div class="trend-val up">76%</div></div>
+              <div class="trend-row"><div class="trend-label">All time</div><div class="trend-val up">74%</div></div>
+            </div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-title">Top issue categories</div>
+            <div class="issue-row"><div class="issue-label">Internet / network</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:62%;"></div></div><div class="issue-pct">62%</div></div>
+            <div class="issue-row"><div class="issue-label">Reboot required</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:48%;background:#2D7DD2;"></div></div><div class="issue-pct">48%</div></div>
+            <div class="issue-row"><div class="issue-label">Battery alert</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:28%;background:#b45309;"></div></div><div class="issue-pct">28%</div></div>
+            <div class="issue-row"><div class="issue-label">Smoke detector</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:17%;background:#cc4400;"></div></div><div class="issue-pct">17%</div></div>
+            <div class="issue-row"><div class="issue-label">Audio / video</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:12%;background:#888780;"></div></div><div class="issue-pct">12%</div></div>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-title">Andi response stats</div>
+            <div class="trend-row"><div class="trend-label">Avg response time</div><div class="trend-val">under 10 sec</div></div>
+            <div class="trend-row"><div class="trend-label">Avg conversations to resolve</div><div class="trend-val">4.2 messages</div></div>
+            <div class="trend-row"><div class="trend-label">After hours coverage</div><div class="trend-val up">100%</div></div>
+            <div class="trend-row"><div class="trend-label">Truck rolls avoided this month</div><div class="trend-val up">14</div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-title">Client households</div>
+            <div class="trend-row"><div class="trend-label">Total households</div><div class="trend-val">8</div></div>
+            <div class="trend-row"><div class="trend-label">Active last 7 days</div><div class="trend-val">6</div></div>
+            <div class="trend-row"><div class="trend-label">Open tickets</div><div class="trend-val r">1</div></div>
+            <div class="trend-row"><div class="trend-label">Follow ups pending</div><div class="trend-val b">2</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-conversations" class="panel">
+        <div id="conv-list-view">
+          <div class="panel-chrome">
+            <div class="panel-chrome-header">
+              <div class="panel-chrome-title">Live conversations</div>
+              <div class="panel-chrome-action" onclick="loadRealConversations()">↻ Refresh</div>
+            </div>
+            <div id="real-convs-body"><div class="loading-row">Loading conversations...</div></div>
+          </div>
+          <div class="panel-chrome">
+            <div class="panel-chrome-header"><div class="panel-chrome-title">Demo conversations</div></div>
+            <div style="padding:1.1rem 1.25rem;">
+              <div class="section-divider">During Hours</div>
+              <div class="conv-card" onclick="openConv('weiss')">
+                <div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div>
+                <div class="conv-mindset">Client was surprised it was that simple.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+              <div class="conv-card" onclick="openConv('fischer')">
+                <div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div>
+                <div class="conv-mindset">Quick fix. Client was happy.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+              <div class="section-divider">After Hours</div>
+              <div class="conv-card" onclick="openConv('happe')">
+                <div class="conv-top"><div><div class="conv-name">Shannon Happe</div><span class="status-pill pill-open"><span class="pill-dot"></span>Unresolved</span></div><div class="conv-time">10:17 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> No audio on 2 TVs in main living areas.</div>
+                <div class="conv-followup"><strong>Follow up:</strong> Needs tech visit. Client has guests Friday.</div>
+                <div class="conv-mindset">Client was frustrated but appreciative.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+              <div class="conv-card" onclick="openConv('everson')">
+                <div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> Smoke detector beeping. Assumed it was the security system.</div>
+                <div class="conv-followup"><strong>Follow up:</strong> Note at next visit that ceiling detectors are not our equipment.</div>
+                <div class="conv-mindset">Client was relieved. Responded well.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+              <div class="conv-card" onclick="openConv('rydeen')">
+                <div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> ELAN controller offline. No control from remotes or app.</div>
+                <div class="conv-mindset">Client was straightforward. In and out fast.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+              <div class="conv-card" onclick="openConv('green')">
+                <div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div>
+                <div class="conv-row"><strong>Issue:</strong> Internet outage. No connectivity on any device.</div>
+                <div class="conv-mindset">Client was calm and thanked us.</div>
+                <div class="conv-detail-hint">Tap to view conversation →</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="conv-detail-view" style="display:none;">
+          <div class="back-btn" onclick="closeConv()">← Back to conversations</div>
+          <div id="conv-detail-content"></div>
+        </div>
+      </div>
+
+      <div id="panel-resolved" class="panel">
+        <div class="panel-chrome">
+          <div class="panel-chrome-header"><div class="panel-chrome-title">Resolved by Andi · last 24 hours</div></div>
+          <div style="padding:1.1rem 1.25rem;">
+            <div class="section-divider">During Hours</div>
+            <div class="conv-card" onclick="openConv('weiss')"><div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="conv-card" onclick="openConv('fischer')"><div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="section-divider">After Hours</div>
+            <div class="conv-card" onclick="openConv('everson')"><div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="conv-card" onclick="openConv('rydeen')"><div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+            <div class="conv-card" onclick="openConv('green')"><div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-tickets" class="panel">
+        <div id="ticket-list-view">
+          <div class="panel-chrome">
+            <div class="panel-chrome-header"><div class="panel-chrome-title">Tickets</div><div class="panel-chrome-action">+ New ticket</div></div>
+            <div class="ticket-row" onclick="openTicket('happe')">
+              <div class="ticket-icon t-red">🔇</div>
+              <div class="ticket-body"><div class="ticket-client">Shannon Happe</div><div class="ticket-issue">No audio on 2 TVs in main living areas. AVR reboot did not resolve.</div><div class="ticket-meta">Opened 10:17 PM · Unassigned · Client has guests Friday</div></div>
+              <div class="ticket-right"><div class="t-pill t-open">Open</div><div class="clock-badge">⏱ 9h 43m</div></div>
+            </div>
+          </div>
+        </div>
+        <div id="ticket-detail-view" style="display:none;">
+          <div class="back-btn" onclick="closeTicket()">← Back to tickets</div>
+          <div id="ticket-detail-content"></div>
+        </div>
+      </div>
+
+      <div id="panel-followups" class="panel">
+        <div class="panel-chrome">
+          <div class="panel-chrome-header"><div class="panel-chrome-title">Follow ups</div><div class="panel-chrome-action" id="fu-count" style="border:none;cursor:default;color:var(--ink-soft);">2 remaining</div></div>
+          <div>
+            <div class="followup-row" id="fu-1"><div class="followup-check" id="fc-1" onclick="resolveFollowup('1','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Shannon Happe</div><div class="followup-note">Needs tech visit. Client has guests coming Friday. Schedule before end of day.</div><div class="followup-meta">Flagged by Andi · 10:17 PM last night</div><div class="followup-resolved-note" id="fr-1"></div></div></div>
+            <div class="followup-row" id="fu-2"><div class="followup-check" id="fc-2" onclick="resolveFollowup('2','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Roseanne Everson</div><div class="followup-note">Note at next visit that ceiling smoke detectors are not our equipment.</div><div class="followup-meta">Flagged by Andi · 10:09 PM last night</div><div class="followup-resolved-note" id="fr-2"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-households" class="panel">
+        <div class="panel-chrome">
+          <div class="panel-chrome-header"><div class="panel-chrome-title">Client households</div><div class="panel-chrome-action">+ Add household</div></div>
+          <div class="household-grid">
+            <div class="household-card"><div class="household-top"><div class="household-avatar">RG</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Robyn Green</div><div class="household-address">Edina, MN</div><div class="household-last">Last contact: last night</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">SH</div><div class="h-status" style="background:var(--red);"></div></div><div class="household-name">Shannon Happe</div><div class="household-address">Wayzata, MN</div><div class="household-last">Last contact: last night · Open ticket</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">RE</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Roseanne Everson</div><div class="household-address">Eden Prairie, MN</div><div class="household-last">Last contact: last night</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">JF</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Joel Fischer</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: last night</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">TR</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Tom Rydeen</div><div class="household-address">Plymouth, MN</div><div class="household-last">Last contact: last night</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">CW</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Chris Weiss</div><div class="household-address">Orono, MN</div><div class="household-last">Last contact: last night</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">JB</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Jeff Belzer</div><div class="household-address">Deephaven, MN</div><div class="household-last">Last contact: 3 days ago</div></div>
+            <div class="household-card"><div class="household-top"><div class="household-avatar">BS</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Brent Bullis</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: 5 days ago</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-summaries" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Morning summaries</div></div><div class="placeholder-body">Archive of every morning summary email. Coming next session.</div></div></div>
+      <div id="panel-analytics" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Analytics</div></div><div class="placeholder-body">Full resolution rate trends, issue breakdowns, and Andi performance over time. Coming next session.</div></div></div>
+      <div id="panel-settings" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Settings</div></div><div class="placeholder-body">Account info, SMS number, brand color, users and roles, notification preferences. Coming next session.</div></div></div>
+
+    </div>
+  </main>
+</div>
+</div>
+
+<script>
+const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.querySelector('.login-btn');
+  if (!email || !pw) { errEl.textContent = 'Email and password required.'; return; }
+  btn.textContent = 'Signing in...'; btn.disabled = true; errEl.textContent = '';
+  try {
+    const res = await fetch(`${PORTAL_URL}/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      body: JSON.stringify({ email, password: pw, rememberMe: document.getElementById('remember-me').checked })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Incorrect email or password.';
+      document.getElementById('login-pw').value = ''; btn.textContent = 'Sign in'; btn.disabled = false; return;
+    }
+    applyIntegratorContext(data);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadRealConversations();
+  } catch (err) {
+    errEl.textContent = 'Connection error. Please try again.'; btn.textContent = 'Sign in'; btn.disabled = false;
+  }
+}
+
+function applyIntegratorContext(user) {
+  const accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
+  const name = user.integrator_name || 'RestWerks';
+  const number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
+  const firstName = user.first_name || ''; const lastName = user.last_name || '';
+  const fullName = (firstName + ' ' + lastName).trim();
+  const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+  document.documentElement.style.setProperty('--i-brand', accent);
+  document.getElementById('sb-name').innerHTML = name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
+  document.getElementById('sb-number').textContent = number;
+  document.getElementById('sb-username').textContent = fullName;
+  document.getElementById('sb-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Owner';
+  document.getElementById('sb-avatar').textContent = initials;
+  document.getElementById('sb-avatar').style.background = accent;
+  window._rwUser = user;
+}
+
+async function loadRealConversations() {
+  const body = document.getElementById('real-convs-body');
+  body.innerHTML = '<div class="loading-row">Loading...</div>';
+  try {
+    const res = await fetch(PORTAL_URL + '/api/conversations', { credentials: 'include' });
+    if (!res.ok) { body.innerHTML = '<div class="loading-row">No live conversations yet.</div>'; return; }
+    const threads = await res.json();
+    if (!threads.length) { body.innerHTML = '<div class="loading-row">No live conversations yet. Text 952-997-0100 to start one.</div>'; return; }
+    body.innerHTML = '<div style="padding:1.1rem 1.25rem;">' + threads.map(function(t) {
+      var name = t.client_name || t.label || t.phone_number;
+      var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      var ep = encodeURIComponent(t.phone_number);
+      var safeName = name.replace(/'/g, "\\'");
+      return '<div class="conv-card" onclick="openRealConv(\'' + ep + '\',\'' + safeName + '\')">' +
+        '<div class="conv-top"><div><div class="conv-name">' + name + '</div></div><div class="conv-time">' + time + '</div></div>' +
+        '<div class="conv-row">' + t.message_count + ' messages</div>' +
+        '<div class="conv-detail-hint">Tap to view conversation →</div></div>';
+    }).join('') + '</div>';
+  } catch (err) {
+    body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
+  }
+}
+
+async function openRealConv(encodedPhone, name) {
+  document.getElementById('conv-list-view').style.display = 'none';
+  document.getElementById('conv-detail-view').style.display = 'block';
+  document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
+  window._currentPhone = encodedPhone;
+  window._currentName = name;
+  try {
+    var res = await fetch(PORTAL_URL + '/api/thread?phone=' + encodedPhone, { credentials: 'include' });
+    if (!res.ok) throw new Error('Status ' + res.status);
+    var messages = await res.json();
+    if (!Array.isArray(messages)) throw new Error('Not an array');
+    var thread = messages.map(function(m) {
+      var isClient = m.role === 'user';
+      var isHuman = m.role === 'human';
+      var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+      var time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      var sender = isHuman && m.sender_name ? '<div class="sms-sender">' + m.sender_name + '</div>' : '';
+      return '<div class="sms-msg ' + cls + '">' + m.message + '</div>' + sender +
+             '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
+    }).join('');
+    document.getElementById('conv-detail-content').innerHTML =
+      '<div class="detail-card">' +
+        '<div class="detail-header"><div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div></div>' +
+        '<div class="sms-thread" id="live-thread">' + thread + '</div>' +
+        '<div class="reply-box">' +
+          '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
+          '<button id="send-btn" class="reply-send">Send</button>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('send-btn').addEventListener('click', sendReply);
+    document.getElementById('reply-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
+    });
+  } catch (err) {
+    document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
+  }
+}
+
+async function sendReply() {
+  var input = document.getElementById('reply-input');
+  var message = input.value.trim();
+  if (!message) return;
+  var phone = decodeURIComponent(window._currentPhone);
+  input.value = ''; input.disabled = true;
+  try {
+    var res = await fetch(PORTAL_URL + '/api/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      body: JSON.stringify({ to: phone, message: message })
+    });
+    if (res.ok) {
+      var user = window._rwUser;
+      var bubbleColor = user ? user.bubble_color : '#1D9E75';
+      var senderName = user ? (user.first_name + ' ' + user.last_name).trim() : 'Team';
+      var now = new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      var thread = document.getElementById('live-thread');
+      thread.innerHTML += '<div class="sms-msg sms-human" style="background:' + bubbleColor + '">' + message + '</div>' +
+                          '<div class="sms-sender">' + senderName + '</div>' +
+                          '<div class="sms-time">' + now + '</div>';
+      thread.scrollTop = thread.scrollHeight;
+    } else { alert('Failed to send. Please try again.'); }
+  } catch (err) { alert('Connection error. Please try again.'); }
+  input.disabled = false; input.focus();
+}
+
+const panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',summaries:'Summaries',analytics:'Analytics',settings:'Settings' };
+function navItem(name) { return document.querySelector('[onclick="nav(\'' + name + '\',this)"]'); }
+function nav(name, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = panelTitles[name] || name;
+  closeConv(); closeTicket();
+  if (name === 'conversations') loadRealConversations();
+}
+
+const convData = {
+  weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio both down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
+    {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
+    {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor?',time:'7:14 PM'},
+    {from:'client',text:'Ok found it',time:'7:16 PM'},
+    {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in.',time:'7:16 PM'},
+    {from:'client',text:'Done. TV just came on',time:'7:18 PM'},
+    {from:'andi',text:'Good. Now find the black box below it for the audio. Same thing.',time:'7:18 PM'},
+    {from:'client',text:'Music is back too. That was easy',time:'7:21 PM'},
+    {from:'andi',text:'Good timing. Let me know if anything else comes up.',time:'7:21 PM'}
+  ]},
+  fischer: { name:'Joel Fischer', time:'9:51 PM', status:'resolved', issue:'Pro Control remote not responding.', andi_action:'Confirmed dead batteries. Client replaced AAs and remote came back immediately.', mindset:'Quick fix. Client was happy.', thread:[
+    {from:'client',text:'Remote stopped working',time:'9:51 PM'},
+    {from:'andi',text:'Which remote? The Pro Control one on the coffee table?',time:'9:51 PM'},
+    {from:'client',text:'Yes the big one',time:'9:52 PM'},
+    {from:'andi',text:'Try replacing the batteries. It takes AAs.',time:'9:52 PM'},
+    {from:'client',text:'That did it. Thanks',time:'9:54 PM'},
+    {from:'andi',text:'Good. Let me know if it keeps happening.',time:'9:54 PM'}
+  ]},
+  happe: { name:'Shannon Happe', time:'10:17 PM', status:'open', issue:'No audio on 2 TVs in main living areas. AVR reboot did not resolve.', andi_action:'Walked through AVR reboot. Audio did not restore. Ticket created.', follow_up:'Needs tech visit. Client mentioned guests coming Friday.', mindset:'Client was frustrated but appreciative.', thread:[
+    {from:'client',text:'No sound on the TV in the living room or the kitchen',time:'10:17 PM'},
+    {from:'andi',text:'Both at the same time is usually the AVR. Can you find the receiver in your rack?',time:'10:17 PM'},
+    {from:'client',text:'Found it. Denon',time:'10:19 PM'},
+    {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in.',time:'10:19 PM'},
+    {from:'client',text:'Still nothing. Tried twice',time:'10:24 PM'},
+    {from:'andi',text:'Ugh. That tells me something needs a closer look. I am going to create a ticket so someone can get out to you.',time:'10:24 PM'},
+    {from:'client',text:'Ok thank you. I have people coming Friday so hoping it can be fixed before then',time:'10:26 PM'},
+    {from:'andi',text:'Noted. We will make sure that gets communicated.',time:'10:26 PM'},
+    {from:'human',text:'Shannon this is Andy. I am scheduling a visit for Thursday morning.',time:'8:02 AM',sender:'Andy Hepola'}
+  ]},
+  everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping. Client assumed it was the security system.', andi_action:'Identified as a high voltage ceiling detector. Directed client to replace battery.', follow_up:'Note at next visit that ceiling detectors are not our equipment.', mindset:'Client was relieved.', thread:[
+    {from:'client',text:'Our smoke detector is going off. Is something wrong with the security system?',time:'10:09 PM'},
+    {from:'andi',text:'First things first. Is everyone safe and still in the house?',time:'10:09 PM'},
+    {from:'client',text:'Yes everyone is fine. It just started beeping',time:'10:10 PM'},
+    {from:'andi',text:'That one is a high voltage smoke detector your electrician installed. We did not install it.',time:'10:11 PM'},
+    {from:'andi',text:'A slow chirp is almost always a low battery.',time:'10:12 PM'},
+    {from:'client',text:'Perfect that makes so much more sense. Thank you!',time:'10:14 PM'},
+    {from:'andi',text:'Glad we got that sorted. Hope the rest of your night is quiet.',time:'10:15 PM'}
+  ]},
+  rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline. No control from remotes or app.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
+    {from:'client',text:'Nothing is working. Remotes dead and the app is not connecting',time:'8:33 PM'},
+    {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack.',time:'8:33 PM'},
+    {from:'client',text:'Got it',time:'8:35 PM'},
+    {from:'andi',text:'Unplug it, wait 10 seconds, plug it back in.',time:'8:35 PM'},
+    {from:'client',text:'All good. Everything came back',time:'8:37 PM'},
+    {from:'andi',text:'Good. Let me know if it happens again.',time:'8:37 PM'}
+  ]},
+  green: { name:'Robyn Green', time:'11:42 PM', status:'resolved', issue:'Internet outage. No connectivity on any device.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
+    {from:'client',text:'Hey our wifi is completely out. Nothing is working',time:'11:42 PM'},
+    {from:'andi',text:'Can you head to your rack and tell me if anything looks dark?',time:'11:42 PM'},
+    {from:'client',text:'Yeah the WattBox at the top has no lights at all',time:'11:44 PM'},
+    {from:'andi',text:'Unplug it from the wall, wait about 10 seconds, then plug it back in.',time:'11:44 PM'},
+    {from:'client',text:'Ok lights are back and wifi is working. Thank you!',time:'11:46 PM'},
+    {from:'andi',text:'Good. Hope the rest of the night goes smooth.',time:'11:46 PM'}
+  ]}
+};
+
+function buildConvDetail(id) {
+  var d = convData[id]; if (!d) return '';
+  var thread = d.thread.map(function(m) {
+    var isHuman = m.from === 'human';
+    var cls = m.from === 'client' ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+    var sender = isHuman && m.sender ? '<div class="sms-sender">' + m.sender + '</div>' : '';
+    return '<div class="sms-msg ' + cls + '">' + m.text + '</div>' + sender + '<div class="sms-time' + (m.from==='client'?' right':'') + '">' + m.time + '</div>';
+  }).join('');
+  var resolved = d.status === 'resolved' ? '<div class="sms-resolved">✓ Resolved without a tech</div>' : '';
+  var followup = d.follow_up ? '<div class="detail-followup"><strong>Follow up:</strong> ' + d.follow_up + '</div>' : '';
+  return '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + d.name + '</div><div class="detail-meta">' + d.time + ' · ' + (d.status==='resolved'?'Resolved':'Unresolved') + '</div></div><span class="status-pill ' + (d.status==='resolved'?'pill-resolved':'pill-open') + '"><span class="pill-dot"></span>' + (d.status==='resolved'?'Resolved':'Unresolved') + '</span></div><div class="sms-thread">' + thread + resolved + '</div><div class="detail-summary"><div class="detail-row"><strong>Issue:</strong> ' + d.issue + '</div><div class="detail-row"><strong>Andi:</strong> ' + d.andi_action + '</div>' + followup + '<div class="detail-mindset">' + d.mindset + '</div></div></div>';
+}
+
+function openConv(id) {
+  document.getElementById('conv-list-view').style.display = 'none';
+  document.getElementById('conv-detail-view').style.display = 'block';
+  document.getElementById('conv-detail-content').innerHTML = buildConvDetail(id);
+}
+function closeConv() {
+  var lv = document.getElementById('conv-list-view');
+  var dv = document.getElementById('conv-detail-view');
+  if (lv) lv.style.display = 'block';
+  if (dv) dv.style.display = 'none';
+}
+
+const ticketData = { happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
+function openTicket(id) {
+  var t = ticketData[id]; if (!t) return;
+  document.getElementById('ticket-list-view').style.display = 'none';
+  document.getElementById('ticket-detail-view').style.display = 'block';
+  document.getElementById('ticket-detail-content').innerHTML = '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + t.client + '</div><div class="detail-meta">' + t.address + ' · Opened ' + t.opened + '</div></div><span class="t-pill t-open">Open</span></div><div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + t.issue + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Context</div><div class="ticket-detail-value">' + t.context + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Resolution clock</div><div class="clock-display">' + t.elapsed + '</div><div class="clock-note">Clock runs while the ticket is unscheduled and unresolved.</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select"><button class="status-opt sel-open" onclick="setTicketStatus(this,\'open\')">Open</button><button class="status-opt" onclick="setTicketStatus(this,\'scheduled\')">Scheduled</button><button class="status-opt" onclick="setTicketStatus(this,\'resolved\')">Resolved</button></div></div></div>';
+}
+function setTicketStatus(btn, status) { document.querySelectorAll('.status-opt').forEach(function(b){b.className='status-opt';}); btn.classList.add('sel-'+status); }
+function closeTicket() {
+  var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
+  if (lv) lv.style.display = 'block'; if (dv) { dv.style.display = 'none'; dv.innerHTML = ''; }
+}
+
+var fuRemaining = 2;
+function resolveFollowup(id, user) {
+  var row = document.getElementById('fu-'+id); var check = document.getElementById('fc-'+id); var label = document.getElementById('fr-'+id);
+  if (row.classList.contains('done')) return;
+  check.classList.add('checked'); row.classList.add('done');
+  var now = new Date();
+  label.textContent = 'Resolved by ' + user + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  fuRemaining--;
+  var countEl = document.getElementById('fu-count'); var badge = document.querySelector('.nav-badge.blue');
+  if (fuRemaining===0) { countEl.textContent='All done'; if(badge) badge.style.display='none'; }
+  else { countEl.textContent=fuRemaining+' remaining'; if(badge) badge.textContent=fuRemaining; }
+}
+
+function setTime(btn) { document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); }
+function toggleMode() {
+  var dark = document.body.classList.toggle('dark');
+  document.getElementById('mode-btn').textContent = dark ? '☀️' : '🌙';
+  localStorage.setItem('rw-mode', dark ? 'dark' : 'light');
+}
+if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='☀️'; }
+document.getElementById('login-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
