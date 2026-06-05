@@ -102,7 +102,6 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .trend-val.up { color:var(--green); } .trend-val.down { color:var(--red); }
 .section-divider { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-soft);padding-bottom:0.6rem;border-bottom:1px solid var(--border);margin-bottom:0.875rem;margin-top:1.1rem; }
 .section-divider:first-child { margin-top:0; }
-.conv-card { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:0.75rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.1s; }
 .conv-card:last-child { margin-bottom:0; }
 .conv-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
 .conv-top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem; }
@@ -653,7 +652,7 @@ function renderConvList(threads) {
     var card = document.createElement('div');
     card.className = 'conv-card' + (unread ? ' unread' : '');
     card.innerHTML =
-      '<div class="conv-unread-indicator"></div>' +
+      '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
         '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
         '<div class="conv-preview">' + preview + '</div>' +
