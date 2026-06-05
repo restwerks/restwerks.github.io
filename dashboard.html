@@ -573,10 +573,12 @@ async function openRealConv(encodedPhone, name) {
     document.getElementById('reply-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
     });
-    setTimeout(function() {
-      var threadEl = document.getElementById('live-thread');
-      if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
-    }, 300);
+requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        var threadEl = document.getElementById('live-thread');
+        if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
+      });
+    });
   } catch (err) {
     document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
   }
