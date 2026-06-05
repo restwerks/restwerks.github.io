@@ -257,11 +257,15 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
     </div>
     <div>
       <div class="login-label">Email</div>
-      <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" />
+      <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
     </div>
     <div>
       <div class="login-label">Password</div>
-      <input class="login-input" type="password" id="login-pw" placeholder="••••••••" />
+      <input class="login-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--brand);cursor:pointer;" />
+      <label for="remember-me" style="font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;">Keep me signed in for 30 days</label>
     </div>
     <button class="login-btn" onclick="doLogin()">Sign in</button>
     <div class="login-error" id="login-error"></div>
@@ -629,7 +633,7 @@ async function doLogin() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email, password: pw })
+      body: JSON.stringify({ email, password: pw, rememberMe: document.getElementById('remember-me').checked })
     });
 
     const data = await res.json();
@@ -722,7 +726,7 @@ async function openRealConv(encodedPhone, name) {
   document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
 
   try {
-    const res = await fetch(`${PORTAL_URL}/api/conversations/${encodedPhone}`, {
+    const res = await fetch(`${PORTAL_URL}/api/thread?phone=${encodedPhone}`, {
       credentials: 'include'
     });
 
