@@ -226,9 +226,8 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .sms-system-line.green .sline { background:var(--green);opacity:0.4; }
 .sms-system-line span { font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);white-space:nowrap; }
 .sms-system-line.green span { color:var(--green); }
-.handback-bar { display:flex;align-items:center;justify-content:flex-end;padding:0.4rem 1.25rem;background:var(--blue-bg);border-bottom:1px solid var(--border); }
-.handback-btn { background:var(--blue);color:white;border:none;border-radius:7px;padding:0.3rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer; }
-.handback-btn:hover { opacity:0.85; }
+.handback-btn { background:none;color:var(--blue);border:1px solid var(--blue);border-radius:7px;padding:0.25rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+.handback-btn:hover { background:var(--blue);color:white; }
 /* CONVERSATION CARDS - redesigned */
 .conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
 .conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
@@ -601,8 +600,8 @@ function startSSE() {
   _sseSource.addEventListener('handback', function(e) {
     var data = JSON.parse(e.data);
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
-      var bar = document.getElementById('handback-bar');
-      if (bar) bar.remove();
+      var slot = document.getElementById('handback-slot');
+      if (slot) slot.innerHTML = '';
       var statusEl = document.getElementById('thread-status');
       if (statusEl) statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
       // Inject system message into thread
@@ -681,7 +680,7 @@ function renderConvList(threads) {
   if (!threads.length) { body.innerHTML = '<div class="loading-row">No conversations yet. Text 952-997-0100 to start one.</div>'; return; }
   var html = '';
   threads.forEach(function(t) {
-    var name = t.client_name || t.label || t.phone_number;
+    var name = t.display_name || t.client_name || t.label || t.phone_number;
     var ep = encodeURIComponent(t.phone_number);
     var safeName = name.replace(/'/g, "\\'");
     var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
@@ -763,16 +762,16 @@ async function openRealConv(encodedPhone, name) {
     var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
     var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
     var andiActive = !hasHuman || (lastHandback && lastHuman && new Date(lastHandback.created_at) > new Date(lastHuman.created_at));
-    var handbackBar = (!andiActive) ?
-      '<div class="handback-bar" id="handback-bar"><button class="handback-btn" id="handback-btn">Hand back to Andi</button></div>' : '';
+    var handbackBtnHtml = (!andiActive) ?
+      '<button class="handback-btn" id="handback-btn">Hand back to Andi</button>' : '';
     window._andiActive = andiActive;
     document.getElementById('conv-detail-content').innerHTML =
     '<div class="thread-shell">' +
       '<div class="thread-main">' +
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
           '<div><div class="detail-name">' + displayName + '</div><div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div></div>' +
+          '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
         '</div>' +
-        handbackBar +
         '<div class="sms-thread" id="live-thread">' + html + '</div>' +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
@@ -784,8 +783,9 @@ async function openRealConv(encodedPhone, name) {
         '<div class="equipment-panel-body" id="equipment-panel-body"><div style="color:var(--ink-soft);font-size:0.78rem;font-style:italic;">Loading...</div></div>' +
       '</div>' +
     '</div>';
-    if (document.getElementById('handback-btn')) {
-      document.getElementById('handback-btn').addEventListener('click', function() {
+    var hbBtn = document.getElementById('handback-btn');
+    if (hbBtn) {
+      hbBtn.addEventListener('click', function() {
         doHandback(decodeURIComponent(encodedPhone));
       });
     }
@@ -884,18 +884,14 @@ async function sendReply() {
       // Inject handback bar and flip status if not already showing
       if (!document.getElementById('handback-bar')) {
         var threadMain = document.querySelector('.thread-main');
-        var bar = document.createElement('div');
-        bar.id = 'handback-bar';
-        bar.className = 'handback-bar';
-        var btn = document.createElement('button');
-        btn.className = 'handback-btn';
-        btn.textContent = 'Hand back to Andi';
-        btn.addEventListener('click', function() { doHandback(phone); });
-        bar.appendChild(btn);
-        // Insert after detail-header
-        var header = threadMain ? threadMain.querySelector('.detail-header') : null;
-        if (header && header.nextSibling) {
-          threadMain.insertBefore(bar, header.nextSibling);
+        var slot = document.getElementById('handback-slot');
+        if (slot && !slot.querySelector('.handback-btn')) {
+          var btn = document.createElement('button');
+          btn.className = 'handback-btn';
+          btn.id = 'handback-btn';
+          btn.textContent = 'Hand back to Andi';
+          btn.addEventListener('click', function() { doHandback(phone); });
+          slot.appendChild(btn);
         }
         var statusEl = document.getElementById('thread-status');
         if (statusEl) statusEl.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this';
@@ -912,8 +908,8 @@ async function doHandback(phone) {
       body: JSON.stringify({ phone: phone })
     });
     if (res.ok) {
-      var bar = document.getElementById('handback-bar');
-      if (bar) bar.remove();
+      var slot = document.getElementById('handback-slot');
+      if (slot) slot.innerHTML = '';
       var statusEl = document.getElementById('thread-status');
       if (statusEl) statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
     }
