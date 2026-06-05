@@ -201,7 +201,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .thread-shell { display:flex;gap:0;height:calc(100vh - var(--topbar-h) - 2.5rem);min-height:0; }
 .thread-main { flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white); }
 .equipment-panel { width:280px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
-.equipment-panel-header { padding:0.75rem 1rem;border-bottom:1px solid var(--border);font-size:0.78rem;font-weight:700;color:var(--ink);display:flex;align-items:center;justify-content:space-between; }
+.equipment-panel-header { padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:0.85rem;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box; }
 .equipment-panel-body { flex:1;overflow-y:auto;padding:0.75rem 1rem; }
 .eq-section { margin-bottom:1rem; }
 .eq-section-title { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-soft);margin-bottom:0.4rem; }
@@ -600,6 +600,8 @@ function startSSE() {
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
       var bar = document.getElementById('handback-bar');
       if (bar) bar.remove();
+      var statusEl = document.getElementById('thread-status');
+      if (statusEl) statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
     }
   });
   _sseSource.onerror = function() {
@@ -730,11 +732,12 @@ async function openRealConv(encodedPhone, name) {
     var andiActive = !hasHuman || (lastHandback && lastHuman && new Date(lastHandback.created_at) > new Date(lastHuman.created_at));
     var handbackBar = (!andiActive) ?
       '<div class="handback-bar" id="handback-bar"><span>You are handling this conversation. Andi is silent.</span><button class="handback-btn" id="handback-btn">Hand back to Andi</button></div>' : '';
+    window._andiActive = andiActive;
     document.getElementById('conv-detail-content').innerHTML =
     '<div class="thread-shell">' +
       '<div class="thread-main">' +
-        '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);">' +
-          '<div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div>' +
+        '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
+          '<div><div class="detail-name">' + name + '</div><div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div></div>' +
         '</div>' +
         handbackBar +
         '<div class="sms-thread" id="live-thread">' + html + '</div>' +
@@ -744,7 +747,7 @@ async function openRealConv(encodedPhone, name) {
         '</div>' +
       '</div>' +
       '<div class="equipment-panel" id="equipment-panel">' +
-        '<div class="equipment-panel-header"><span>System Info</span></div>' +
+        '<div class="equipment-panel-header"><span>Household</span></div>' +
         '<div class="equipment-panel-body" id="equipment-panel-body"><div style="color:var(--ink-soft);font-size:0.78rem;font-style:italic;">Loading...</div></div>' +
       '</div>' +
     '</div>';
@@ -754,6 +757,14 @@ async function openRealConv(encodedPhone, name) {
       });
     }
     loadEquipmentPanel(decodeURIComponent(encodedPhone));
+    var statusEl = document.getElementById('thread-status');
+    if (statusEl) {
+      if (!andiActive) {
+        statusEl.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this';
+      } else {
+        statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
+      }
+    }
     document.getElementById('send-btn').addEventListener('click', sendReply);
     document.getElementById('reply-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
@@ -849,6 +860,8 @@ async function doHandback(phone) {
     if (res.ok) {
       var bar = document.getElementById('handback-bar');
       if (bar) bar.remove();
+      var statusEl = document.getElementById('thread-status');
+      if (statusEl) statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
     }
   } catch(err) { console.error('Handback failed:', err); }
 }
@@ -861,7 +874,7 @@ async function loadEquipmentPanel(phone) {
     var res = await rwFetch('/api/household-by-phone?phone=' + encodeURIComponent(phone));
     if (!res.ok) { body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.78rem;font-style:italic;">No household record found.</div>'; return; }
     var h = await res.json();
-    var fields = [
+    var sysFields = [
       { label: 'Control', value: h.control_system_type },
       { label: 'ISP', value: h.isp_name },
       { label: 'Network', value: h.network_tier },
@@ -874,17 +887,37 @@ async function loadEquipmentPanel(phone) {
 
     body.innerHTML = '';
 
+    // Client info
+    var clientSection = document.createElement('div');
+    clientSection.className = 'eq-section';
+    clientSection.innerHTML = '<div class="eq-section-title">Client</div>';
+    if (h.client_name) {
+      var nameRow = document.createElement('div');
+      nameRow.className = 'eq-row';
+      nameRow.innerHTML = '<span class="eq-label">Name</span><span class="eq-value">' + h.client_name + '</span>';
+      clientSection.appendChild(nameRow);
+    }
+    if (h.address) {
+      var addrRow = document.createElement('div');
+      addrRow.className = 'eq-row';
+      addrRow.innerHTML = '<span class="eq-label">Address</span><span class="eq-value" style="font-size:0.72rem;">' + h.address + '</span>';
+      clientSection.appendChild(addrRow);
+    }
+    body.appendChild(clientSection);
+
     // System fields
-    var sysSection = document.createElement('div');
-    sysSection.className = 'eq-section';
-    sysSection.innerHTML = '<div class="eq-section-title">System</div>';
-    fields.forEach(function(f) {
-      var row = document.createElement('div');
-      row.className = 'eq-row';
-      row.innerHTML = '<span class="eq-label">' + f.label + '</span><span class="eq-value">' + f.value + '</span>';
-      sysSection.appendChild(row);
-    });
-    body.appendChild(sysSection);
+    if (sysFields.length) {
+      var sysSection = document.createElement('div');
+      sysSection.className = 'eq-section';
+      sysSection.innerHTML = '<div class="eq-section-title">System</div>';
+      sysFields.forEach(function(f) {
+        var row = document.createElement('div');
+        row.className = 'eq-row';
+        row.innerHTML = '<span class="eq-label">' + f.label + '</span><span class="eq-value">' + f.value + '</span>';
+        sysSection.appendChild(row);
+      });
+      body.appendChild(sysSection);
+    }
 
     // Notes
     if (h.household_notes && h.household_notes !== 'None') {
