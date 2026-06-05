@@ -158,8 +158,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--canvas); color: var
 .conv-detail-hint { font-size: 0.7rem; color: var(--brand); margin-top: 6px; font-weight: 500; }
 
 /* CONVERSATION DETAIL */
-.conv-detail-panel { display: none; }
-.conv-detail-panel.active { display: block; }
 .back-btn { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--ink-soft); cursor: pointer; margin-bottom: 1rem; transition: color 0.15s; font-weight: 500; }
 .back-btn:hover { color: var(--ink); }
 .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: 11px; overflow: hidden; }
@@ -172,7 +170,7 @@ body.dark .sms-thread { background: #0d0d0c; }
 .sms-client { background: #e0e0e0; color: #1a1a18; align-self: flex-end; border-bottom-right-radius: 4px; }
 body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
 .sms-andi { background: var(--green); color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
-.sms-human { background: var(--i-brand, #A23535); color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
+.sms-human { background: var(--i-brand, #1D9E75); color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
 .sms-sender { font-size: 0.62rem; color: var(--ink-soft); padding: 0 0.85rem; align-self: flex-start; margin-top: -4px; }
 .sms-time { font-size: 0.65rem; color: var(--ink-soft); padding: 0 0.85rem; }
 .sms-time.right { text-align: right; align-self: flex-end; }
@@ -243,6 +241,9 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
 
 /* PLACEHOLDER */
 .placeholder-body { padding: 3rem; text-align: center; color: var(--ink-soft); font-size: 0.875rem; font-style: italic; }
+
+/* LOADING */
+.loading-row { padding: 1.5rem 1.25rem; text-align: center; color: var(--ink-soft); font-size: 0.82rem; font-style: italic; }
 </style>
 </head>
 <body>
@@ -275,15 +276,15 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
 
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="integrator-name" id="sb-name">Admit <span class="integrator-accent">One</span></div>
-      <div class="integrator-number" id="sb-number">952-997-0101</div>
+      <div class="integrator-name" id="sb-name">RestWerks <span class="integrator-accent">AV</span></div>
+      <div class="integrator-number" id="sb-number">952-997-0100</div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-group-label">Overview</div>
       <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
 
       <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
-      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green">6</span></div>
+      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green" id="badge-conversations">6</span></div>
       <div class="nav-item" onclick="nav('resolved',this)"><span class="nav-icon">✓</span> Resolved <span class="nav-badge green">5</span></div>
       <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge">1</span></div>
       <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue">2</span></div>
@@ -300,8 +301,8 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
     </nav>
     <div class="sidebar-user">
       <div class="user-row">
-        <div class="user-avatar" id="sb-avatar">JS</div>
-        <div><div class="user-name" id="sb-username">John Svobodny</div><div class="user-role">Owner</div></div>
+        <div class="user-avatar" id="sb-avatar">AH</div>
+        <div><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -391,12 +392,25 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
         </div>
       </div>
 
-      <!-- CONVERSATIONS (all) -->
+      <!-- CONVERSATIONS -->
       <div id="panel-conversations" class="panel">
         <div id="conv-list-view">
+
+          <!-- REAL CONVERSATIONS FROM DATABASE -->
+          <div class="panel-chrome" id="real-convs-panel">
+            <div class="panel-chrome-header">
+              <div class="panel-chrome-title">Live conversations</div>
+              <div class="panel-chrome-action" onclick="loadRealConversations()">↻ Refresh</div>
+            </div>
+            <div id="real-convs-body">
+              <div class="loading-row">Loading conversations...</div>
+            </div>
+          </div>
+
+          <!-- DEMO CONVERSATIONS -->
           <div class="panel-chrome">
             <div class="panel-chrome-header">
-              <div class="panel-chrome-title">All conversations · last 24 hours</div>
+              <div class="panel-chrome-title">Demo conversations</div>
             </div>
             <div style="padding:1.1rem 1.25rem;">
               <div class="section-divider">During Hours</div>
@@ -454,14 +468,14 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
           <div class="panel-chrome-header"><div class="panel-chrome-title">Resolved by Andi · last 24 hours</div></div>
           <div style="padding:1.1rem 1.25rem;">
             <div class="section-divider">During Hours</div>
-            <div class="conv-card" onclick="openConvResolved('weiss')">
+            <div class="conv-card" onclick="openConv('weiss')">
               <div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div>
               <div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div>
               <div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div>
               <div class="conv-mindset">Client was surprised it was that simple.</div>
               <div class="conv-detail-hint">Tap to view conversation →</div>
             </div>
-            <div class="conv-card" onclick="openConvResolved('fischer')">
+            <div class="conv-card" onclick="openConv('fischer')">
               <div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div>
               <div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div>
               <div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div>
@@ -469,7 +483,7 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
               <div class="conv-detail-hint">Tap to view conversation →</div>
             </div>
             <div class="section-divider">After Hours</div>
-            <div class="conv-card" onclick="openConvResolved('everson')">
+            <div class="conv-card" onclick="openConv('everson')">
               <div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div>
               <div class="conv-row"><strong>Issue:</strong> Smoke detector beeping. Client assumed it was the security system.</div>
               <div class="conv-row"><strong>Andi:</strong> Identified as a high voltage ceiling detector, not our device. Client replaced battery.</div>
@@ -477,14 +491,14 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
               <div class="conv-mindset">Client was relieved. Responded well.</div>
               <div class="conv-detail-hint">Tap to view conversation →</div>
             </div>
-            <div class="conv-card" onclick="openConvResolved('rydeen')">
+            <div class="conv-card" onclick="openConv('rydeen')">
               <div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div>
               <div class="conv-row"><strong>Issue:</strong> ELAN controller offline. No control from remotes or app.</div>
               <div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div>
               <div class="conv-mindset">Client was straightforward. In and out fast.</div>
               <div class="conv-detail-hint">Tap to view conversation →</div>
             </div>
-            <div class="conv-card" onclick="openConvResolved('green')">
+            <div class="conv-card" onclick="openConv('green')">
               <div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div>
               <div class="conv-row"><strong>Issue:</strong> Internet outage. No connectivity on any device.</div>
               <div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div>
@@ -532,7 +546,7 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
           </div>
           <div>
             <div class="followup-row" id="fu-1">
-              <div class="followup-check" id="fc-1" onclick="resolveFollowup('1','John Svobodny')"></div>
+              <div class="followup-check" id="fc-1" onclick="resolveFollowup('1','Andy Hepola')"></div>
               <div class="followup-body">
                 <div class="followup-client">Shannon Happe</div>
                 <div class="followup-note">Needs tech visit. Client has guests coming Friday. Schedule before end of day.</div>
@@ -541,7 +555,7 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
               </div>
             </div>
             <div class="followup-row" id="fu-2">
-              <div class="followup-check" id="fc-2" onclick="resolveFollowup('2','John Svobodny')"></div>
+              <div class="followup-check" id="fc-2" onclick="resolveFollowup('2','Andy Hepola')"></div>
               <div class="followup-body">
                 <div class="followup-client">Roseanne Everson</div>
                 <div class="followup-note">Note at next visit that ceiling smoke detectors are not our equipment.</div>
@@ -596,6 +610,8 @@ body.dark .sms-client { background: #2a2a27; color: #f0efe8; }
 <script>
 const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
 
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pw = document.getElementById('login-pw').value;
@@ -629,6 +645,7 @@ async function doLogin() {
     applyIntegratorContext(data);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    loadRealConversations();
 
   } catch (err) {
     errEl.textContent = 'Connection error. Please try again.';
@@ -650,11 +667,90 @@ function applyIntegratorContext(user) {
   document.getElementById('sb-name').innerHTML = name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
   document.getElementById('sb-number').textContent = number;
   document.getElementById('sb-username').textContent = fullName;
+  document.getElementById('sb-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Owner';
   document.getElementById('sb-avatar').textContent = initials;
   document.getElementById('sb-avatar').style.background = accent;
 
   window._rwUser = user;
 }
+
+// ─── REAL CONVERSATIONS ───────────────────────────────────────────────────────
+
+async function loadRealConversations() {
+  const body = document.getElementById('real-convs-body');
+  body.innerHTML = '<div class="loading-row">Loading...</div>';
+
+  try {
+    const res = await fetch(`${PORTAL_URL}/api/conversations`, {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      body.innerHTML = '<div class="loading-row">No live conversations yet.</div>';
+      return;
+    }
+
+    const threads = await res.json();
+
+    if (!threads.length) {
+      body.innerHTML = '<div class="loading-row">No live conversations yet. Text 952-997-0100 to start one.</div>';
+      return;
+    }
+
+    body.innerHTML = '<div style="padding:1.1rem 1.25rem;">' + threads.map(t => {
+      const name = t.client_name || t.label || t.phone_number;
+      const time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      return `<div class="conv-card" onclick="openRealConv('${encodeURIComponent(t.phone_number)}', '${name}')">
+        <div class="conv-top">
+          <div><div class="conv-name">${name}</div></div>
+          <div class="conv-time">${time}</div>
+        </div>
+        <div class="conv-row">${t.message_count} messages</div>
+        <div class="conv-detail-hint">Tap to view conversation →</div>
+      </div>`;
+    }).join('') + '</div>';
+
+  } catch (err) {
+    body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
+  }
+}
+
+async function openRealConv(encodedPhone, name) {
+  document.getElementById('conv-list-view').style.display = 'none';
+  document.getElementById('conv-detail-view').style.display = 'block';
+  document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
+
+  try {
+    const res = await fetch(`${PORTAL_URL}/api/conversations/${encodedPhone}`, {
+      credentials: 'include'
+    });
+
+    const messages = await res.json();
+
+    const thread = messages.map(m => {
+      const isClient = m.role === 'user';
+      const isHuman = m.role === 'human';
+      const cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+      const time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      const sender = isHuman && m.sender_name ? `<div class="sms-sender">${m.sender_name}</div>` : '';
+      return `<div class="sms-msg ${cls}">${m.message}</div>${sender}<div class="sms-time ${isClient?'right':''}">${time}</div>`;
+    }).join('');
+
+    document.getElementById('conv-detail-content').innerHTML = `
+      <div class="detail-card">
+        <div class="detail-header">
+          <div><div class="detail-name">${name}</div><div class="detail-meta">Live conversation</div></div>
+        </div>
+        <div class="sms-thread">${thread}</div>
+      </div>`;
+
+  } catch (err) {
+    document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread.</div>';
+  }
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
 
 const panelTitles = { dashboard:'Dashboard', conversations:'Conversations', resolved:'Resolved', tickets:'Tickets', followups:'Follow Ups', households:'Households', summaries:'Summaries', analytics:'Analytics', settings:'Settings' };
 
@@ -666,15 +762,16 @@ function nav(name, el) {
   document.getElementById('panel-' + name).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('page-title').textContent = panelTitles[name] || name;
-  // reset detail views
   closeConv(); closeTicket();
+  if (name === 'conversations') loadRealConversations();
 }
 
-// CONVERSATION DETAIL DATA
+// ─── DEMO CONVERSATION DATA ───────────────────────────────────────────────────
+
 const convData = {
   weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio both down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple. Good interaction.', thread:[
     {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
-    {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor? It will have an Admit One label on it.',time:'7:14 PM'},
+    {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor? It will have a RestWerks AV label on it.',time:'7:14 PM'},
     {from:'client',text:'Ok found it',time:'7:16 PM'},
     {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in. Let me know when the lights come back.',time:'7:16 PM'},
     {from:'client',text:'Done. TV just came on',time:'7:18 PM'},
@@ -697,10 +794,9 @@ const convData = {
     {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in. Should take about a minute to restart.',time:'10:19 PM'},
     {from:'client',text:'Still nothing. Tried twice',time:'10:24 PM'},
     {from:'andi',text:'Ugh. That tells me something needs a closer look. I am going to create a ticket so someone can get out to you. We will be in touch first thing tomorrow.',time:'10:24 PM'},
-    {from:'andi',text:'Sorry you are dealing with this. We will get it sorted.',time:'10:24 PM'},
     {from:'client',text:'Ok thank you. I have people coming Friday so hoping it can be fixed before then',time:'10:26 PM'},
     {from:'andi',text:'Noted. We will make sure that gets communicated.',time:'10:26 PM'},
-    {from:'human',text:'Shannon this is John. I am scheduling a visit for Thursday morning. We will have you sorted before your guests arrive.',time:'8:02 AM',sender:'John Svobodny'},
+    {from:'human',text:'Shannon this is Andy. I am scheduling a visit for Thursday morning. We will have you sorted before your guests arrive.',time:'8:02 AM',sender:'Andy Hepola'},
   ]},
   everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping. Client assumed it was the security system.', andi_action:'Identified as a high voltage ceiling detector. Directed client to replace battery.', follow_up:'Worth a note at next visit that ceiling detectors are not our equipment.', mindset:'Client was relieved. Responded well to the explanation.', thread:[
     {from:'client',text:'Our smoke detector is going off. Is something wrong with the security system?',time:'10:09 PM'},
@@ -712,13 +808,12 @@ const convData = {
     {from:'andi',text:'A slow chirp every minute or two is almost always a low battery. There should be a battery compartment on the side or bottom.',time:'10:12 PM'},
     {from:'client',text:'Oh I had no idea. So the security system is totally fine?',time:'10:13 PM'},
     {from:'andi',text:'Security system is fine. Not showing any alerts on our end.',time:'10:13 PM'},
-    {from:'andi',text:'Swap the battery in that ceiling unit and the chirping should stop. Usually a 9 volt.',time:'10:13 PM'},
     {from:'client',text:'Perfect that makes so much more sense. Thank you!',time:'10:14 PM'},
     {from:'andi',text:'Glad we got that sorted. Hope the rest of your night is quiet.',time:'10:15 PM'},
   ]},
   rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline. No control from remotes or app.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
     {from:'client',text:'Nothing is working. Remotes dead and the app is not connecting',time:'8:33 PM'},
-    {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack, find the box with the Admit One label.',time:'8:33 PM'},
+    {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack, find the box with the RestWerks AV label.',time:'8:33 PM'},
     {from:'client',text:'Got it',time:'8:35 PM'},
     {from:'andi',text:'Unplug it, wait 10 seconds, plug it back in. Takes about a minute.',time:'8:35 PM'},
     {from:'client',text:'All good. Everything came back',time:'8:37 PM'},
@@ -737,10 +832,12 @@ const convData = {
 function buildConvDetail(id) {
   const d = convData[id];
   if (!d) return '';
-  const thread = d.thread.map(m => `
-    <div class="sms-msg sms-${m.from}">${m.text}</div>
-    <div class="sms-time ${m.from==='client'?'right':''}">${m.time}</div>
-  `).join('');
+  const thread = d.thread.map(m => {
+    const isHuman = m.from === 'human';
+    const cls = m.from === 'client' ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+    const sender = isHuman && m.sender ? `<div class="sms-sender">${m.sender}</div>` : '';
+    return `<div class="sms-msg ${cls}">${m.text}</div>${sender}<div class="sms-time ${m.from==='client'?'right':''}">${m.time}</div>`;
+  }).join('');
   const resolved = d.status === 'resolved' ? '<div class="sms-resolved">✓ Resolved without a tech</div>' : '';
   const followup = d.follow_up ? `<div class="detail-followup"><strong>Follow up:</strong> ${d.follow_up}</div>` : '';
   return `<div class="detail-card">
@@ -769,9 +866,9 @@ function closeConv() {
   if (lv) lv.style.display = 'block';
   if (dv) dv.style.display = 'none';
 }
-function openConvResolved(id) { openConv(id); nav('conversations', navItem('conversations')); openConv(id); }
 
-// TICKET DETAIL
+// ─── TICKET DETAIL ────────────────────────────────────────────────────────────
+
 const ticketData = {
   happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m', status:'open' }
 };
@@ -802,9 +899,9 @@ function openTicket(id) {
       <div class="ticket-detail-section">
         <div class="ticket-detail-label">Status</div>
         <div class="status-select">
-          <button class="status-opt sel-open" onclick="setTicketStatus(this,'open','t-open')">Open</button>
-          <button class="status-opt" onclick="setTicketStatus(this,'scheduled','t-scheduled')">Scheduled</button>
-          <button class="status-opt" onclick="setTicketStatus(this,'resolved','t-resolved')">Resolved</button>
+          <button class="status-opt sel-open" onclick="setTicketStatus(this,'open')">Open</button>
+          <button class="status-opt" onclick="setTicketStatus(this,'scheduled')">Scheduled</button>
+          <button class="status-opt" onclick="setTicketStatus(this,'resolved')">Resolved</button>
         </div>
       </div>
       <div class="ticket-detail-section">
@@ -814,7 +911,7 @@ function openTicket(id) {
     </div>`;
 }
 
-function setTicketStatus(btn, status, cls) {
+function setTicketStatus(btn, status) {
   document.querySelectorAll('.status-opt').forEach(b => { b.className = 'status-opt'; });
   btn.classList.add('sel-' + status);
 }
@@ -826,7 +923,8 @@ function closeTicket() {
   if (dv) { dv.style.display = 'none'; dv.innerHTML = ''; }
 }
 
-// FOLLOW UPS
+// ─── FOLLOW UPS ───────────────────────────────────────────────────────────────
+
 let fuRemaining = 2;
 function resolveFollowup(id, user) {
   const row = document.getElementById('fu-' + id);
@@ -844,8 +942,10 @@ function resolveFollowup(id, user) {
   else { countEl.textContent = fuRemaining + ' remaining'; if (badge) badge.textContent = fuRemaining; }
 }
 
-// TIME / MODE
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+
 function setTime(btn) { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+
 function toggleMode() {
   const dark = document.body.classList.toggle('dark');
   document.getElementById('mode-btn').textContent = dark ? '☀️' : '🌙';
