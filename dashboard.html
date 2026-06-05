@@ -1,974 +1,796 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RestWerks</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --brand: #1D9E75; --brand-dark: #0f6e50; --brand-light: #e1f5ee;
-  --ink: #1a1a18; --ink-mid: #444441; --ink-soft: #888780;
-  --canvas: #faf9f6; --canvas-warm: #f1efe8; --white: #ffffff;
-  --border: #e5e3de; --green: #1D9E75; --green-bg: #e1f5ee;
-  --red: #cc4400; --red-bg: #faeee8; --blue: #2D7DD2; --blue-bg: #e8f2fb;
-  --sidebar: #111110; --sidebar-w: 224px; --topbar-h: 52px;
-}
-body.dark { --canvas:#141413;--canvas-warm:#1c1c1a;--white:#1e1e1c;--border:#2a2a27;--ink:#f0efe8;--ink-mid:#c0bfb8;--ink-soft:#6b6a64;--sidebar:#0c0c0b; }
-body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink);font-size:14px;line-height:1.5;min-height:100vh;transition:background 0.2s,color 0.2s; }
-#login-screen { position:fixed;inset:0;background:#0d0d0c;display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:1.5rem; }
-.login-box { background:#1a1a18;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:2.25rem 2.5rem;width:360px;display:flex;flex-direction:column;gap:1.1rem; }
-.login-brand { text-align:center;margin-bottom:0.25rem; }
-.login-brand-name { font-family:'DM Serif Display',serif;font-size:1.75rem;letter-spacing:-0.02em; }
-.login-brand-name .rw { color:white; } .login-brand-name .accent { color:var(--brand); }
-.login-powered { font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:3px; }
-.login-label { font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:5px; }
-.login-input { width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);color:white;padding:0.6rem 0.85rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s; }
-.login-input:focus { border-color:var(--brand); }
-.login-input::placeholder { color:rgba(255,255,255,0.18); }
-.login-btn { width:100%;background:var(--brand);color:white;border:none;padding:0.65rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;cursor:pointer;transition:background 0.2s;margin-top:0.1rem; }
-.login-btn:hover { background:var(--brand-dark); }
-.login-error { font-size:0.78rem;color:#f87171;text-align:center;min-height:1rem; }
-.login-hint { font-size:0.72rem;color:rgba(255,255,255,0.18);text-align:center; }
-.login-footer { font-size:0.7rem;color:rgba(255,255,255,0.15);display:flex;align-items:center;gap:0.35rem; }
-.login-footer span { color:var(--brand); }
-#app { display:none;min-height:100vh; }
-.shell { display:flex;min-height:100vh; }
-.sidebar { width:var(--sidebar-w);background:var(--sidebar);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);z-index:50; }
-.sidebar-logo { padding:1.1rem 1.2rem 1rem;border-bottom:1px solid rgba(255,255,255,0.06); }
-.integrator-name { font-size:1rem;font-weight:600;color:white;letter-spacing:-0.01em; }
-.integrator-accent { color:var(--i-brand,var(--brand)); }
-.integrator-number { font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:0.04em; }
-.sidebar-nav { padding:0.75rem 0;flex:1;overflow-y:auto; }
-.nav-group-label { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);padding:0.6rem 1.2rem 0.3rem; }
-.nav-item { display:flex;align-items:center;gap:0.6rem;padding:0.5rem 1.2rem;font-size:0.85rem;color:rgba(255,255,255,0.75);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;user-select:none; }
-.nav-item:hover { color:white;background:rgba(255,255,255,0.06); }
-.nav-item.active { color:white;background:rgba(255,255,255,0.08);border-left-color:var(--i-brand,var(--brand)); }
-.nav-icon { font-size:0.9rem;width:16px;text-align:center;flex-shrink:0; }
-.nav-badge { margin-left:auto;background:var(--red);color:white;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:100px;min-width:16px;text-align:center; }
-.nav-badge.blue { background:var(--blue); } .nav-badge.green { background:var(--green); }
-.sidebar-user { padding:0.85rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06); }
-.user-row { display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem; }
-.user-avatar { width:26px;height:26px;border-radius:50%;background:var(--i-brand,var(--brand));display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;color:white;flex-shrink:0; }
-.user-name { font-size:0.78rem;color:rgba(255,255,255,0.8);font-weight:500; }
-.user-role { font-size:0.65rem;color:rgba(255,255,255,0.35); }
-.sidebar-rw { font-size:0.62rem;color:rgba(255,255,255,0.18); }
-.sidebar-rw span { color:var(--brand); }
-.main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh; }
-.topbar { background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background 0.2s,border-color 0.2s; }
-.topbar-left { display:flex;align-items:center;gap:0.75rem; }
-.page-title { font-size:0.9rem;font-weight:600;color:var(--ink); }
-.andi-status { display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--ink-soft); }
-.status-dot { width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
-.topbar-right { display:flex;align-items:center;gap:0.6rem; }
-.time-filter { display:flex;gap:2px;background:var(--canvas-warm);border:1px solid var(--border);border-radius:7px;padding:2px; }
-.time-btn { padding:0.25rem 0.65rem;border-radius:5px;font-size:0.75rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--ink-soft);transition:all 0.15s;font-family:'DM Sans',sans-serif; }
-.time-btn.active { background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-.mode-toggle { width:30px;height:30px;border-radius:7px;background:var(--canvas-warm);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.15s; }
-.mode-toggle:hover { background:var(--border); }
-.content { padding:1.25rem 1.5rem;flex:1; }
-.panel { display:none; } .panel.active { display:block; }
-.stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:0.875rem;margin-bottom:1.25rem; }
-.stat-card { background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s,border-color 0.15s;user-select:none; }
-.stat-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-2px); }
-.stat-label { font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.3rem; }
-.stat-value { font-size:2rem;font-weight:700;line-height:1;margin-bottom:0.2rem; }
-.stat-value.g { color:var(--green); } .stat-value.r { color:var(--red); } .stat-value.b { color:var(--blue); }
-.stat-sub { font-size:0.68rem;color:var(--ink-soft); }
-.stat-bar { height:2px;background:var(--canvas-warm);border-radius:100px;margin-top:0.65rem;overflow:hidden; }
-.stat-bar-fill { height:100%;border-radius:100px; }
-.panel-chrome { background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:1rem; }
-.panel-chrome-header { padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
-.panel-chrome-title { font-size:0.85rem;font-weight:600;color:var(--ink); }
-.panel-chrome-action { font-size:0.75rem;color:var(--brand);cursor:pointer;font-weight:500;padding:0.3rem 0.75rem;border:1px solid var(--brand);border-radius:6px;transition:all 0.15s; }
-.panel-chrome-action:hover { background:var(--brand);color:white; }
-.analytics-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:1rem; }
-.analytics-card { background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.25rem; }
-.analytics-title { font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:1rem; }
-.big-stat { font-size:3rem;font-weight:700;color:var(--green);line-height:1;letter-spacing:-0.02em; }
-.big-stat-label { font-size:0.78rem;color:var(--ink-soft);margin-top:0.3rem; }
-.issue-row { display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem; }
-.issue-row:last-child { margin-bottom:0; }
-.issue-label { font-size:0.82rem;color:var(--ink-mid);width:140px;flex-shrink:0; }
-.issue-bar-wrap { flex:1;height:6px;background:var(--canvas-warm);border-radius:100px;overflow:hidden; }
-.issue-bar { height:100%;border-radius:100px;background:var(--brand); }
-.issue-pct { font-size:0.72rem;color:var(--ink-soft);width:32px;text-align:right;flex-shrink:0; }
-.trend-row { display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border); }
-.trend-row:last-child { border-bottom:none; }
-.trend-label { font-size:0.82rem;color:var(--ink-mid); }
-.trend-val { font-size:0.85rem;font-weight:600;color:var(--ink); }
-.trend-val.up { color:var(--green); } .trend-val.down { color:var(--red); }
-.section-divider { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-soft);padding-bottom:0.6rem;border-bottom:1px solid var(--border);margin-bottom:0.875rem;margin-top:1.1rem; }
-.section-divider:first-child { margin-top:0; }
-.conv-card:last-child { margin-bottom:0; }
-.conv-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
-.conv-top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem; }
-.conv-name { font-size:0.9rem;font-weight:600;color:var(--ink); }
-.conv-time { font-size:0.7rem;color:var(--ink-soft);flex-shrink:0;margin-left:0.5rem; }
-.status-pill { display:inline-flex;align-items:center;gap:4px;font-size:0.67rem;font-weight:700;padding:2px 7px;border-radius:100px;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em; }
-.pill-resolved { background:var(--green-bg);color:#0f6e50; } .pill-open { background:var(--red-bg);color:var(--red); }
-.pill-dot { width:4px;height:4px;border-radius:50%;background:currentColor; }
-.conv-row { font-size:0.82rem;color:var(--ink-mid);margin-bottom:4px;line-height:1.55; }
-.conv-row strong { color:var(--ink);font-weight:500; }
-.conv-followup { font-size:0.82rem;color:var(--blue);margin-bottom:4px;line-height:1.55; }
-.conv-followup strong { font-weight:500; }
-.conv-mindset { font-size:0.78rem;color:var(--ink-soft);font-style:italic;margin-top:5px; }
-.conv-detail-hint { font-size:0.7rem;color:var(--brand);margin-top:6px;font-weight:500; }
-.back-btn { display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--ink-soft);cursor:pointer;margin-bottom:1rem;transition:color 0.15s;font-weight:500; }
-.back-btn:hover { color:var(--ink); }
-.detail-card { background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden; }
-.detail-header { padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between; }
-.detail-name { font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:4px; }
-.detail-meta { font-size:0.75rem;color:var(--ink-soft); }
-.sms-thread { padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem;background:#f8f8f8;max-height:500px;overflow-y:auto; }
-body.dark .sms-thread { background:#0d0d0c; }
-.sms-msg { max-width:75%;padding:0.55rem 0.85rem;border-radius:16px;font-size:0.85rem;line-height:1.5; }
-.sms-client { background:#e0e0e0;color:#1a1a18;align-self:flex-end;border-bottom-right-radius:4px; }
-body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
-.sms-andi { background:var(--green);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
-.sms-human { background:var(--i-brand,#1D9E75);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
-.sms-sender { font-size:0.62rem;color:var(--ink-soft);padding:0 0.85rem;align-self:flex-start;margin-top:-4px; }
-.sms-time { font-size:0.65rem;color:var(--ink-soft);padding:0 0.85rem; }
-.sms-time.right { text-align:right;align-self:flex-end; }
-.sms-resolved { align-self:center;background:var(--green-bg);color:#0f6e50;border-radius:100px;font-size:0.72rem;font-weight:600;padding:0.25rem 0.85rem;margin-top:0.25rem; }
-.detail-summary { padding:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.4rem; }
-.detail-row { font-size:0.82rem;color:var(--ink-mid);line-height:1.55; }
-.detail-row strong { color:var(--ink);font-weight:500; }
-.detail-followup { font-size:0.82rem;color:var(--blue); }
-.detail-followup strong { font-weight:500; }
-.detail-mindset { font-size:0.78rem;color:var(--ink-soft);font-style:italic; }
-.ticket-row { display:flex;align-items:flex-start;gap:0.75rem;padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s; }
-.ticket-row:last-child { border-bottom:none; }
-.ticket-row:hover { background:var(--canvas-warm); }
-.ticket-icon { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;margin-top:1px; }
-.t-red { background:var(--red-bg); }
-.ticket-body { flex:1;min-width:0; }
-.ticket-client { font-size:0.85rem;font-weight:600;color:var(--ink); }
-.ticket-issue { font-size:0.78rem;color:var(--ink-mid);margin-top:2px;line-height:1.5; }
-.ticket-meta { font-size:0.68rem;color:var(--ink-soft);margin-top:4px; }
-.ticket-right { display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;flex-shrink:0; }
-.t-pill { font-size:0.67rem;font-weight:700;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.04em; }
-.t-open { background:var(--red-bg);color:var(--red); }
-.t-scheduled { background:#fef3e2;color:#b45309; }
-.t-resolved { background:var(--green-bg);color:#0f6e50; }
-.clock-badge { font-size:0.65rem;color:var(--ink-soft);display:flex;align-items:center;gap:3px; }
-.ticket-detail-section { padding:1.1rem 1.25rem;border-bottom:1px solid var(--border); }
-.ticket-detail-section:last-child { border-bottom:none; }
-.ticket-detail-label { font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.5rem; }
-.ticket-detail-value { font-size:0.875rem;color:var(--ink-mid);line-height:1.6; }
-.status-select { display:flex;gap:0.5rem;margin-top:0.5rem; }
-.status-opt { padding:0.35rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:2px solid var(--border);color:var(--ink-soft);transition:all 0.15s;background:var(--white);font-family:'DM Sans',sans-serif; }
-.status-opt:hover { border-color:var(--ink-soft); }
-.status-opt.sel-open { border-color:var(--red);color:var(--red);background:var(--red-bg); }
-.status-opt.sel-scheduled { border-color:#b45309;color:#b45309;background:#fef3e2; }
-.status-opt.sel-resolved { border-color:var(--green);color:#0f6e50;background:var(--green-bg); }
-.clock-display { font-size:1.5rem;font-weight:700;color:var(--red);letter-spacing:-0.02em;margin-bottom:3px; }
-.clock-note { font-size:0.72rem;color:var(--ink-soft); }
-.household-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.875rem;padding:1.1rem 1.25rem; }
-.household-card { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s; }
-.household-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
-.household-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem; }
-.household-avatar { width:32px;height:32px;border-radius:50%;background:var(--canvas-warm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--ink-mid); }
-.h-status { width:7px;height:7px;border-radius:50%; }
-.household-name { font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:2px; }
-.household-address { font-size:0.72rem;color:var(--ink-soft); }
-.household-last { font-size:0.7rem;color:var(--ink-soft);margin-top:0.5rem; }
-.followup-row { display:flex;align-items:flex-start;gap:0.75rem;padding:0.875rem 1.25rem;border-bottom:1px solid var(--border); }
-.followup-row:last-child { border-bottom:none; }
-.followup-row.done { opacity:0.45; }
-.followup-check { width:20px;height:20px;border-radius:5px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s;background:var(--white); }
-.followup-check:hover { border-color:var(--green); }
-.followup-check.checked { background:var(--green);border-color:var(--green); }
-.followup-check.checked::after { content:'✓';font-size:0.65rem;color:white;font-weight:700; }
-.followup-body { flex:1; }
-.followup-client { font-size:0.85rem;font-weight:600;color:var(--ink); }
-.followup-note { font-size:0.78rem;color:var(--ink-mid);margin-top:2px;line-height:1.5; }
-.followup-meta { font-size:0.68rem;color:var(--ink-soft);margin-top:4px; }
-.followup-resolved-note { font-size:0.68rem;color:var(--green);margin-top:3px;display:none; }
-.followup-row.done .followup-resolved-note { display:block; }
-.placeholder-body { padding:3rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;font-style:italic; }
-.loading-row { padding:1.5rem 1.25rem;text-align:center;color:var(--ink-soft);font-size:0.82rem;font-style:italic; }
-.thread-summary { margin:0.75rem 0.85rem;padding:0.75rem 1rem;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--ink-mid);line-height:1.6; }
-.thread-summary strong { color:var(--ink);font-weight:500; }
-.thread-summary-label { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.4rem; }
-.reply-box { padding:0.65rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end; }
-.reply-textarea { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:36px;max-height:80px;line-height:1.4;overflow-y:auto; }
-.reply-send { background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap; }
-.handback-bar { display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1.25rem;background:var(--blue-bg);border-bottom:1px solid var(--blue);font-size:0.78rem;color:var(--blue); }
-.handback-btn { background:var(--blue);color:white;border:none;border-radius:7px;padding:0.3rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer; }
-.handback-btn:hover { opacity:0.85; }
-/* CONVERSATION CARDS - redesigned */
-.conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
-.conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
-.conv-search:focus { border-color:var(--brand); }
-.conv-search::placeholder { color:var(--ink-soft); }
-.conv-card { display:flex;align-items:stretch;cursor:pointer;border-bottom:2px solid var(--canvas-warm);transition:background 0.12s;position:relative; }
-.conv-card:last-child { border-bottom:none; }
-.conv-card:hover { background:var(--canvas-warm); }
-.conv-unread-indicator { width:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.conv-unread-dot { width:8px;height:8px;border-radius:50%;background:transparent; }
-.conv-card.unread .conv-unread-dot { background:var(--green); }
-.conv-card-body { flex:1;padding:0.4rem 1rem 0.4rem 0.5rem;min-width:0; }
-.conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.1rem; }
-.conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
-.conv-card.unread .conv-name { font-weight:700; }
-.conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
-.conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0.15rem; }
-.conv-card.unread .conv-preview { color:var(--ink-mid); }
-.conv-card-bottom { display:flex;align-items:center;justify-content:flex-end; }
-.conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
-/* SESSION DIVIDERS */
-.session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
-.session-line { flex:1;height:2px;background:var(--green);border-radius:100px;opacity:0.5; }
-.session-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);white-space:nowrap;opacity:0.8; }
-.session-close { display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.5rem 0.85rem;margin:0 0.85rem; }
-.session-summary-card { margin:0 0.85rem 0.5rem;padding:0.85rem 1rem;background:var(--canvas-warm);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;font-size:0.78rem;color:var(--ink-mid);line-height:1.7; }
-.session-summary-card .ss-row { margin-bottom:0.2rem; }
-.session-summary-card .ss-row strong { color:var(--ink);font-weight:600; }
-.session-summary-card .ss-mindset { font-style:italic;color:var(--ink-soft);margin-top:0.3rem; }
+/**
+ * RestWerks Portal API
+ * Version: 1.0.2
+ * Updated: June 4 2026
+ *
+ * Changelog:
+ * 1.0.2 - Added /api/thread endpoint using query param. Added rememberMe session extension.
+ * 1.0.1 - Fixed CORS and session cookie config.
+ * 1.0.0 - Initial build. Authentication, session management, conversations, tickets, households, stats.
+ */
 
-</style>
-</head>
-<body>
+const express = require('express');
+const Anthropic = require('@anthropic-ai/sdk');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const multer = require('multer');
+const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
+const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
+const Telnyx = require('telnyx');
+const crypto = require('crypto');
 
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-brand">
-      <div class="login-brand-name"><span class="rw">Rest</span><span class="accent">Werks</span></div>
-      <div class="login-powered">Integrator dashboard</div>
-    </div>
-    <div>
-      <div class="login-label">Email</div>
-      <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
-    </div>
-    <div>
-      <div class="login-label">Password</div>
-      <input class="login-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-    <div style="display:flex;align-items:center;gap:0.5rem;">
-      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--brand);cursor:pointer;" />
-      <label for="remember-me" style="font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;">Keep me signed in for 30 days</label>
-    </div>
-    <button class="login-btn" onclick="doLogin()">Sign in</button>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-hint">andy@restwerks.com</div>
-  </div>
-  <div class="login-footer">Powered by <span>RestWerks</span></div>
-</div>
+const app = express();
+app.set('trust proxy', 1);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-<div id="app">
-<div class="shell">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="integrator-name" id="sb-name">RestWerks <span class="integrator-accent">AV</span></div>
-      <div class="integrator-number" id="sb-number">952-997-0100</div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-group-label">Overview</div>
-      <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
-      <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
-      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green" id="badge-conversations" style="display:none;">0</span></div>
-      <div class="nav-item" onclick="nav('resolved',this)"><span class="nav-icon">✓</span> Resolved <span class="nav-badge green" id="badge-resolved" style="display:none;">0</span></div>
-      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge" id="badge-tickets" style="display:none;">0</span></div>
-      <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue" id="badge-followups" style="display:none;">0</span></div>
-      <div class="nav-group-label" style="margin-top:0.5rem;">Clients</div>
-      <div class="nav-item" onclick="nav('households',this)"><span class="nav-icon">🏠</span> Households</div>
-      <div class="nav-group-label" style="margin-top:0.5rem;">Reports</div>
-      <div class="nav-item" onclick="nav('summaries',this)"><span class="nav-icon">📧</span> Summaries</div>
-      <div class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
-      <div class="nav-group-label" style="margin-top:0.5rem;">Account</div>
-      <div class="nav-item" onclick="nav('settings',this)"><span class="nav-icon">⚙</span> Settings</div>
-    </nav>
-    <div class="sidebar-user">
-      <div class="user-row">
-        <div class="user-avatar" id="sb-avatar">AH</div>
-        <div><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
-      </div>
-      <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
-    </div>
-  </aside>
+// CORS — must come before session middleware
+const ALLOWED_ORIGINS = [
+  'https://restwerks.com',
+  'https://www.restwerks.com',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
+  'http://localhost:3000'
+];
 
-  <main class="main">
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="page-title" id="page-title">Dashboard</div>
-        <div class="andi-status"><span class="status-dot"></span> Andi is active</div>
-      </div>
-      <div class="topbar-right">
-        <div class="time-filter">
-          <button class="time-btn active" onclick="setTime(this)">24h</button>
-          <button class="time-btn" onclick="setTime(this)">7d</button>
-          <button class="time-btn" onclick="setTime(this)">30d</button>
-        </div>
-        <div class="mode-toggle" onclick="toggleMode()" id="mode-btn">🌙</div>
-      </div>
-    </div>
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
 
-    <div class="content">
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
-      <div id="panel-dashboard" class="panel active">
-        <div class="stats-grid">
-          <div class="stat-card" onclick="nav('conversations',navItem('conversations'))">
-            <div class="stat-label">Conversations</div><div class="stat-value">6</div>
-            <div class="stat-sub">Last 24 hours</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:100%;background:var(--border);"></div></div>
-          </div>
-          <div class="stat-card" onclick="nav('resolved',navItem('resolved'))">
-            <div class="stat-label">Resolved by Andi</div><div class="stat-value g">5</div>
-            <div class="stat-sub">83% resolution rate</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:83%;background:var(--green);"></div></div>
-          </div>
-          <div class="stat-card" onclick="nav('tickets',navItem('tickets'))">
-            <div class="stat-label">Open tickets</div><div class="stat-value r">1</div>
-            <div class="stat-sub">Needs tech today</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:17%;background:var(--red);"></div></div>
-          </div>
-          <div class="stat-card" onclick="nav('followups',navItem('followups'))">
-            <div class="stat-label">Follow ups</div><div class="stat-value b">2</div>
-            <div class="stat-sub">Review before noon</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:33%;background:var(--blue);"></div></div>
-          </div>
-        </div>
-        <div class="analytics-grid">
-          <div class="analytics-card">
-            <div class="analytics-title">Resolution rate</div>
-            <div class="big-stat">83%</div>
-            <div class="big-stat-label">Andi resolved without a tech · last 24 hours</div>
-            <div style="margin-top:1.1rem;">
-              <div class="trend-row"><div class="trend-label">Last 7 days</div><div class="trend-val up">79%</div></div>
-              <div class="trend-row"><div class="trend-label">Last 30 days</div><div class="trend-val up">76%</div></div>
-              <div class="trend-row"><div class="trend-label">All time</div><div class="trend-val up">74%</div></div>
-            </div>
-          </div>
-          <div class="analytics-card">
-            <div class="analytics-title">Top issue categories</div>
-            <div class="issue-row"><div class="issue-label">Internet / network</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:62%;"></div></div><div class="issue-pct">62%</div></div>
-            <div class="issue-row"><div class="issue-label">Reboot required</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:48%;background:#2D7DD2;"></div></div><div class="issue-pct">48%</div></div>
-            <div class="issue-row"><div class="issue-label">Battery alert</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:28%;background:#b45309;"></div></div><div class="issue-pct">28%</div></div>
-            <div class="issue-row"><div class="issue-label">Smoke detector</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:17%;background:#cc4400;"></div></div><div class="issue-pct">17%</div></div>
-            <div class="issue-row"><div class="issue-label">Audio / video</div><div class="issue-bar-wrap"><div class="issue-bar" style="width:12%;background:#888780;"></div></div><div class="issue-pct">12%</div></div>
-          </div>
-        </div>
-        <div class="analytics-grid">
-          <div class="analytics-card">
-            <div class="analytics-title">Andi response stats</div>
-            <div class="trend-row"><div class="trend-label">Avg response time</div><div class="trend-val">under 10 sec</div></div>
-            <div class="trend-row"><div class="trend-label">Avg conversations to resolve</div><div class="trend-val">4.2 messages</div></div>
-            <div class="trend-row"><div class="trend-label">After hours coverage</div><div class="trend-val up">100%</div></div>
-            <div class="trend-row"><div class="trend-label">Truck rolls avoided this month</div><div class="trend-val up">14</div></div>
-          </div>
-          <div class="analytics-card">
-            <div class="analytics-title">Client households</div>
-            <div class="trend-row"><div class="trend-label">Total households</div><div class="trend-val">8</div></div>
-            <div class="trend-row"><div class="trend-label">Active last 7 days</div><div class="trend-val">6</div></div>
-            <div class="trend-row"><div class="trend-label">Open tickets</div><div class="trend-val r">1</div></div>
-            <div class="trend-row"><div class="trend-label">Follow ups pending</div><div class="trend-val b">2</div></div>
-          </div>
-        </div>
-      </div>
+const telnyx = new Telnyx(process.env.TELNYX_API_KEY);
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-      <div id="panel-conversations" class="panel">
-        <div id="conv-list-view">
-          <div class="panel-chrome">
-            <div class="conv-list-header">
-              <input class="conv-search" type="text" id="conv-search" placeholder="Search conversations..." oninput="filterConvs(this.value)" />
-              <div class="panel-chrome-action" onclick="loadRealConversations()">&#x21bb; Refresh</div>
-            </div>
-            <div id="real-convs-body"><div class="loading-row">Loading...</div></div>
-          </div>
-        </div>
-        <div id="conv-detail-view" style="display:none;">
-          <div class="back-btn" onclick="closeConv()">&#8592; Back to conversations</div>
-          <div id="conv-detail-content"></div>
-        </div>
-      </div>
+const r2 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+  }
+});
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-      <div id="panel-resolved" class="panel">
-        <div class="panel-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">Resolved by Andi · last 24 hours</div></div>
-          <div style="padding:1.1rem 1.25rem;">
-            <div class="section-divider">During Hours</div>
-            <div class="conv-card" onclick="openConv('weiss')"><div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('fischer')"><div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="section-divider">After Hours</div>
-            <div class="conv-card" onclick="openConv('everson')"><div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('rydeen')"><div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-            <div class="conv-card" onclick="openConv('green')"><div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div><div class="conv-detail-hint">Tap to view conversation →</div></div>
-          </div>
-        </div>
-      </div>
+// SSE client registry — map of integratorId -> array of response objects
+const sseClients = {};
 
-      <div id="panel-tickets" class="panel">
-        <div id="ticket-list-view">
-          <div class="panel-chrome">
-            <div class="panel-chrome-header"><div class="panel-chrome-title">Tickets</div><div class="panel-chrome-action">+ New ticket</div></div>
-            <div class="ticket-row" onclick="openTicket('happe')">
-              <div class="ticket-icon t-red">🔇</div>
-              <div class="ticket-body"><div class="ticket-client">Shannon Happe</div><div class="ticket-issue">No audio on 2 TVs in main living areas. AVR reboot did not resolve.</div><div class="ticket-meta">Opened 10:17 PM · Unassigned · Client has guests Friday</div></div>
-              <div class="ticket-right"><div class="t-pill t-open">Open</div><div class="clock-badge">⏱ 9h 43m</div></div>
-            </div>
-          </div>
-        </div>
-        <div id="ticket-detail-view" style="display:none;">
-          <div class="back-btn" onclick="closeTicket()">← Back to tickets</div>
-          <div id="ticket-detail-content"></div>
-        </div>
-      </div>
-
-      <div id="panel-followups" class="panel">
-        <div class="panel-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">Follow ups</div><div class="panel-chrome-action" id="fu-count" style="border:none;cursor:default;color:var(--ink-soft);">2 remaining</div></div>
-          <div>
-            <div class="followup-row" id="fu-1"><div class="followup-check" id="fc-1" onclick="resolveFollowup('1','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Shannon Happe</div><div class="followup-note">Needs tech visit. Client has guests coming Friday. Schedule before end of day.</div><div class="followup-meta">Flagged by Andi · 10:17 PM last night</div><div class="followup-resolved-note" id="fr-1"></div></div></div>
-            <div class="followup-row" id="fu-2"><div class="followup-check" id="fc-2" onclick="resolveFollowup('2','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Roseanne Everson</div><div class="followup-note">Note at next visit that ceiling smoke detectors are not our equipment.</div><div class="followup-meta">Flagged by Andi · 10:09 PM last night</div><div class="followup-resolved-note" id="fr-2"></div></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="panel-households" class="panel">
-        <div class="panel-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">Client households</div><div class="panel-chrome-action">+ Add household</div></div>
-          <div class="household-grid">
-            <div class="household-card"><div class="household-top"><div class="household-avatar">RG</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Robyn Green</div><div class="household-address">Edina, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">SH</div><div class="h-status" style="background:var(--red);"></div></div><div class="household-name">Shannon Happe</div><div class="household-address">Wayzata, MN</div><div class="household-last">Last contact: last night · Open ticket</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">RE</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Roseanne Everson</div><div class="household-address">Eden Prairie, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">JF</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Joel Fischer</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">TR</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Tom Rydeen</div><div class="household-address">Plymouth, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">CW</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Chris Weiss</div><div class="household-address">Orono, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">JB</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Jeff Belzer</div><div class="household-address">Deephaven, MN</div><div class="household-last">Last contact: 3 days ago</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">BS</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Brent Bullis</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: 5 days ago</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="panel-summaries" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Morning summaries</div></div><div class="placeholder-body">Archive of every morning summary email. Coming next session.</div></div></div>
-      <div id="panel-analytics" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Analytics</div></div><div class="placeholder-body">Full resolution rate trends, issue breakdowns, and Andi performance over time. Coming next session.</div></div></div>
-      <div id="panel-settings" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Settings</div></div><div class="placeholder-body">Account info, SMS number, brand color, users and roles, notification preferences. Coming next session.</div></div></div>
-
-    </div>
-  </main>
-</div>
-</div>
-
-<script>
-const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
-
-function rwFetch(path, opts) {
-  opts = opts || {};
-  opts.headers = opts.headers || {};
-  var token = localStorage.getItem('rw-token');
-  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
-  opts.credentials = 'include';
-  return fetch(PORTAL_URL + path, opts);
+function sseNotify(integratorId, event, data) {
+  const clients = sseClients[integratorId] || [];
+  const payload = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
+  clients.forEach(function(res) {
+    try { res.write(payload); } catch(e) { /* client disconnected */ }
+  });
 }
 
-// ── UNREAD TRACKING ──────────────────────────────────────────────────────────
-function getReadTimes() {
-  try { return JSON.parse(localStorage.getItem('rw-read-times') || '{}'); } catch(e) { return {}; }
-}
-function markRead(phone) {
-  var rt = getReadTimes();
-  rt[phone] = new Date().toISOString();
-  localStorage.setItem('rw-read-times', JSON.stringify(rt));
-}
-function isUnread(phone, lastMessageAt) {
-  var rt = getReadTimes();
-  if (!rt[phone]) return true;
-  return new Date(lastMessageAt) > new Date(rt[phone]);
-}
+// Session store in PostgreSQL
+app.use(session({
+  store: new PgSession({ pool, tableName: 'portal_sessions' }),
+  secret: process.env.SESSION_SECRET || 'restwerks-dev-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  }
+}));
 
-// ── BADGE HELPERS ────────────────────────────────────────────────────────────
-function setBadge(id, count) {
-  var el = document.getElementById('badge-' + id);
-  if (!el) return;
-  if (count > 0) { el.textContent = count; el.style.display = ''; }
-  else { el.style.display = 'none'; }
-}
-
-// ── LOGIN ────────────────────────────────────────────────────────────────────
-async function doLogin() {
-  var email = document.getElementById('login-email').value.trim().toLowerCase();
-  var pw = document.getElementById('login-pw').value;
-  var errEl = document.getElementById('login-error');
-  var btn = document.querySelector('.login-btn');
-  if (!email || !pw) { errEl.textContent = 'Email and password required.'; return; }
-  btn.textContent = 'Signing in...'; btn.disabled = true; errEl.textContent = '';
-  try {
-    var res = await fetch(PORTAL_URL + '/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ email: email, password: pw, rememberMe: document.getElementById('remember-me').checked })
-    });
-    var data = await res.json();
-    if (!res.ok) {
-      errEl.textContent = data.error || 'Incorrect email or password.';
-      document.getElementById('login-pw').value = ''; btn.textContent = 'Sign in'; btn.disabled = false; return;
+// Auth middleware — accepts session cookie OR Bearer token
+async function requireAuth(req, res, next) {
+  if (req.session && req.session.userId) {
+    return next();
+  }
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    try {
+      const row = await getUserFromToken(token);
+      if (row) {
+        req.session.userId = row.user_id;
+        req.session.integratorId = row.integrator_id;
+        req.session.role = row.role;
+        return next();
+      }
+    } catch (err) {
+      console.error('Token auth error:', err.message);
     }
-    if (data.auth_token) localStorage.setItem('rw-token', data.auth_token);
-    applyIntegratorContext(data);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadRealConversations();
-    startSSE();
+  }
+  return res.status(401).json({ error: 'Not authenticated' });
+}
+
+async function initDb() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS portal_sessions (
+        sid VARCHAR NOT NULL COLLATE "default",
+        sess JSON NOT NULL,
+        expire TIMESTAMP(6) NOT NULL,
+        CONSTRAINT portal_sessions_pkey PRIMARY KEY (sid)
+      )
+    `);
+
+    // Hash seed password if still placeholder
+    const user = await pool.query(
+      'SELECT id, password_hash FROM integrator_users WHERE email = $1',
+      ['andy@restwerks.com']
+    );
+    if (user.rows.length && user.rows[0].password_hash === '$2b$10$placeholder') {
+      const hash = await bcrypt.hash('Reggie817!', 10);
+      await pool.query(
+        'UPDATE integrator_users SET password_hash = $1 WHERE email = $2',
+        [hash, 'andy@restwerks.com']
+      );
+      console.log('Seed user password hashed');
+    }
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS auth_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        integrator_id INTEGER NOT NULL,
+        token VARCHAR(64) NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS auth_tokens_token_idx ON auth_tokens(token)`);
+
+    console.log('Portal database ready');
   } catch (err) {
-    errEl.textContent = 'Connection error. Please try again.'; btn.textContent = 'Sign in'; btn.disabled = false;
+    console.error('initDb error:', err);
   }
 }
 
-async function tryAutoLogin() {
-  var token = localStorage.getItem('rw-token');
-  if (!token) return;
+// ─── TOKEN HELPERS ────────────────────────────────────────────────────────────
+
+async function createToken(userId, integratorId, rememberMe) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const days = rememberMe ? 30 : 7;
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  await pool.query(
+    `INSERT INTO auth_tokens (user_id, integrator_id, token, expires_at) VALUES ($1, $2, $3, $4)`,
+    [userId, integratorId, token, expiresAt]
+  );
+  return token;
+}
+
+async function getUserFromToken(token) {
+  if (!token) return null;
+  const result = await pool.query(
+    `SELECT at.user_id, at.integrator_id, u.role
+     FROM auth_tokens at
+     JOIN integrator_users u ON u.id = at.user_id
+     WHERE at.token = $1 AND at.expires_at > NOW()`,
+    [token]
+  );
+  return result.rows[0] || null;
+}
+
+// ─── HEALTH ───────────────────────────────────────────────────────────────────
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'restwerks-portal', version: '1.0.2' });
+});
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+
+app.post('/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
   try {
-    var res = await fetch(PORTAL_URL + '/auth/me', {
-      headers: { 'Authorization': 'Bearer ' + token }, credentials: 'include'
+    const result = await pool.query(
+      `SELECT u.*, i.name as integrator_name, i.telnyx_number, i.brand_color as integrator_brand_color
+       FROM integrator_users u
+       JOIN integrators i ON i.id = u.integrator_id
+       WHERE u.email = $1 AND u.active = true`,
+      [email.toLowerCase().trim()]
+    );
+
+    if (!result.rows.length) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = result.rows[0];
+    const match = await bcrypt.compare(password, user.password_hash);
+
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    req.session.userId = user.id;
+    req.session.integratorId = user.integrator_id;
+    req.session.role = user.role;
+
+    // Extend session to 30 days if remember me checked
+    if (req.body.rememberMe) {
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+    }
+
+    // Generate persistent token for localStorage-based auth
+    const authToken = await createToken(user.id, user.integrator_id, req.body.rememberMe);
+
+    res.json({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role,
+      bubble_color: user.bubble_color,
+      integrator_id: user.integrator_id,
+      integrator_name: user.integrator_name,
+      telnyx_number: user.telnyx_number,
+      auth_token: authToken,
+      integrator_brand_color: user.integrator_brand_color
     });
-    if (!res.ok) { localStorage.removeItem('rw-token'); return; }
-    var data = await res.json();
-    applyIntegratorContext(data);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadRealConversations();
-    startSSE();
-  } catch (err) { /* leave login screen */ }
-}
-tryAutoLogin();
 
-function applyIntegratorContext(user) {
-  var accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
-  var name = user.integrator_name || 'RestWerks';
-  var number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
-  var firstName = user.first_name || ''; var lastName = user.last_name || '';
-  var fullName = (firstName + ' ' + lastName).trim();
-  var initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-  document.documentElement.style.setProperty('--i-brand', accent);
-  document.getElementById('sb-name').innerHTML = name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
-  document.getElementById('sb-number').textContent = number;
-  document.getElementById('sb-username').textContent = fullName;
-  document.getElementById('sb-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Owner';
-  document.getElementById('sb-avatar').textContent = initials;
-  document.getElementById('sb-avatar').style.background = accent;
-  window._rwUser = user;
-}
-
-// ── SSE REAL-TIME ────────────────────────────────────────────────────────────
-var _sseSource = null;
-function startSSE() {
-  if (_sseSource) return;
-  var token = localStorage.getItem('rw-token');
-  if (!token) return;
-  _sseSource = new EventSource(PORTAL_URL + '/api/events?token=' + encodeURIComponent(token));
-  _sseSource.addEventListener('new_message', function(e) {
-    var data = JSON.parse(e.data);
-    loadRealConversations();
-    if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
-      appendLiveMessage(data);
-    }
-  });
-  _sseSource.addEventListener('handback', function(e) {
-    var data = JSON.parse(e.data);
-    if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
-      var bar = document.getElementById('handback-bar');
-      if (bar) bar.remove();
-    }
-  });
-  _sseSource.onerror = function() {
-    _sseSource.close(); _sseSource = null;
-    setTimeout(startSSE, 5000);
-  };
-}
-
-function appendLiveMessage(data) {
-  var thread = document.getElementById('live-thread');
-  if (!thread) return;
-  var isClient = data.role === 'user';
-  var isHuman = data.role === 'human';
-  var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
-  var user = window._rwUser;
-  var bubbleColor = isHuman ? (data.bubble_color || (user ? user.bubble_color : '#2D7DD2')) : '';
-  var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
-  var time = new Date(data.created_at || Date.now()).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-  var sender = isHuman && data.sender_name ? '<div class="sms-sender">' + data.sender_name + '</div>' : '';
-  thread.innerHTML += '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + data.message + '</div>' + sender +
-                      '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
-  thread.scrollTop = thread.scrollHeight;
-}
-
-// ── CONVERSATIONS ────────────────────────────────────────────────────────────
-var _allThreads = [];
-
-async function loadRealConversations() {
-  var body = document.getElementById('real-convs-body');
-  if (!body) return;
-  try {
-    var res = await rwFetch('/api/conversations');
-    if (!res.ok) { body.innerHTML = '<div class="loading-row">No live conversations yet.</div>'; return; }
-    var threads = await res.json();
-    _allThreads = threads;
-    renderConvList(threads);
-    updateConvBadge(threads);
   } catch (err) {
-    body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-}
+});
 
-function renderConvList(threads) {
-  var body = document.getElementById('real-convs-body');
-  if (!threads.length) { body.innerHTML = '<div class="loading-row">No conversations yet. Text 952-997-0100 to start one.</div>'; return; }
-  var html = '';
-  threads.forEach(function(t) {
-    var name = t.client_name || t.label || t.phone_number;
-    var ep = encodeURIComponent(t.phone_number);
-    var safeName = name.replace(/'/g, "\\'");
-    var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-    var unread = isUnread(t.phone_number, t.last_message_at);
-    var preview = t.last_message ? t.last_message : '';
-    var count = t.message_count || '';
-    var cls = 'conv-card' + (unread ? ' unread' : '');
-    var card = document.createElement('div');
-    card.className = cls;
-    card.setAttribute('data-ep', ep);
-    card.setAttribute('data-name', name);
-    card.innerHTML =
-      '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
-      '<div class="conv-card-body">' +
-        '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
-        '<div class="conv-preview">' + preview + '</div>' +
-        '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
-      '</div>';
-    card.addEventListener('click', function() {
-      openRealConv(ep, name);
-    });
-    body.appendChild(card);
-  });
-  body.innerHTML = '';
-  threads.forEach(function(t) {
-    var name = t.client_name || t.label || t.phone_number;
-    var ep = encodeURIComponent(t.phone_number);
-    var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-    var unread = isUnread(t.phone_number, t.last_message_at);
-    var preview = t.last_message ? t.last_message : '';
-    var count = t.message_count || '';
-    var card = document.createElement('div');
-    card.className = 'conv-card' + (unread ? ' unread' : '');
-    card.innerHTML =
-      '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
-      '<div class="conv-card-body">' +
-        '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
-        '<div class="conv-preview">' + preview + '</div>' +
-        '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
-      '</div>';
-    card.addEventListener('click', function() { openRealConv(ep, name); });
-    body.appendChild(card);
-  });
-}
-function updateConvBadge(threads) {
-  var unreadCount = threads.filter(function(t) { return isUnread(t.phone_number, t.last_message_at); }).length;
-  setBadge('conversations', unreadCount);
-  setBadge('tickets', window._openTickets || 0);
-  setBadge('followups', window._openFollowups || 0);
-}
+app.post('/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ success: true });
+});
 
-function filterConvs(query) {
-  if (!query) { renderConvList(_allThreads); return; }
-  var q = query.toLowerCase();
-  var filtered = _allThreads.filter(function(t) {
-    var name = (t.client_name || t.label || t.phone_number).toLowerCase();
-    var preview = (t.last_message || '').toLowerCase();
-    return name.includes(q) || preview.includes(q);
-  });
-  renderConvList(filtered);
-}
-
-async function openRealConv(encodedPhone, name) {
-  document.getElementById('conv-list-view').style.display = 'none';
-  document.getElementById('conv-detail-view').style.display = 'block';
-  document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
-  window._currentPhone = encodedPhone;
-  window._currentName = name;
-  markRead(decodeURIComponent(encodedPhone));
-  updateConvBadge(_allThreads);
+app.get('/auth/me', requireAuth, async (req, res) => {
   try {
-    var res = await rwFetch('/api/thread?phone=' + encodedPhone);
-    if (!res.ok) throw new Error('Status ' + res.status);
-    var messages = await res.json();
-    if (!Array.isArray(messages)) throw new Error('Not an array');
-    var html = buildThreadHTML(messages, name);
-    var hasHuman = messages.some(function(m) { return m.role === 'human'; });
-    var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
-    var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
-    var andiActive = !hasHuman || (lastHandback && lastHuman && new Date(lastHandback.created_at) > new Date(lastHuman.created_at));
-    var handbackBar = (!andiActive) ?
-      '<div class="handback-bar" id="handback-bar"><span>You are handling this conversation. Andi is silent.</span><button class="handback-btn" id="handback-btn">Hand back to Andi</button></div>' : '';
-    document.getElementById('conv-detail-content').innerHTML =
-      '<div class="detail-card">' +
-        '<div class="detail-header"><div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div></div>' +
-        handbackBar +
-        '<div class="sms-thread" id="live-thread">' + html + '</div>' +
-        '<div class="reply-box">' +
-          '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
-          '<button id="send-btn" class="reply-send">Send</button>' +
-        '</div>' +
-      '</div>';
-    if (document.getElementById('handback-btn')) {
-      document.getElementById('handback-btn').addEventListener('click', function() {
-        doHandback(decodeURIComponent(encodedPhone));
-      });
+    const result = await pool.query(
+      `SELECT u.*, i.name as integrator_name, i.telnyx_number, i.brand_color as integrator_brand_color
+       FROM integrators i
+       JOIN integrator_users u ON u.integrator_id = i.id
+       WHERE u.id = $1`,
+      [req.session.userId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(401).json({ error: 'User not found' });
     }
-    document.getElementById('send-btn').addEventListener('click', sendReply);
-    document.getElementById('reply-input').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
+
+    const user = result.rows[0];
+    res.json({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role,
+      bubble_color: user.bubble_color,
+      integrator_id: user.integrator_id,
+      integrator_name: user.integrator_name,
+      telnyx_number: user.telnyx_number,
+      integrator_brand_color: user.integrator_brand_color
     });
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var threadEl = document.getElementById('live-thread');
-        if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
-      });
-    });
+
   } catch (err) {
-    document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
+    console.error('Me error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-}
+});
 
-function buildThreadHTML(messages, clientName) {
-  if (!messages.length) return '';
-  var html = '';
-  // Opening session divider
-  var firstTime = new Date(messages[0].created_at);
-  var sessionLabel = firstTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
-                     firstTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-  html += '<div class="session-divider"><div class="session-line"></div><span class="session-label">' + sessionLabel + '</span><div class="session-line"></div></div>';
+// ─── STATS ────────────────────────────────────────────────────────────────────
 
-  var lastSummaryIdx = -1;
-  for (var i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === 'summary') { lastSummaryIdx = i; break; }
-  }
-
-  for (var i = 0; i < messages.length; i++) {
-    var m = messages[i];
-    if (m.role === 'summary') {
-      // Render summary card
-      try {
-        var s = typeof m.message === 'string' ? JSON.parse(m.message) : m.message;
-        html += '<div class="session-summary-card">' +
-          (s.issue ? '<div class="ss-row"><strong>Issue:</strong> ' + s.issue + '</div>' : '') +
-          (s.andi_action ? '<div class="ss-row"><strong>Andi:</strong> ' + s.andi_action + '</div>' : '') +
-          (s.client_mindset ? '<div class="ss-mindset">' + s.client_mindset + '</div>' : '') +
-        '</div>';
-        // Close line after summary
-        html += '<div class="session-close"><div class="session-line"></div></div>';
-        // If there are more messages after this, open a new session divider
-        if (i < messages.length - 1) {
-          var nextTime = new Date(messages[i+1].created_at);
-          var nextLabel = nextTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
-                          nextTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-          html += '<div class="session-divider"><div class="session-line"></div><span class="session-label">' + nextLabel + '</span><div class="session-line"></div></div>';
-        }
-      } catch(e) { /* skip malformed summary */ }
-      continue;
-    }
-    var isClient = m.role === 'user';
-    var isHuman = m.role === 'human';
-    var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
-    var user = window._rwUser;
-    var bubbleColor = isHuman ? (m.bubble_color || (user ? user.bubble_color : '#2D7DD2')) : '';
-    var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
-    var time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-    var sender = isHuman && m.sender_name ? '<div class="sms-sender">' + m.sender_name + '</div>' : '';
-    html += '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + m.message + '</div>' + sender +
-            '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
-  }
-  return html;
-}
-
-async function sendReply() {
-  var input = document.getElementById('reply-input');
-  var message = input.value.trim();
-  if (!message) return;
-  var phone = decodeURIComponent(window._currentPhone);
-  input.value = ''; input.disabled = true;
+app.get('/api/stats', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
   try {
-    var res = await rwFetch('/api/send', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: phone, message: message })
-    });
-    if (!res.ok) { alert('Failed to send. Please try again.'); }
-  } catch (err) { alert('Connection error. Please try again.'); }
-  input.disabled = false; input.focus();
-}
+    const conversations = await pool.query(
+      `SELECT COUNT(DISTINCT phone_number) as total FROM conversations WHERE integrator_id = $1`,
+      [integratorId]
+    );
 
-async function doHandback(phone) {
+    const tickets = await pool.query(
+      `SELECT
+         COUNT(*) FILTER (WHERE status = 'open') as open_tickets,
+         COUNT(*) FILTER (WHERE status = 'resolved') as resolved_tickets,
+         COUNT(*) FILTER (WHERE status = 'escalated') as escalated_tickets
+       FROM tickets WHERE integrator_id = $1`,
+      [integratorId]
+    );
+
+    const followUps = await pool.query(
+      `SELECT COUNT(*) as total FROM tickets
+       WHERE integrator_id = $1 AND follow_up_needed = true AND follow_up_resolved = false`,
+      [integratorId]
+    );
+
+    res.json({
+      total_conversations: parseInt(conversations.rows[0].total),
+      open_tickets: parseInt(tickets.rows[0].open_tickets),
+      resolved_tickets: parseInt(tickets.rows[0].resolved_tickets),
+      escalated_tickets: parseInt(tickets.rows[0].escalated_tickets),
+      follow_ups: parseInt(followUps.rows[0].total)
+    });
+
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── CONVERSATIONS ────────────────────────────────────────────────────────────
+
+app.get('/api/conversations', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
   try {
-    var res = await rwFetch('/api/handback', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone })
-    });
-    if (res.ok) {
-      var bar = document.getElementById('handback-bar');
-      if (bar) bar.remove();
+    const threads = await pool.query(
+      `SELECT
+         c.phone_number,
+         h.client_name,
+         cp.label,
+         MAX(c.created_at) as last_message_at,
+         COUNT(*) as message_count,
+         (SELECT message FROM conversations c2
+          WHERE c2.integrator_id = $1
+            AND c2.phone_number = c.phone_number
+            AND c2.role != 'summary'
+          ORDER BY c2.created_at DESC LIMIT 1) as last_message
+       FROM conversations c
+       LEFT JOIN client_phones cp ON cp.phone_number = c.phone_number AND cp.integrator_id = c.integrator_id
+       LEFT JOIN households h ON h.id = cp.household_id
+       WHERE c.integrator_id = $1
+       GROUP BY c.phone_number, h.client_name, cp.label
+       ORDER BY last_message_at DESC`,
+      [integratorId]
+    );
+
+    res.json(threads.rows);
+  } catch (err) {
+    console.error('Conversations error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/thread', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const phone = req.query.phone;
+  if (!phone) return res.status(400).json({ error: 'Phone required' });
+  try {
+    const messages = await pool.query(
+      `SELECT role, message, created_at, sender_name, bubble_color
+       FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2
+       ORDER BY created_at ASC`,
+      [integratorId, phone]
+    );
+    res.json(messages.rows);
+  } catch (err) {
+    console.error('Thread error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/conversations/:phone', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const phone = decodeURIComponent(req.params.phone);
+  try {
+    const messages = await pool.query(
+      `SELECT role, message, created_at, sender_name, bubble_color
+       FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2
+       ORDER BY created_at ASC`,
+      [integratorId, phone]
+    );
+
+    res.json(messages.rows);
+  } catch (err) {
+    console.error('Thread error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── HOUSEHOLDS ───────────────────────────────────────────────────────────────
+
+app.get('/api/households', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  try {
+    const result = await pool.query(
+      `SELECT h.*,
+         array_agg(json_build_object('phone', cp.phone_number, 'label', cp.label)) as phones
+       FROM households h
+       LEFT JOIN client_phones cp ON cp.household_id = h.id
+       WHERE h.integrator_id = $1
+       GROUP BY h.id
+       ORDER BY h.client_name ASC`,
+      [integratorId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Households error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── HOUSEHOLD BY PHONE ──────────────────────────────────────────────────────
+
+app.get('/api/household-by-phone', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const phone = req.query.phone;
+  if (!phone) return res.status(400).json({ error: 'phone required' });
+  try {
+    const result = await pool.query(
+      `SELECT h.*
+       FROM households h
+       JOIN client_phones cp ON cp.household_id = h.id
+       WHERE h.integrator_id = $1 AND cp.phone_number = $2
+       LIMIT 1`,
+      [integratorId, phone]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Household not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Household by phone error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/household-by-phone/photos', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const phone = req.query.phone;
+  if (!phone) return res.status(400).json({ error: 'phone required' });
+  try {
+    const hhResult = await pool.query(
+      `SELECT h.id FROM households h
+       JOIN client_phones cp ON cp.household_id = h.id
+       WHERE h.integrator_id = $1 AND cp.phone_number = $2 LIMIT 1`,
+      [integratorId, phone]
+    );
+    if (!hhResult.rows.length) return res.json([]);
+    const householdId = hhResult.rows[0].id;
+    const files = await pool.query(
+      `SELECT id, r2_key, filename, uploaded_at FROM files
+       WHERE integrator_id = $1 AND household_id = $2
+       ORDER BY uploaded_at DESC`,
+      [integratorId, householdId]
+    );
+    const photos = await Promise.all(files.rows.map(async (f) => {
+      const cmd = new GetObjectCommand({ Bucket: process.env.R2_BUCKET_NAME, Key: f.r2_key });
+      const url = await getSignedUrl(r2, cmd, { expiresIn: 3600 });
+      return { id: f.id, filename: f.filename, url, uploaded_at: f.uploaded_at };
+    }));
+    res.json(photos);
+  } catch (err) {
+    console.error('Photos error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/household-by-phone/photos', requireAuth, upload.single('photo'), async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const phone = req.query.phone;
+  if (!phone || !req.file) return res.status(400).json({ error: 'phone and photo required' });
+  try {
+    const hhResult = await pool.query(
+      `SELECT h.id FROM households h
+       JOIN client_phones cp ON cp.household_id = h.id
+       WHERE h.integrator_id = $1 AND cp.phone_number = $2 LIMIT 1`,
+      [integratorId, phone]
+    );
+    if (!hhResult.rows.length) return res.status(404).json({ error: 'Household not found' });
+    const householdId = hhResult.rows[0].id;
+    const ext = req.file.originalname.split('.').pop() || 'jpg';
+    const key = `rack-photos/${integratorId}/${householdId}/${Date.now()}.${ext}`;
+    await r2.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype
+    }));
+    await pool.query(
+      `INSERT INTO files (integrator_id, household_id, r2_key, filename, mime_type, size_bytes)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [integratorId, householdId, key, req.file.originalname, req.file.mimetype, req.file.size]
+    );
+    await pool.query(
+      `UPDATE households SET rack_photo_on_file = true WHERE id = $1`,
+      [householdId]
+    );
+    res.json({ ok: true, key });
+  } catch (err) {
+    console.error('Photo upload error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── TICKETS ──────────────────────────────────────────────────────────────────
+
+app.get('/api/tickets', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const { status } = req.query;
+  try {
+    let query = `
+      SELECT t.*, h.client_name
+      FROM tickets t
+      LEFT JOIN client_phones cp ON cp.phone_number = t.phone_number AND cp.integrator_id = t.integrator_id
+      LEFT JOIN households h ON h.id = cp.household_id
+      WHERE t.integrator_id = $1
+    `;
+    const params = [integratorId];
+
+    if (status) {
+      query += ` AND t.status = $2`;
+      params.push(status);
     }
-  } catch(err) { console.error('Handback failed:', err); }
+
+    query += ` ORDER BY t.opened_at DESC`;
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Tickets error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/tickets/:id', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE tickets
+       SET status = $1, closed_at = CASE WHEN $1 = 'resolved' THEN NOW() ELSE null END
+       WHERE id = $2 AND integrator_id = $3
+       RETURNING *`,
+      [status, id, integratorId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Ticket update error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+
+app.post('/api/send', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const userId = req.session.userId;
+  const { to, message } = req.body;
+
+  if (!to || !message) {
+    return res.status(400).json({ error: 'to and message required' });
+  }
+
+  try {
+    const integratorResult = await pool.query(
+      'SELECT telnyx_number FROM integrators WHERE id = $1',
+      [integratorId]
+    );
+
+    if (!integratorResult.rows.length) {
+      return res.status(404).json({ error: 'Integrator not found' });
+    }
+
+    const fromNumber = integratorResult.rows[0].telnyx_number;
+
+    const userResult = await pool.query(
+      'SELECT first_name, last_name, bubble_color FROM integrator_users WHERE id = $1',
+      [userId]
+    );
+
+    const user = userResult.rows[0];
+    const senderName = user ? `${user.first_name} ${user.last_name}`.trim() : 'Team';
+    const bubbleColor = user ? user.bubble_color : '#1D9E75';
+
+    await telnyx.messages.create({
+      from: fromNumber,
+      to: to,
+      text: message
+    });
+
+    await pool.query(
+      `INSERT INTO conversations (integrator_id, phone_number, role, message, sender_name, bubble_color)
+       VALUES ($1, $2, 'human', $3, $4, $5)`,
+      [integratorId, to, message, senderName, bubbleColor]
+    );
+
+    // Write handoff summary if this is the first human reply since the last summary/handback
+    const lastMarkerResult = await pool.query(
+      `SELECT role, created_at FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2
+         AND role IN ('summary', 'handback')
+       ORDER BY created_at DESC LIMIT 1`,
+      [integratorId, to]
+    );
+    const lastMarkerTime = lastMarkerResult.rows[0]?.created_at || new Date(0);
+    const humanSinceMarker = await pool.query(
+      `SELECT id FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2
+         AND role = 'human' AND created_at > $3`,
+      [integratorId, to, lastMarkerTime]
+    );
+    const isFirstHumanSinceMarker = humanSinceMarker.rows.length === 0;
+    if (isFirstHumanSinceMarker) {
+      const integratorResult2 = await pool.query('SELECT name FROM integrators WHERE id = $1', [integratorId]);
+      const intName = integratorResult2.rows[0]?.name || 'RestWerks';
+      writeHandoffSummary(integratorId, to, intName); // fire and forget
+    }
+
+    // Notify SSE clients
+    sseNotify(integratorId, 'new_message', {
+      phone_number: to,
+      role: 'human',
+      message,
+      sender_name: senderName,
+      bubble_color: bubbleColor,
+      created_at: new Date().toISOString()
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error('Send error:', err);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// ─── HANDOFF SUMMARY ─────────────────────────────────────────────────────────
+
+async function writeHandoffSummary(integratorId, phoneNumber, integratorName) {
+  try {
+    // Get thread since last summary row
+    const lastSummaryResult = await pool.query(
+      `SELECT MAX(created_at) as last_summary FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2 AND role = 'summary'`,
+      [integratorId, phoneNumber]
+    );
+    const since = lastSummaryResult.rows[0]?.last_summary || new Date(0);
+
+    const threadResult = await pool.query(
+      `SELECT role, message, sender_name, bubble_color, created_at
+       FROM conversations
+       WHERE integrator_id = $1 AND phone_number = $2
+         AND created_at > $3 AND role != 'summary'
+       ORDER BY created_at ASC`,
+      [integratorId, phoneNumber, since]
+    );
+    const thread = threadResult.rows;
+
+    // Only write summary if Andi had at least 2 exchanges before handoff
+    const andiMsgs = thread.filter(m => m.role === 'assistant');
+    if (andiMsgs.length < 2) return;
+
+    // Get client name
+    const nameResult = await pool.query(
+      `SELECT cp.label as first_name, h.client_name as household_name
+       FROM households h
+       JOIN client_phones cp ON cp.household_id = h.id
+       WHERE h.integrator_id = $1 AND cp.phone_number = $2
+       LIMIT 1`,
+      [integratorId, phoneNumber]
+    );
+    const clientName = nameResult.rows[0]?.first_name || nameResult.rows[0]?.household_name || 'Client';
+
+    // Build transcript from Andi/client only (before handoff)
+    const andiOnly = thread.filter(m => m.role !== 'human');
+    const transcript = andiOnly.map(m =>
+      `${m.role === 'user' ? clientName : 'Andi'}: ${m.message}`
+    ).join('\n');
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 400,
+      system: `You are summarizing the Andi portion of a client support conversation for ${integratorName}. Return a JSON object with these exact fields:
+- issue: one sentence describing what the client's issue was
+- andi_action: one sentence describing what Andi did before the team member jumped in
+- resolved: false
+- follow_up_needed: true
+- follow_up_note: null
+- client_mindset: one sentence on the client's tone
+Return only valid JSON. No preamble. No explanation.`,
+      messages: [{ role: 'user', content: `Client: ${clientName}\n\nTranscript:\n${transcript}` }]
+    });
+
+    const raw = response.content[0].text.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    const parsed = JSON.parse(raw);
+
+    await pool.query(
+      `INSERT INTO conversations (integrator_id, phone_number, role, message, created_at)
+       VALUES ($1, $2, 'summary', $3, NOW())`,
+      [integratorId, phoneNumber, JSON.stringify(parsed)]
+    );
+    console.log(`[handoff] Summary written for ${phoneNumber}`);
+  } catch (err) {
+    console.error('[handoff] writeHandoffSummary failed:', err.message);
+  }
 }
 
-// ── NAV ──────────────────────────────────────────────────────────────────────
-var panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',summaries:'Summaries',analytics:'Analytics',settings:'Settings' };
-function navItem(name) { return document.querySelector('[onclick="nav(\'' + name + '\',this)"]'); }
-function nav(name, el) {
-  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('panel-' + name).classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('page-title').textContent = panelTitles[name] || name;
-  closeConv(); closeTicket();
-  if (name === 'conversations') loadRealConversations();
-}
+// ─── HANDBACK ────────────────────────────────────────────────────────────────
 
-// ── DEMO CONV DATA (pitch/resolved panel) ───────────────────────────────────
-var convData = {
-  weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
-    {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
-    {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor?',time:'7:14 PM'},
-    {from:'client',text:'Ok found it',time:'7:16 PM'},
-    {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in.',time:'7:16 PM'},
-    {from:'client',text:'Done. TV just came on',time:'7:18 PM'},
-    {from:'andi',text:'Good. Now find the black box below it for the audio. Same thing.',time:'7:18 PM'},
-    {from:'client',text:'Music is back too. That was easy',time:'7:21 PM'},
-    {from:'andi',text:'Good timing. Let me know if anything else comes up.',time:'7:21 PM'}
-  ]},
-  fischer: { name:'Joel Fischer', time:'9:51 PM', status:'resolved', issue:'Pro Control remote not responding.', andi_action:'Confirmed dead batteries. Client replaced AAs and remote came back immediately.', mindset:'Quick fix. Client was happy.', thread:[
-    {from:'client',text:'Remote stopped working',time:'9:51 PM'},
-    {from:'andi',text:'Which remote? The Pro Control one on the coffee table?',time:'9:51 PM'},
-    {from:'client',text:'Yes the big one',time:'9:52 PM'},
-    {from:'andi',text:'Try replacing the batteries. It takes AAs.',time:'9:52 PM'},
-    {from:'client',text:'That did it. Thanks',time:'9:54 PM'},
-    {from:'andi',text:'Good. Let me know if it keeps happening.',time:'9:54 PM'}
-  ]},
-  happe: { name:'Shannon Happe', time:'10:17 PM', status:'open', issue:'No audio on 2 TVs in main living areas. AVR reboot did not resolve.', andi_action:'Walked through AVR reboot. Audio did not restore. Ticket created.', follow_up:'Needs tech visit. Client mentioned guests coming Friday.', mindset:'Client was frustrated but appreciative.', thread:[
-    {from:'client',text:'No sound on the TV in the living room or the kitchen',time:'10:17 PM'},
-    {from:'andi',text:'Both at the same time is usually the AVR. Can you find the receiver in your rack?',time:'10:17 PM'},
-    {from:'client',text:'Found it. Denon',time:'10:19 PM'},
-    {from:'andi',text:'Unplug it from the wall, wait 10 seconds, plug it back in.',time:'10:19 PM'},
-    {from:'client',text:'Still nothing. Tried twice',time:'10:24 PM'},
-    {from:'andi',text:'Ugh. That tells me something needs a closer look. I am going to create a ticket so someone can get out to you.',time:'10:24 PM'},
-    {from:'client',text:'Ok thank you. I have people coming Friday so hoping it can be fixed before then',time:'10:26 PM'},
-    {from:'andi',text:'Noted. We will make sure that gets communicated.',time:'10:26 PM'},
-    {from:'human',text:'Shannon this is Andy. I am scheduling a visit for Thursday morning.',time:'8:02 AM',sender:'Andy Hepola'}
-  ]},
-  everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping. Client assumed it was the security system.', andi_action:'Identified as a high voltage ceiling detector. Directed client to replace battery.', follow_up:'Note at next visit that ceiling detectors are not our equipment.', mindset:'Client was relieved.', thread:[
-    {from:'client',text:'Our smoke detector is going off. Is something wrong with the security system?',time:'10:09 PM'},
-    {from:'andi',text:'First things first. Is everyone safe and still in the house?',time:'10:09 PM'},
-    {from:'client',text:'Yes everyone is fine. It just started beeping',time:'10:10 PM'},
-    {from:'andi',text:'That one is a high voltage smoke detector your electrician installed. We did not install it.',time:'10:11 PM'},
-    {from:'andi',text:'A slow chirp is almost always a low battery.',time:'10:12 PM'},
-    {from:'client',text:'Perfect that makes so much more sense. Thank you!',time:'10:14 PM'},
-    {from:'andi',text:'Glad we got that sorted. Hope the rest of your night is quiet.',time:'10:15 PM'}
-  ]},
-  rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline. No control from remotes or app.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
-    {from:'client',text:'Nothing is working. Remotes dead and the app is not connecting',time:'8:33 PM'},
-    {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack.',time:'8:33 PM'},
-    {from:'client',text:'Got it',time:'8:35 PM'},
-    {from:'andi',text:'Unplug it, wait 10 seconds, plug it back in.',time:'8:35 PM'},
-    {from:'client',text:'All good. Everything came back',time:'8:37 PM'},
-    {from:'andi',text:'Good. Let me know if it happens again.',time:'8:37 PM'}
-  ]},
-  green: { name:'Robyn Green', time:'11:42 PM', status:'resolved', issue:'Internet outage. No connectivity on any device.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
-    {from:'client',text:'Hey our wifi is completely out. Nothing is working',time:'11:42 PM'},
-    {from:'andi',text:'Can you head to your rack and tell me if anything looks dark?',time:'11:42 PM'},
-    {from:'client',text:'Yeah the WattBox at the top has no lights at all',time:'11:44 PM'},
-    {from:'andi',text:'Unplug it from the wall, wait about 10 seconds, then plug it back in.',time:'11:44 PM'},
-    {from:'client',text:'Ok lights are back and wifi is working. Thank you!',time:'11:46 PM'},
-    {from:'andi',text:'Good. Hope the rest of the night goes smooth.',time:'11:46 PM'}
-  ]}
-};
+app.post('/api/handback', requireAuth, async (req, res) => {
+  const integratorId = req.session.integratorId;
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'phone required' });
+  try {
+    await pool.query(
+      `INSERT INTO conversations (integrator_id, phone_number, role, message, created_at)
+       VALUES ($1, $2, 'handback', 'Handed back to Andi', NOW())`,
+      [integratorId, phone]
+    );
+    sseNotify(integratorId, 'handback', { phone_number: phone });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Handback error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-function buildConvDetail(id) {
-  var d = convData[id]; if (!d) return '';
-  var thread = d.thread.map(function(m) {
-    var isHuman = m.from === 'human';
-    var cls = m.from === 'client' ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
-    var sender = isHuman && m.sender ? '<div class="sms-sender">' + m.sender + '</div>' : '';
-    return '<div class="sms-msg ' + cls + '">' + m.text + '</div>' + sender + '<div class="sms-time' + (m.from==='client'?' right':'') + '">' + m.time + '</div>';
-  }).join('');
-  var resolved = d.status === 'resolved' ? '<div class="sms-resolved">&#10003; Resolved without a tech</div>' : '';
-  var followup = d.follow_up ? '<div class="detail-followup"><strong>Follow up:</strong> ' + d.follow_up + '</div>' : '';
-  return '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + d.name + '</div><div class="detail-meta">' + d.time + ' &middot; ' + (d.status==='resolved'?'Resolved':'Unresolved') + '</div></div><span class="status-pill ' + (d.status==='resolved'?'pill-resolved':'pill-open') + '"><span class="pill-dot"></span>' + (d.status==='resolved'?'Resolved':'Unresolved') + '</span></div><div class="sms-thread">' + thread + resolved + '</div><div class="detail-summary"><div class="detail-row"><strong>Issue:</strong> ' + d.issue + '</div><div class="detail-row"><strong>Andi:</strong> ' + d.andi_action + '</div>' + followup + '<div class="detail-mindset">' + d.mindset + '</div></div></div>';
-}
+// ─── SSE EVENTS ──────────────────────────────────────────────────────────────
 
-function openConv(id) {
-  nav('conversations', navItem('conversations'));
-  document.getElementById('conv-list-view').style.display = 'none';
-  document.getElementById('conv-detail-view').style.display = 'block';
-  document.getElementById('conv-detail-content').innerHTML = buildConvDetail(id);
-}
-function closeConv() {
-  var lv = document.getElementById('conv-list-view');
-  var dv = document.getElementById('conv-detail-view');
-  if (lv) lv.style.display = 'block';
-  if (dv) dv.style.display = 'none';
-  window._currentPhone = null;
-}
+app.get('/api/events', async (req, res) => {
+  // Accept token via query param since EventSource cannot set headers
+  const token = req.query.token;
+  let integratorId = null;
 
-// ── TICKETS ──────────────────────────────────────────────────────────────────
-var ticketData = { happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
-function openTicket(id) {
-  var t = ticketData[id]; if (!t) return;
-  document.getElementById('ticket-list-view').style.display = 'none';
-  document.getElementById('ticket-detail-view').style.display = 'block';
-  var el = document.getElementById('ticket-detail-content');
-  el.innerHTML = '';
-  var card = document.createElement('div');
-  card.className = 'detail-card';
-  var statusHtml =
-    '<div class="ticket-detail-section"><div class="ticket-detail-label">Status</div>' +
-    '<div class="status-select">' +
-    '<button class="status-opt sel-open" id="so-open">Open</button>' +
-    '<button class="status-opt" id="so-scheduled">Scheduled</button>' +
-    '<button class="status-opt" id="so-resolved">Resolved</button>' +
-    '</div></div>';
-  card.innerHTML =
-    '<div class="detail-header"><div><div class="detail-name">' + t.client + '</div>' +
-    '<div class="detail-meta">' + t.address + ' &middot; Opened ' + t.opened + '</div></div>' +
-    '<span class="t-pill t-open">Open</span></div>' +
-    '<div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + t.issue + '</div></div>' +
-    '<div class="ticket-detail-section"><div class="ticket-detail-label">Context</div><div class="ticket-detail-value">' + t.context + '</div></div>' +
-    '<div class="ticket-detail-section"><div class="ticket-detail-label">Resolution clock</div>' +
-    '<div class="clock-display">' + t.elapsed + '</div>' +
-    '<div class="clock-note">Clock runs while the ticket is unscheduled and unresolved.</div></div>' +
-    statusHtml;
-  el.appendChild(card);
-  document.getElementById('so-open').addEventListener('click', function() { setTicketStatus(this, 'open'); });
-  document.getElementById('so-scheduled').addEventListener('click', function() { setTicketStatus(this, 'scheduled'); });
-  document.getElementById('so-resolved').addEventListener('click', function() { setTicketStatus(this, 'resolved'); });
-}
-function setTicketStatus(btn, status) { document.querySelectorAll('.status-opt').forEach(function(b){b.className='status-opt';}); btn.classList.add('sel-'+status); }
-function closeTicket() {
-  var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
-  if (lv) lv.style.display = 'block'; if (dv) { dv.style.display = 'none'; dv.innerHTML = ''; }
-}
+  if (req.session && req.session.integratorId) {
+    integratorId = req.session.integratorId;
+  } else if (token) {
+    try {
+      const row = await getUserFromToken(token);
+      if (row) integratorId = row.integrator_id;
+    } catch (err) { /* fall through */ }
+  }
 
-// ── FOLLOW UPS ───────────────────────────────────────────────────────────────
-var fuRemaining = 2;
-function resolveFollowup(id, user) {
-  var row = document.getElementById('fu-'+id); var check = document.getElementById('fc-'+id); var label = document.getElementById('fr-'+id);
-  if (row.classList.contains('done')) return;
-  check.classList.add('checked'); row.classList.add('done');
-  var now = new Date();
-  label.textContent = 'Resolved by ' + user + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  fuRemaining--;
-  var countEl = document.getElementById('fu-count'); var badge = document.getElementById('badge-followups');
-  if (fuRemaining===0) { countEl.textContent='All done'; setBadge('followups', 0); }
-  else { countEl.textContent=fuRemaining+' remaining'; setBadge('followups', fuRemaining); }
-}
+  if (!integratorId) return res.status(401).end();
 
-// ── MODE ─────────────────────────────────────────────────────────────────────
-function setTime(btn) { document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); }
-function toggleMode() {
-  var dark = document.body.classList.toggle('dark');
-  document.getElementById('mode-btn').textContent = dark ? '☀️' : '🌙';
-  localStorage.setItem('rw-mode', dark ? 'dark' : 'light');
-}
-if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='☀️'; }
-document.getElementById('login-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
-</script>
-</body>
-</html>
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': req.headers.origin || '*',
+    'Access-Control-Allow-Credentials': 'true'
+  });
+
+  res.write('event: connected\ndata: {}\n\n');
+
+  if (!sseClients[integratorId]) sseClients[integratorId] = [];
+  sseClients[integratorId].push(res);
+
+  const keepAlive = setInterval(() => {
+    try { res.write(':keepalive\n\n'); } catch(e) { clearInterval(keepAlive); }
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(keepAlive);
+    sseClients[integratorId] = (sseClients[integratorId] || []).filter(r => r !== res);
+  });
+});
+
+app.post('/api/notify', async (req, res) => {
+  const { integrator_id, phone_number, role, message, sender_name, bubble_color, created_at } = req.body;
+  if (!integrator_id) return res.status(400).json({ error: 'integrator_id required' });
+  sseNotify(integrator_id, 'new_message', { phone_number, role, message, sender_name, bubble_color, created_at });
+  res.json({ ok: true });
+});
+
+// ─── START ────────────────────────────────────────────────────────────────────
+
+initDb().then(() => {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => console.log(`RestWerks portal v1.0.2 running on port ${PORT}`));
+});
