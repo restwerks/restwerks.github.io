@@ -197,6 +197,35 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .reply-box { padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;align-items:flex-end; }
 .reply-textarea { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.85rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);resize:none;outline:none;min-height:40px;max-height:120px;line-height:1.5; }
 .reply-send { background:var(--green);color:white;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+/* CONVERSATION CARDS - redesigned */
+.conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
+.conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
+.conv-search:focus { border-color:var(--brand); }
+.conv-search::placeholder { color:var(--ink-soft); }
+.conv-card { display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;position:relative; }
+.conv-card:last-child { border-bottom:none; }
+.conv-card:hover { background:var(--canvas-warm); }
+.conv-unread-indicator { width:4px;background:transparent;border-radius:0;flex-shrink:0;align-self:stretch; }
+.conv-card.unread .conv-unread-indicator { background:var(--green); }
+.conv-card-body { flex:1;padding:0.85rem 1rem 0.75rem 0.85rem;min-width:0; }
+.conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.2rem; }
+.conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
+.conv-card.unread .conv-name { font-weight:700; }
+.conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
+.conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;margin-bottom:0.3rem; }
+.conv-card.unread .conv-preview { color:var(--ink-mid); }
+.conv-card-bottom { display:flex;align-items:center;justify-content:flex-end; }
+.conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
+/* SESSION DIVIDERS */
+.session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
+.session-line { flex:1;height:2px;background:var(--green);border-radius:100px;opacity:0.5; }
+.session-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);white-space:nowrap;opacity:0.8; }
+.session-close { display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.5rem 0.85rem;margin:0 0.85rem; }
+.session-summary-card { margin:0 0.85rem 0.5rem;padding:0.85rem 1rem;background:var(--canvas-warm);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;font-size:0.78rem;color:var(--ink-mid);line-height:1.7; }
+.session-summary-card .ss-row { margin-bottom:0.2rem; }
+.session-summary-card .ss-row strong { color:var(--ink);font-weight:600; }
+.session-summary-card .ss-mindset { font-style:italic;color:var(--ink-soft);margin-top:0.3rem; }
+
 </style>
 </head>
 <body>
@@ -237,10 +266,10 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       <div class="nav-group-label">Overview</div>
       <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
-      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green">6</span></div>
-      <div class="nav-item" onclick="nav('resolved',this)"><span class="nav-icon">✓</span> Resolved <span class="nav-badge green">5</span></div>
-      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge">1</span></div>
-      <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue">2</span></div>
+      <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green" id="badge-conversations" style="display:none;">0</span></div>
+      <div class="nav-item" onclick="nav('resolved',this)"><span class="nav-icon">✓</span> Resolved <span class="nav-badge green" id="badge-resolved" style="display:none;">0</span></div>
+      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge" id="badge-tickets" style="display:none;">0</span></div>
+      <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue" id="badge-followups" style="display:none;">0</span></div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Clients</div>
       <div class="nav-item" onclick="nav('households',this)"><span class="nav-icon">🏠</span> Households</div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Reports</div>
@@ -340,60 +369,15 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       <div id="panel-conversations" class="panel">
         <div id="conv-list-view">
           <div class="panel-chrome">
-            <div class="panel-chrome-header">
-              <div class="panel-chrome-title">Live conversations</div>
-              <div class="panel-chrome-action" onclick="loadRealConversations()">↻ Refresh</div>
+            <div class="conv-list-header">
+              <input class="conv-search" type="text" id="conv-search" placeholder="Search conversations..." oninput="filterConvs(this.value)" />
+              <div class="panel-chrome-action" onclick="loadRealConversations()">&#x21bb; Refresh</div>
             </div>
-            <div id="real-convs-body"><div class="loading-row">Loading conversations...</div></div>
-          </div>
-          <div class="panel-chrome">
-            <div class="panel-chrome-header"><div class="panel-chrome-title">Demo conversations</div></div>
-            <div style="padding:1.1rem 1.25rem;">
-              <div class="section-divider">During Hours</div>
-              <div class="conv-card" onclick="openConv('weiss')">
-                <div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div>
-                <div class="conv-mindset">Client was surprised it was that simple.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-              <div class="conv-card" onclick="openConv('fischer')">
-                <div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div>
-                <div class="conv-mindset">Quick fix. Client was happy.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-              <div class="section-divider">After Hours</div>
-              <div class="conv-card" onclick="openConv('happe')">
-                <div class="conv-top"><div><div class="conv-name">Shannon Happe</div><span class="status-pill pill-open"><span class="pill-dot"></span>Unresolved</span></div><div class="conv-time">10:17 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> No audio on 2 TVs in main living areas.</div>
-                <div class="conv-followup"><strong>Follow up:</strong> Needs tech visit. Client has guests Friday.</div>
-                <div class="conv-mindset">Client was frustrated but appreciative.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-              <div class="conv-card" onclick="openConv('everson')">
-                <div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> Smoke detector beeping. Assumed it was the security system.</div>
-                <div class="conv-followup"><strong>Follow up:</strong> Note at next visit that ceiling detectors are not our equipment.</div>
-                <div class="conv-mindset">Client was relieved. Responded well.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-              <div class="conv-card" onclick="openConv('rydeen')">
-                <div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> ELAN controller offline. No control from remotes or app.</div>
-                <div class="conv-mindset">Client was straightforward. In and out fast.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-              <div class="conv-card" onclick="openConv('green')">
-                <div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div>
-                <div class="conv-row"><strong>Issue:</strong> Internet outage. No connectivity on any device.</div>
-                <div class="conv-mindset">Client was calm and thanked us.</div>
-                <div class="conv-detail-hint">Tap to view conversation →</div>
-              </div>
-            </div>
+            <div id="real-convs-body"><div class="loading-row">Loading...</div></div>
           </div>
         </div>
         <div id="conv-detail-view" style="display:none;">
-          <div class="back-btn" onclick="closeConv()">← Back to conversations</div>
+          <div class="back-btn" onclick="closeConv()">&#8592; Back to conversations</div>
           <div id="conv-detail-content"></div>
         </div>
       </div>
@@ -477,19 +461,43 @@ function rwFetch(path, opts) {
   return fetch(PORTAL_URL + path, opts);
 }
 
+// ── UNREAD TRACKING ──────────────────────────────────────────────────────────
+function getReadTimes() {
+  try { return JSON.parse(localStorage.getItem('rw-read-times') || '{}'); } catch(e) { return {}; }
+}
+function markRead(phone) {
+  var rt = getReadTimes();
+  rt[phone] = new Date().toISOString();
+  localStorage.setItem('rw-read-times', JSON.stringify(rt));
+}
+function isUnread(phone, lastMessageAt) {
+  var rt = getReadTimes();
+  if (!rt[phone]) return true;
+  return new Date(lastMessageAt) > new Date(rt[phone]);
+}
+
+// ── BADGE HELPERS ────────────────────────────────────────────────────────────
+function setBadge(id, count) {
+  var el = document.getElementById('badge-' + id);
+  if (!el) return;
+  if (count > 0) { el.textContent = count; el.style.display = ''; }
+  else { el.style.display = 'none'; }
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const pw = document.getElementById('login-pw').value;
-  const errEl = document.getElementById('login-error');
-  const btn = document.querySelector('.login-btn');
+  var email = document.getElementById('login-email').value.trim().toLowerCase();
+  var pw = document.getElementById('login-pw').value;
+  var errEl = document.getElementById('login-error');
+  var btn = document.querySelector('.login-btn');
   if (!email || !pw) { errEl.textContent = 'Email and password required.'; return; }
   btn.textContent = 'Signing in...'; btn.disabled = true; errEl.textContent = '';
   try {
-    const res = await fetch(PORTAL_URL + '/auth/login', {
+    var res = await fetch(PORTAL_URL + '/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ email, password: pw, rememberMe: document.getElementById('remember-me').checked })
+      body: JSON.stringify({ email: email, password: pw, rememberMe: document.getElementById('remember-me').checked })
     });
-    const data = await res.json();
+    var data = await res.json();
     if (!res.ok) {
       errEl.textContent = data.error || 'Incorrect email or password.';
       document.getElementById('login-pw').value = ''; btn.textContent = 'Sign in'; btn.disabled = false; return;
@@ -499,37 +507,37 @@ async function doLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadRealConversations();
+    startSSE();
   } catch (err) {
     errEl.textContent = 'Connection error. Please try again.'; btn.textContent = 'Sign in'; btn.disabled = false;
   }
 }
 
 async function tryAutoLogin() {
-  const token = localStorage.getItem('rw-token');
+  var token = localStorage.getItem('rw-token');
   if (!token) return;
   try {
-    const res = await fetch(PORTAL_URL + '/auth/me', {
+    var res = await fetch(PORTAL_URL + '/auth/me', {
       headers: { 'Authorization': 'Bearer ' + token }, credentials: 'include'
     });
     if (!res.ok) { localStorage.removeItem('rw-token'); return; }
-    const data = await res.json();
+    var data = await res.json();
     applyIntegratorContext(data);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadRealConversations();
-  } catch (err) {
-    // Network error, leave login screen up
-  }
+    startSSE();
+  } catch (err) { /* leave login screen */ }
 }
 tryAutoLogin();
 
 function applyIntegratorContext(user) {
-  const accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
-  const name = user.integrator_name || 'RestWerks';
-  const number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
-  const firstName = user.first_name || ''; const lastName = user.last_name || '';
-  const fullName = (firstName + ' ' + lastName).trim();
-  const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+  var accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
+  var name = user.integrator_name || 'RestWerks';
+  var number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
+  var firstName = user.first_name || ''; var lastName = user.last_name || '';
+  var fullName = (firstName + ' ' + lastName).trim();
+  var initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
   document.documentElement.style.setProperty('--i-brand', accent);
   document.getElementById('sb-name').innerHTML = name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
   document.getElementById('sb-number').textContent = number;
@@ -540,27 +548,99 @@ function applyIntegratorContext(user) {
   window._rwUser = user;
 }
 
+// ── SSE REAL-TIME ────────────────────────────────────────────────────────────
+var _sseSource = null;
+function startSSE() {
+  if (_sseSource) return;
+  var token = localStorage.getItem('rw-token');
+  if (!token) return;
+  _sseSource = new EventSource(PORTAL_URL + '/api/events?token=' + encodeURIComponent(token));
+  _sseSource.addEventListener('new_message', function(e) {
+    var data = JSON.parse(e.data);
+    loadRealConversations();
+    if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
+      appendLiveMessage(data);
+    }
+  });
+  _sseSource.onerror = function() {
+    _sseSource.close(); _sseSource = null;
+    setTimeout(startSSE, 5000);
+  };
+}
+
+function appendLiveMessage(data) {
+  var thread = document.getElementById('live-thread');
+  if (!thread) return;
+  var isClient = data.role === 'user';
+  var isHuman = data.role === 'human';
+  var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+  var user = window._rwUser;
+  var bubbleColor = isHuman ? (data.bubble_color || (user ? user.bubble_color : '#2D7DD2')) : '';
+  var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
+  var time = new Date(data.created_at || Date.now()).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  var sender = isHuman && data.sender_name ? '<div class="sms-sender">' + data.sender_name + '</div>' : '';
+  thread.innerHTML += '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + data.message + '</div>' + sender +
+                      '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
+  thread.scrollTop = thread.scrollHeight;
+}
+
+// ── CONVERSATIONS ────────────────────────────────────────────────────────────
+var _allThreads = [];
+
 async function loadRealConversations() {
-  const body = document.getElementById('real-convs-body');
-  body.innerHTML = '<div class="loading-row">Loading...</div>';
+  var body = document.getElementById('real-convs-body');
+  if (!body) return;
   try {
-    const res = await rwFetch('/api/conversations');
+    var res = await rwFetch('/api/conversations');
     if (!res.ok) { body.innerHTML = '<div class="loading-row">No live conversations yet.</div>'; return; }
-    const threads = await res.json();
-    if (!threads.length) { body.innerHTML = '<div class="loading-row">No live conversations yet. Text 952-997-0100 to start one.</div>'; return; }
-    body.innerHTML = '<div style="padding:1.1rem 1.25rem;">' + threads.map(function(t) {
-      var name = t.client_name || t.label || t.phone_number;
-      var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-      var ep = encodeURIComponent(t.phone_number);
-      var safeName = name.replace(/'/g, "\\'");
-      return '<div class="conv-card" onclick="openRealConv(\'' + ep + '\',\'' + safeName + '\')">' +
-        '<div class="conv-top"><div><div class="conv-name">' + name + '</div></div><div class="conv-time">' + time + '</div></div>' +
-        '<div class="conv-row">' + t.message_count + ' messages</div>' +
-        '<div class="conv-detail-hint">Tap to view conversation →</div></div>';
-    }).join('') + '</div>';
+    var threads = await res.json();
+    _allThreads = threads;
+    renderConvList(threads);
+    updateConvBadge(threads);
   } catch (err) {
     body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
   }
+}
+
+function renderConvList(threads) {
+  var body = document.getElementById('real-convs-body');
+  if (!threads.length) { body.innerHTML = '<div class="loading-row">No conversations yet. Text 952-997-0100 to start one.</div>'; return; }
+  var rt = getReadTimes();
+  body.innerHTML = threads.map(function(t) {
+    var name = t.client_name || t.label || t.phone_number;
+    var ep = encodeURIComponent(t.phone_number);
+    var safeName = name.replace(/'/g, "\'");
+    var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+    var unread = isUnread(t.phone_number, t.last_message_at);
+    var preview = t.last_message ? t.last_message : '';
+    var count = t.message_count || '';
+    return '<div class="conv-card' + (unread ? ' unread' : '') + '" onclick="openRealConv('' + ep + '','' + safeName + '')">' +
+      '<div class="conv-unread-indicator"></div>' +
+      '<div class="conv-card-body">' +
+        '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
+        '<div class="conv-preview">' + preview + '</div>' +
+        '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function updateConvBadge(threads) {
+  var unreadCount = threads.filter(function(t) { return isUnread(t.phone_number, t.last_message_at); }).length;
+  setBadge('conversations', unreadCount);
+  setBadge('tickets', window._openTickets || 0);
+  setBadge('followups', window._openFollowups || 0);
+}
+
+function filterConvs(query) {
+  if (!query) { renderConvList(_allThreads); return; }
+  var q = query.toLowerCase();
+  var filtered = _allThreads.filter(function(t) {
+    var name = (t.client_name || t.label || t.phone_number).toLowerCase();
+    var preview = (t.last_message || '').toLowerCase();
+    return name.includes(q) || preview.includes(q);
+  });
+  renderConvList(filtered);
 }
 
 async function openRealConv(encodedPhone, name) {
@@ -569,30 +649,18 @@ async function openRealConv(encodedPhone, name) {
   document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
   window._currentPhone = encodedPhone;
   window._currentName = name;
+  markRead(decodeURIComponent(encodedPhone));
+  updateConvBadge(_allThreads);
   try {
     var res = await rwFetch('/api/thread?phone=' + encodedPhone);
     if (!res.ok) throw new Error('Status ' + res.status);
     var messages = await res.json();
     if (!Array.isArray(messages)) throw new Error('Not an array');
-    var thread = messages.map(function(m) {
-      var isClient = m.role === 'user';
-      var isHuman = m.role === 'human';
-      var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
-      var bubbleColor = isHuman ? (m.bubble_color || (window._rwUser ? window._rwUser.bubble_color : '#2D7DD2')) : '';
-      var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
-      var time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-      var sender = isHuman && m.sender_name ? '<div class="sms-sender">' + m.sender_name + '</div>' : '';
-      return '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + m.message + '</div>' + sender +
-             '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
-    }).join('');
-    var lastAndi = null;
-    messages.forEach(function(m) { if (m.role === 'assistant') lastAndi = m; });
-    var summaryCard = lastAndi ? '<div style="align-self:stretch;margin:0.25rem 0;padding:0.65rem 0.85rem;background:rgba(0,0,0,0.04);border-radius:10px;font-size:0.75rem;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--green);"><span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:3px;color:var(--ink-soft);">Andi left off here</span>' + lastAndi.message + '</div>' : '';
-
+    var html = buildThreadHTML(messages, name);
     document.getElementById('conv-detail-content').innerHTML =
       '<div class="detail-card">' +
         '<div class="detail-header"><div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div></div>' +
-        '<div class="sms-thread" id="live-thread">' + thread + summaryCard + '</div>' +
+        '<div class="sms-thread" id="live-thread">' + html + '</div>' +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
@@ -611,6 +679,57 @@ async function openRealConv(encodedPhone, name) {
   } catch (err) {
     document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
   }
+}
+
+function buildThreadHTML(messages, clientName) {
+  if (!messages.length) return '';
+  var html = '';
+  // Opening session divider
+  var firstTime = new Date(messages[0].created_at);
+  var sessionLabel = firstTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
+                     firstTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  html += '<div class="session-divider"><div class="session-line"></div><span class="session-label">' + sessionLabel + '</span><div class="session-line"></div></div>';
+
+  var lastSummaryIdx = -1;
+  for (var i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'summary') { lastSummaryIdx = i; break; }
+  }
+
+  for (var i = 0; i < messages.length; i++) {
+    var m = messages[i];
+    if (m.role === 'summary') {
+      // Render summary card
+      try {
+        var s = typeof m.message === 'string' ? JSON.parse(m.message) : m.message;
+        html += '<div class="session-summary-card">' +
+          (s.issue ? '<div class="ss-row"><strong>Issue:</strong> ' + s.issue + '</div>' : '') +
+          (s.andi_action ? '<div class="ss-row"><strong>Andi:</strong> ' + s.andi_action + '</div>' : '') +
+          (s.client_mindset ? '<div class="ss-mindset">' + s.client_mindset + '</div>' : '') +
+        '</div>';
+        // Close line after summary
+        html += '<div class="session-close"><div class="session-line"></div></div>';
+        // If there are more messages after this, open a new session divider
+        if (i < messages.length - 1) {
+          var nextTime = new Date(messages[i+1].created_at);
+          var nextLabel = nextTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
+                          nextTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+          html += '<div class="session-divider"><div class="session-line"></div><span class="session-label">' + nextLabel + '</span><div class="session-line"></div></div>';
+        }
+      } catch(e) { /* skip malformed summary */ }
+      continue;
+    }
+    var isClient = m.role === 'user';
+    var isHuman = m.role === 'human';
+    var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+    var user = window._rwUser;
+    var bubbleColor = isHuman ? (m.bubble_color || (user ? user.bubble_color : '#2D7DD2')) : '';
+    var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
+    var time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+    var sender = isHuman && m.sender_name ? '<div class="sms-sender">' + m.sender_name + '</div>' : '';
+    html += '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + m.message + '</div>' + sender +
+            '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
+  }
+  return html;
 }
 
 async function sendReply() {
@@ -639,8 +758,9 @@ async function sendReply() {
   input.disabled = false; input.focus();
 }
 
-const panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',summaries:'Summaries',analytics:'Analytics',settings:'Settings' };
-function navItem(name) { return document.querySelector('[onclick="nav(\'' + name + '\',this)"]'); }
+// ── NAV ──────────────────────────────────────────────────────────────────────
+var panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',summaries:'Summaries',analytics:'Analytics',settings:'Settings' };
+function navItem(name) { return document.querySelector('[onclick="nav('' + name + '',this)"]'); }
 function nav(name, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
@@ -651,8 +771,9 @@ function nav(name, el) {
   if (name === 'conversations') loadRealConversations();
 }
 
-const convData = {
-  weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio both down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
+// ── DEMO CONV DATA (pitch/resolved panel) ───────────────────────────────────
+var convData = {
+  weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
     {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
     {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor?',time:'7:14 PM'},
     {from:'client',text:'Ok found it',time:'7:16 PM'},
@@ -716,9 +837,9 @@ function buildConvDetail(id) {
     var sender = isHuman && m.sender ? '<div class="sms-sender">' + m.sender + '</div>' : '';
     return '<div class="sms-msg ' + cls + '">' + m.text + '</div>' + sender + '<div class="sms-time' + (m.from==='client'?' right':'') + '">' + m.time + '</div>';
   }).join('');
-  var resolved = d.status === 'resolved' ? '<div class="sms-resolved">✓ Resolved without a tech</div>' : '';
+  var resolved = d.status === 'resolved' ? '<div class="sms-resolved">&#10003; Resolved without a tech</div>' : '';
   var followup = d.follow_up ? '<div class="detail-followup"><strong>Follow up:</strong> ' + d.follow_up + '</div>' : '';
-  return '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + d.name + '</div><div class="detail-meta">' + d.time + ' · ' + (d.status==='resolved'?'Resolved':'Unresolved') + '</div></div><span class="status-pill ' + (d.status==='resolved'?'pill-resolved':'pill-open') + '"><span class="pill-dot"></span>' + (d.status==='resolved'?'Resolved':'Unresolved') + '</span></div><div class="sms-thread">' + thread + resolved + '</div><div class="detail-summary"><div class="detail-row"><strong>Issue:</strong> ' + d.issue + '</div><div class="detail-row"><strong>Andi:</strong> ' + d.andi_action + '</div>' + followup + '<div class="detail-mindset">' + d.mindset + '</div></div></div>';
+  return '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + d.name + '</div><div class="detail-meta">' + d.time + ' &middot; ' + (d.status==='resolved'?'Resolved':'Unresolved') + '</div></div><span class="status-pill ' + (d.status==='resolved'?'pill-resolved':'pill-open') + '"><span class="pill-dot"></span>' + (d.status==='resolved'?'Resolved':'Unresolved') + '</span></div><div class="sms-thread">' + thread + resolved + '</div><div class="detail-summary"><div class="detail-row"><strong>Issue:</strong> ' + d.issue + '</div><div class="detail-row"><strong>Andi:</strong> ' + d.andi_action + '</div>' + followup + '<div class="detail-mindset">' + d.mindset + '</div></div></div>';
 }
 
 function openConv(id) {
@@ -732,14 +853,16 @@ function closeConv() {
   var dv = document.getElementById('conv-detail-view');
   if (lv) lv.style.display = 'block';
   if (dv) dv.style.display = 'none';
+  window._currentPhone = null;
 }
 
-const ticketData = { happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
+// ── TICKETS ──────────────────────────────────────────────────────────────────
+var ticketData = { happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
 function openTicket(id) {
   var t = ticketData[id]; if (!t) return;
   document.getElementById('ticket-list-view').style.display = 'none';
   document.getElementById('ticket-detail-view').style.display = 'block';
-  document.getElementById('ticket-detail-content').innerHTML = '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + t.client + '</div><div class="detail-meta">' + t.address + ' · Opened ' + t.opened + '</div></div><span class="t-pill t-open">Open</span></div><div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + t.issue + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Context</div><div class="ticket-detail-value">' + t.context + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Resolution clock</div><div class="clock-display">' + t.elapsed + '</div><div class="clock-note">Clock runs while the ticket is unscheduled and unresolved.</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select"><button class="status-opt sel-open" onclick="setTicketStatus(this,\'open\')">Open</button><button class="status-opt" onclick="setTicketStatus(this,\'scheduled\')">Scheduled</button><button class="status-opt" onclick="setTicketStatus(this,\'resolved\')">Resolved</button></div></div></div>';
+  document.getElementById('ticket-detail-content').innerHTML = '<div class="detail-card"><div class="detail-header"><div><div class="detail-name">' + t.client + '</div><div class="detail-meta">' + t.address + ' &middot; Opened ' + t.opened + '</div></div><span class="t-pill t-open">Open</span></div><div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + t.issue + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Context</div><div class="ticket-detail-value">' + t.context + '</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Resolution clock</div><div class="clock-display">' + t.elapsed + '</div><div class="clock-note">Clock runs while the ticket is unscheduled and unresolved.</div></div><div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select"><button class="status-opt sel-open" onclick="setTicketStatus(this,'open')">Open</button><button class="status-opt" onclick="setTicketStatus(this,'scheduled')">Scheduled</button><button class="status-opt" onclick="setTicketStatus(this,'resolved')">Resolved</button></div></div></div>';
 }
 function setTicketStatus(btn, status) { document.querySelectorAll('.status-opt').forEach(function(b){b.className='status-opt';}); btn.classList.add('sel-'+status); }
 function closeTicket() {
@@ -747,6 +870,7 @@ function closeTicket() {
   if (lv) lv.style.display = 'block'; if (dv) { dv.style.display = 'none'; dv.innerHTML = ''; }
 }
 
+// ── FOLLOW UPS ───────────────────────────────────────────────────────────────
 var fuRemaining = 2;
 function resolveFollowup(id, user) {
   var row = document.getElementById('fu-'+id); var check = document.getElementById('fc-'+id); var label = document.getElementById('fr-'+id);
@@ -755,18 +879,19 @@ function resolveFollowup(id, user) {
   var now = new Date();
   label.textContent = 'Resolved by ' + user + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   fuRemaining--;
-  var countEl = document.getElementById('fu-count'); var badge = document.querySelector('.nav-badge.blue');
-  if (fuRemaining===0) { countEl.textContent='All done'; if(badge) badge.style.display='none'; }
-  else { countEl.textContent=fuRemaining+' remaining'; if(badge) badge.textContent=fuRemaining; }
+  var countEl = document.getElementById('fu-count'); var badge = document.getElementById('badge-followups');
+  if (fuRemaining===0) { countEl.textContent='All done'; setBadge('followups', 0); }
+  else { countEl.textContent=fuRemaining+' remaining'; setBadge('followups', fuRemaining); }
 }
 
+// ── MODE ─────────────────────────────────────────────────────────────────────
 function setTime(btn) { document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); }
 function toggleMode() {
   var dark = document.body.classList.toggle('dark');
-  document.getElementById('mode-btn').textContent = dark ? '☀️' : '🌙';
+  document.getElementById('mode-btn').textContent = dark ? '&#9728;' : '&#127769;';
   localStorage.setItem('rw-mode', dark ? 'dark' : 'light');
 }
-if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='☀️'; }
+if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='&#9728;'; }
 document.getElementById('login-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
 </script>
 </body>
