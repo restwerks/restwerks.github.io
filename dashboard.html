@@ -549,20 +549,21 @@ async function openRealConv(encodedPhone, name) {
       var isClient = m.role === 'user';
       var isHuman = m.role === 'human';
       var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
+      var bubbleColor = isHuman ? (m.bubble_color || (window._rwUser ? window._rwUser.bubble_color : '#2D7DD2')) : '';
+      var inlineStyle = isHuman ? ' style="background:' + bubbleColor + '"' : '';
       var time = new Date(m.created_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
       var sender = isHuman && m.sender_name ? '<div class="sms-sender">' + m.sender_name + '</div>' : '';
-      return '<div class="sms-msg ' + cls + '">' + m.message + '</div>' + sender +
+      return '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + m.message + '</div>' + sender +
              '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
     }).join('');
     var lastAndi = null;
     messages.forEach(function(m) { if (m.role === 'assistant') lastAndi = m; });
-    var summaryCard = lastAndi ? '<div class="thread-summary"><div class="thread-summary-label">Last Andi response</div>' + lastAndi.message + '</div>' : '';
+    var summaryCard = lastAndi ? '<div style="align-self:stretch;margin:0.25rem 0;padding:0.65rem 0.85rem;background:rgba(0,0,0,0.04);border-radius:10px;font-size:0.75rem;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--green);"><span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:3px;color:var(--ink-soft);">Andi left off here</span>' + lastAndi.message + '</div>' : '';
 
     document.getElementById('conv-detail-content').innerHTML =
       '<div class="detail-card">' +
         '<div class="detail-header"><div><div class="detail-name">' + name + '</div><div class="detail-meta">Live conversation</div></div></div>' +
-        '<div class="sms-thread" id="live-thread">' + thread + '</div>' +
-        summaryCard +
+        '<div class="sms-thread" id="live-thread">' + thread + summaryCard + '</div>' +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
@@ -572,8 +573,10 @@ async function openRealConv(encodedPhone, name) {
     document.getElementById('reply-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
     });
-    var threadEl = document.getElementById('live-thread');
-    threadEl.scrollTop = threadEl.scrollHeight;
+    setTimeout(function() {
+      var threadEl = document.getElementById('live-thread');
+      if (threadEl) threadEl.scrollTop = threadEl.scrollHeight;
+    }, 50);
   } catch (err) {
     document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Could not load thread: ' + err.message + '</div>';
   }
