@@ -1,3 +1,4 @@
+<!-- dashboard.html — June 5 2026 — 12:47 AM UTC -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,11 +242,13 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-card.unread .conv-name { font-weight:700; }
 .conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
 .conv-household { font-size:0.75rem;color:var(--ink-soft);font-weight:400;margin-left:0.5rem; }
-.conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0.15rem; }
+
+.conv-card-bottom { display:flex;align-items:flex-end;justify-content:space-between;margin-top:0.25rem;gap:0.5rem; }
+.conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;flex:1;min-width:0; }
 .conv-card.unread .conv-preview { color:var(--ink-mid); }
-.conv-card-bottom { display:flex;align-items:center;justify-content:flex-end; }
+.conv-card-meta { display:flex;align-items:center;gap:0.4rem;flex-shrink:0; }
 .conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
-.conv-andi-label { font-size:0.68rem;color:var(--green);font-weight:600;margin-right:0.5rem; }
+.conv-andi-label { font-size:0.68rem;color:var(--green);font-weight:600; }
 .session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
 .session-line { flex:1;height:2px;background:var(--green);border-radius:100px;opacity:0.5; }
 .session-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);white-space:nowrap;opacity:0.8; }
@@ -584,11 +587,14 @@ function startSSE() {
   _sseSource = new EventSource(PORTAL_URL + '/api/events?token=' + encodeURIComponent(token));
   _sseSource.addEventListener('new_message', function(e) {
     var data = JSON.parse(e.data);
+    // Always refresh conversation list so preview and unread state stay current
     loadRealConversations();
+    // Also update open thread if it matches
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
       if (data.role === 'summary') {
         appendSummaryCard(data.message);
-      } else {
+      } else if (data.role !== 'human') {
+        // Only append live if not human — human messages come from sendReply directly
         appendLiveMessage(data);
       }
     }
@@ -687,12 +693,14 @@ function renderConvList(threads) {
     var unread = isUnread(t.phone_number, t.last_message_at) && lastRole !== 'human';
     var rawPreview = t.last_message ? t.last_message : '';
     var senderPrefix = '';
-    if (lastRole === 'assistant') senderPrefix = '<span style="font-weight:600;color:var(--ink-mid);">Andi:</span> ';
-    else if (lastRole === 'human') {
+    if (lastRole === 'assistant') {
+      senderPrefix = '<span style="font-weight:600;color:var(--green);">Andi:</span> ';
+    } else if (lastRole === 'human') {
       var senderName = t.last_sender_name ? t.last_sender_name.split(' ')[0] : 'You';
-      senderPrefix = '<span style="font-weight:600;color:var(--ink-mid);">' + senderName + ':</span> ';
+      var senderColor = t.last_sender_color || 'var(--blue)';
+      senderPrefix = '<span style="font-weight:600;color:' + senderColor + ';">' + senderName + ':</span> ';
     } else {
-      senderPrefix = '<span style="font-weight:600;color:var(--ink-mid);">' + (t.first_name || 'Client') + ':</span> ';
+      senderPrefix = '<span style="font-weight:600;color:var(--ink-soft);">' + (t.first_name || 'Client') + ':</span> ';
     }
     var count = t.message_count || '';
     var andiLabelHtml = andiActive ? '<span class="conv-andi-label">Andi</span>' : '';
@@ -702,8 +710,10 @@ function renderConvList(threads) {
       '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
         '<div class="conv-card-top"><div class="conv-name">' + name + (householdHtml ? householdHtml : '') + '</div><div class="conv-time">' + time + '</div></div>' +
-        '<div class="conv-preview">' + senderPrefix + rawPreview + '</div>' +
-        '<div class="conv-card-bottom">' + andiLabelHtml + '<span class="conv-msg-count">' + count + ' messages</span></div>' +
+        '<div class="conv-card-bottom">' +
+          '<div class="conv-preview">' + senderPrefix + rawPreview + '</div>' +
+          '<div class="conv-card-meta">' + andiLabelHtml + '<span class="conv-msg-count">' + count + ' messages</span></div>' +
+        '</div>' +
       '</div>';
     card.addEventListener('click', function() {
       markRead(decodeURIComponent(ep));
