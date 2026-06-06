@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — Conversations Rebuild + live list refresh -->
+<!-- dashboard.html — June 6 2026 — hour reclaim + resume countdown -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,6 +249,9 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-card-meta { display:flex;align-items:center;gap:0.4rem;flex-shrink:0; }
 .conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
 .conv-andi-label { font-size:0.68rem;color:var(--green);font-weight:600; }
+.resume-countdown { font-size:0.68rem;color:#2D7DD2;font-weight:600;white-space:nowrap; }
+.resume-countdown.resume-urgent { color:#E08600; }
+.status-sep { color:var(--ink-soft);margin:0 2px; }
 .session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
 .session-line { flex:1;height:2px;background:var(--green);border-radius:100px;opacity:0.5; }
 .session-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);white-space:nowrap;opacity:0.8; }
@@ -714,7 +717,9 @@ function renderConvList(threads) {
       senderPrefix = '<span style="font-weight:600;color:var(--ink-soft);">' + (t.first_name || 'Client') + ':</span> ';
     }
     var count = t.message_count || '';
-    var andiLabelHtml = andiActive ? '<span class="conv-andi-label">Andi</span>' : '';
+    var andiLabelHtml = andiActive
+      ? '<span class="conv-andi-label">Andi</span>'
+      : (humanHandling ? resumeCountdownSpan(t.last_human_at) : '');
     var card = document.createElement('div');
     card.className = 'conv-card' + (unread ? ' unread' : '');
     card.innerHTML =
@@ -733,6 +738,45 @@ function renderConvList(threads) {
     });
     body.appendChild(card);
   });
+}
+
+// ─── ANDI RESUME COUNTDOWN ──────────────────────────────────────────────────
+// Shows how long until Andi unpauses on a thread a human holds. Anchored to the
+// human's last message and resets whenever they send. One ticker keeps every
+// countdown on screen fresh, in the list and in the open thread.
+var RESUME_WAIT_MIN = 60;
+
+function resumeCountdownText(anchorIso) {
+  var end = new Date(anchorIso).getTime() + RESUME_WAIT_MIN * 60000;
+  var remMs = end - Date.now();
+  if (remMs > 0) return 'Andi resumes in ' + Math.ceil(remMs / 60000) + 'm';
+  return 'Andi resuming shortly';
+}
+
+function resumeCountdownSpan(anchorIso) {
+  if (!anchorIso) return '';
+  var urgent = (new Date(anchorIso).getTime() + RESUME_WAIT_MIN * 60000 - Date.now()) <= 10 * 60000;
+  return '<span class="resume-countdown' + (urgent ? ' resume-urgent' : '') + '" data-anchor="' + anchorIso + '">' + resumeCountdownText(anchorIso) + '</span>';
+}
+
+function tickResumeCountdowns() {
+  var els = document.querySelectorAll('.resume-countdown[data-anchor]');
+  for (var i = 0; i < els.length; i++) {
+    var anchor = els[i].getAttribute('data-anchor');
+    els[i].textContent = resumeCountdownText(anchor);
+    var rem = new Date(anchor).getTime() + RESUME_WAIT_MIN * 60000 - Date.now();
+    if (rem <= 10 * 60000) els[i].classList.add('resume-urgent');
+    else els[i].classList.remove('resume-urgent');
+  }
+}
+setInterval(tickResumeCountdowns, 15000);
+
+function humanStatusHtml(anchorIso) {
+  return '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this <span class="status-sep">·</span> ' + resumeCountdownSpan(anchorIso || new Date().toISOString());
+}
+
+function andiStatusHtml() {
+  return '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
 }
 
 function updateConvBadge(threads) {
@@ -808,9 +852,9 @@ async function openRealConv(encodedPhone, name) {
     var statusEl = document.getElementById('thread-status');
     if (statusEl) {
       if (!andiActive) {
-        statusEl.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this';
+        statusEl.innerHTML = humanStatusHtml(lastHuman ? lastHuman.created_at : new Date().toISOString());
       } else {
-        statusEl.innerHTML = '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this';
+        statusEl.innerHTML = andiStatusHtml();
       }
     }
     document.getElementById('send-btn').addEventListener('click', sendReply);
@@ -888,19 +932,18 @@ async function sendReply() {
     });
     if (!res.ok) { alert('Failed to send. Please try again.'); }
     else {
-      if (!document.getElementById('handback-bar')) {
-        var slot = document.getElementById('handback-slot');
-        if (slot && !slot.querySelector('.handback-btn')) {
-          var btn = document.createElement('button');
-          btn.className = 'handback-btn';
-          btn.id = 'handback-btn';
-          btn.textContent = 'Hand back to Andi';
-          btn.addEventListener('click', function() { doHandback(phone); });
-          slot.appendChild(btn);
-        }
-        var statusEl = document.getElementById('thread-status');
-        if (statusEl) statusEl.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this';
+      var slot = document.getElementById('handback-slot');
+      if (slot && !slot.querySelector('.handback-btn')) {
+        var btn = document.createElement('button');
+        btn.className = 'handback-btn';
+        btn.id = 'handback-btn';
+        btn.textContent = 'Hand back to Andi';
+        btn.addEventListener('click', function() { doHandback(phone); });
+        slot.appendChild(btn);
       }
+      // You just sent, so you are handling and the hour restarts from now.
+      var statusEl = document.getElementById('thread-status');
+      if (statusEl) statusEl.innerHTML = humanStatusHtml(new Date().toISOString());
       // Refresh the list right away so the preview shows this message without
       // waiting on the SSE event to come back to our own browser. Messages from
       // other team members and clients still update the list through the event.
