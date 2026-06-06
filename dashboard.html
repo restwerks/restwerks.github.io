@@ -593,8 +593,7 @@ function startSSE() {
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
       if (data.role === 'summary') {
         appendSummaryCard(data.message);
-      } else if (data.role !== 'human') {
-        // Only append live if not human — human messages come from sendReply directly
+      } else {
         appendLiveMessage(data);
       }
     }
