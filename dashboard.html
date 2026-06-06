@@ -240,7 +240,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
 .conv-card.unread .conv-name { font-weight:700; }
 .conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
-.conv-household { font-size:0.72rem;color:var(--ink-soft);margin-bottom:0.1rem; }
+.conv-household { font-size:0.75rem;color:var(--ink-soft);font-weight:400;margin-left:0.5rem; }
 .conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0.15rem; }
 .conv-card.unread .conv-preview { color:var(--ink-mid); }
 .conv-card.andi-active { border-left:3px solid var(--green); }
@@ -691,8 +691,7 @@ function renderConvList(threads) {
     card.innerHTML =
       '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
-        '<div class="conv-card-top"><div class="conv-name">' + name + '</div><div class="conv-time">' + time + '</div></div>' +
-        householdHtml +
+        '<div class="conv-card-top"><div class="conv-name">' + name + (householdHtml ? householdHtml : '') + '</div><div class="conv-time">' + time + '</div></div>' +
         '<div class="conv-preview">' + preview + '</div>' +
         '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
       '</div>';
