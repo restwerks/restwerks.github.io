@@ -56,7 +56,7 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .user-role { font-size:0.65rem;color:rgba(255,255,255,0.35); }
 .sidebar-rw { font-size:0.62rem;color:rgba(255,255,255,0.18); }
 .sidebar-rw span { color:var(--brand); }
-.main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh; }
+.main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0; }
 .topbar { background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background 0.2s,border-color 0.2s; }
 .topbar-left { display:flex;align-items:center;gap:0.75rem; }
 .page-title { font-size:0.9rem;font-weight:600;color:var(--ink); }
@@ -69,7 +69,7 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .time-btn.active { background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 .mode-toggle { width:30px;height:30px;border-radius:7px;background:var(--canvas-warm);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.15s; }
 .mode-toggle:hover { background:var(--border); }
-.content { padding:1.25rem 1.5rem;flex:1; }
+.content { padding:1.25rem 1.5rem;flex:1;min-width:0; }
 .panel { display:none; } .panel.active { display:block; }
 .stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:0.875rem;margin-bottom:1.25rem; }
 .stat-card { background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s,border-color 0.15s;user-select:none; }
@@ -619,6 +619,9 @@ function startSSE() {
         thread.scrollTop = thread.scrollHeight;
       }
     }
+    // Refresh the list so the Andi pill and handling state update even when
+    // the handback came from a client wake or the resume sweep.
+    loadRealConversations();
   });
   _sseSource.onerror = function() {
     _sseSource.close(); _sseSource = null;
@@ -692,15 +695,21 @@ function renderConvList(threads) {
     var householdHtml = household ? '<span class="conv-household">' + household + '</span>' : '';
     var ep = encodeURIComponent(t.phone_number);
     var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-    var lastRole = t.last_active_role;
-    var andiActive = lastRole !== 'human';
-    // Only mark unread if last client or Andi message is newer than last read time
-    var unread = isUnread(t.phone_number, t.last_message_at) && lastRole !== 'human';
-    var rawPreview = t.last_message ? t.last_message : '';
+    // Handling state from the human and handback markers, same math the thread
+    // detail view uses, so the list and the open thread always agree.
+    var humanHandling = t.last_human_at && (!t.last_handback_at || new Date(t.last_human_at) > new Date(t.last_handback_at));
+    var andiActive = !humanHandling;
+    // preview_role is always the role of the message actually shown, so the
+    // label can never describe a different row than the text (Bug B fix).
+    var previewRole = t.preview_role;
+    // Do not mark unread when the team sent the last message.
+    var unread = isUnread(t.phone_number, t.last_message_at) && previewRole !== 'human';
+    var fullPreview = t.last_message ? t.last_message : '';
+    var rawPreview = fullPreview.length > 70 ? fullPreview.slice(0, 70).trim() + '...' : fullPreview;
     var senderPrefix = '';
-    if (lastRole === 'assistant') {
+    if (previewRole === 'assistant') {
       senderPrefix = '<span style="font-weight:600;color:var(--green);">Andi:</span> ';
-    } else if (lastRole === 'human') {
+    } else if (previewRole === 'human') {
       var senderName = t.last_sender_name ? t.last_sender_name.split(' ')[0] : 'You';
       var senderColor = t.last_sender_color || 'var(--blue)';
       senderPrefix = '<span style="font-weight:600;color:' + senderColor + ';">' + senderName + ':</span> ';
@@ -775,11 +784,11 @@ async function openRealConv(encodedPhone, name) {
     '<div class="thread-shell">' +
       '<div class="thread-main">' +
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
-          '<div>' +
-            '<div class="detail-name">' + displayName + '</div>' +
+          '<div class="detail-name">' + displayName + '</div>' +
+          '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
+            '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
-          '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
         '</div>' +
         '<div class="sms-thread" id="live-thread">' + html + '</div>' +
         '<div class="reply-box">' +
