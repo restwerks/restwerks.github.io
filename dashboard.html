@@ -652,7 +652,8 @@ function appendSummaryCard(messageJson) {
     card.innerHTML =
       (s.issue ? '<div class="ss-row"><strong>Issue:</strong> ' + s.issue + '</div>' : '') +
       (s.andi_action ? '<div class="ss-row"><strong>Andi:</strong> ' + s.andi_action + '</div>' : '') +
-      (s.client_mindset ? '<div class="ss-mindset">' + s.client_mindset + '</div>' : '');
+      (s.client_mindset ? '<div class="ss-row"><strong>Client:</strong> ' + s.client_mindset + '</div>' : '') +
+      '<div class="ss-row"><strong>Follow up:</strong> ' + (s.follow_up_note || 'None') + '</div>';
     var closeLine = document.createElement('div');
     closeLine.className = 'sms-system-line';
     closeLine.innerHTML = '<div class="sline"></div>';
@@ -837,7 +838,8 @@ function buildThreadHTML(messages, clientName) {
         html += '<div class="session-summary-card">' +
           (s.issue ? '<div class="ss-row"><strong>Issue:</strong> ' + s.issue + '</div>' : '') +
           (s.andi_action ? '<div class="ss-row"><strong>Andi:</strong> ' + s.andi_action + '</div>' : '') +
-          (s.client_mindset ? '<div class="ss-mindset">' + s.client_mindset + '</div>' : '') +
+          (s.client_mindset ? '<div class="ss-row"><strong>Client:</strong> ' + s.client_mindset + '</div>' : '') +
+          '<div class="ss-row"><strong>Follow up:</strong> ' + (s.follow_up_note || 'None') + '</div>' +
         '</div>';
         html += '<div class="sms-system-line"><div class="sline"></div></div>';
         if (i < messages.length - 1) {
