@@ -587,8 +587,10 @@ function startSSE() {
   _sseSource = new EventSource(PORTAL_URL + '/api/events?token=' + encodeURIComponent(token));
   _sseSource.addEventListener('new_message', function(e) {
     var data = JSON.parse(e.data);
-    // Always refresh conversation list so preview and unread state stay current
-    loadRealConversations();
+    // Refresh conversation list, but skip if it is our own human reply to avoid false unread dot
+    if (data.role !== 'human') {
+      loadRealConversations();
+    }
     // Also update open thread if it matches
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
       if (data.role === 'summary') {
