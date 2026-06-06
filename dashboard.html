@@ -243,6 +243,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-household { font-size:0.72rem;color:var(--ink-soft);margin-bottom:0.1rem; }
 .conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0.15rem; }
 .conv-card.unread .conv-preview { color:var(--ink-mid); }
+.conv-card.andi-active { border-left:3px solid var(--green); }
 .conv-card-bottom { display:flex;align-items:center;justify-content:flex-end; }
 .conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
 .session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
@@ -677,14 +678,16 @@ function renderConvList(threads) {
     var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : null;
     var name = fullName || t.phone_number;
     var household = t.household_name || null;
+    var householdHtml = household ? '<div class="conv-household">' + household + '</div>' : '';
     var ep = encodeURIComponent(t.phone_number);
     var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
     var unread = isUnread(t.phone_number, t.last_message_at);
     var preview = t.last_message ? t.last_message : '';
     var count = t.message_count || '';
-    var householdHtml = household ? '<div class="conv-household">' + household + '</div>' : '';
+    var andiActive = t.last_active_role !== 'human';
     var card = document.createElement('div');
-    card.className = 'conv-card' + (unread ? ' unread' : '');
+    var cls = 'conv-card' + (unread ? ' unread' : '') + (andiActive ? ' andi-active' : '');
+    card.className = cls;
     card.innerHTML =
       '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
@@ -693,7 +696,11 @@ function renderConvList(threads) {
         '<div class="conv-preview">' + preview + '</div>' +
         '<div class="conv-card-bottom"><span class="conv-msg-count">' + count + ' messages</span></div>' +
       '</div>';
-    card.addEventListener('click', function() { openRealConv(ep, name); });
+    card.addEventListener('click', function() {
+      markRead(decodeURIComponent(ep));
+      card.classList.remove('unread');
+      openRealConv(ep, name);
+    });
     body.appendChild(card);
   });
 }
@@ -746,7 +753,6 @@ async function openRealConv(encodedPhone, name) {
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
           '<div>' +
             '<div class="detail-name">' + displayName + '</div>' +
-            (householdName ? '<div style="font-size:0.72rem;color:var(--ink-soft);margin-top:1px;">' + householdName + '</div>' : '') +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
           '</div>' +
           '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
