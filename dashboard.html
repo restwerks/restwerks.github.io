@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — increment #4: team management, invites, password reset, personal settings -->
+<!-- dashboard.html — June 7 2026 — set-password token fix (declare _setpwToken before tryAutoLogin so the URL token is not wiped; submit reads token from var or URL) + green "Passwords match" check on the set-password screen. Base: increment #4 team management, invites, password reset, personal settings. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -442,12 +442,13 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="login-label" style="text-align:center;margin-bottom:0.6rem;">Set your password</div>
       <div>
         <div class="login-label">New password</div>
-        <input class="login-input" type="password" id="sp-pw" placeholder="Create a password" autocomplete="new-password" oninput="checkSpPw()" />
+        <input class="login-input" type="password" id="sp-pw" placeholder="Create a password" autocomplete="new-password" oninput="checkSpPw();checkSpMatch()" />
         <div class="login-pwhint" id="sp-pwhint">At least 10 characters, with an uppercase, lowercase, number, and special character.</div>
       </div>
       <div style="margin-top:0.9rem;">
         <div class="login-label">Confirm password</div>
-        <input class="login-input" type="password" id="sp-pw2" placeholder="Re-enter password" autocomplete="new-password" />
+        <input class="login-input" type="password" id="sp-pw2" placeholder="Re-enter password" autocomplete="new-password" oninput="checkSpMatch()" />
+        <div class="login-pwhint" id="sp-matchhint" style="display:none;">✓ Passwords match</div>
       </div>
       <button class="login-btn" onclick="submitSetpw()" style="margin-top:1rem;">Set password and sign in</button>
       <div class="login-error" id="sp-error"></div>
@@ -917,6 +918,9 @@ async function tryAutoLogin() {
     startSSE();
   } catch (err) {}
 }
+// Declared here, ABOVE the tryAutoLogin() call, so the set-password token captured
+// from the URL on page load is not wiped by a later in-place initializer.
+var _setpwToken = null;
 tryAutoLogin();
 
 function applyIntegratorContext(user) {
@@ -1517,6 +1521,16 @@ function checkSpPw() {
   var ok = pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
   document.getElementById('sp-pwhint').classList.toggle('ok', ok);
 }
+// Green check appears only when the confirm field is non-empty and equals the first.
+function checkSpMatch() {
+  var pw = document.getElementById('sp-pw').value;
+  var pw2 = document.getElementById('sp-pw2').value;
+  var hint = document.getElementById('sp-matchhint');
+  if (!hint) return;
+  var match = pw2.length > 0 && pw === pw2;
+  hint.style.display = match ? 'block' : 'none';
+  hint.classList.toggle('ok', match);
+}
 
 async function submitForgot() {
   var email = document.getElementById('fp-email').value.trim().toLowerCase();
@@ -1533,7 +1547,6 @@ async function submitForgot() {
   note.className = 'login-note ok';
 }
 
-var _setpwToken = null;
 function showSetpw(token) {
   _setpwToken = token;
   document.getElementById('login-screen').style.display = 'flex';
@@ -1547,12 +1560,15 @@ async function submitSetpw() {
   var err = document.getElementById('sp-error');
   err.textContent = '';
   if (pw !== pw2) { err.textContent = 'Passwords do not match.'; return; }
+  // Read from the variable first, then fall back to the URL. The token stays in
+  // the URL until a set succeeds, so this survives anything that clears the var.
+  var token = _setpwToken || new URLSearchParams(window.location.search).get('setpw');
   var btn = document.querySelector('#setpw-form .login-btn');
   btn.textContent = 'Setting password...'; btn.disabled = true;
   try {
     var res = await fetch(PORTAL_URL + '/auth/set-password', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ token: _setpwToken, password: pw })
+      body: JSON.stringify({ token: token, password: pw })
     });
     var data = await res.json();
     if (!res.ok) { err.textContent = data.error || 'Could not set password.'; btn.textContent = 'Set password and sign in'; btn.disabled = false; return; }
