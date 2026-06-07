@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Personal settings: editable email (re-verify disclaimer) + cell phone, all users. Member modal + self both store cell as E.164, display dashed. Portal v1.8.1. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
+<!-- dashboard.html — 2026-06-07_1610 CT — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Personal settings: editable email (re-verify disclaimer) + cell phone, all users. Member modal + self both store cell as E.164, display dashed. Portal v1.8.1. Password collapsed behind a link in personal settings. Scrubbed real client names + my cell from demo/placeholder data (now fictional). Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -505,7 +505,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
     <div class="sidebar-user" id="sidebar-user">
       <div class="user-row" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="sb-avatar">AH</div>
-        <div style="min-width:0;"><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
+        <div style="min-width:0;"><div class="user-name" id="sb-username">&mdash;</div><div class="user-role" id="sb-role"></div></div>
         <div class="user-caret">▾</div>
       </div>
       <div class="user-menu">
@@ -622,12 +622,12 @@ select.fld-input { appearance:auto;cursor:pointer; }
           <div class="panel-chrome-header"><div class="panel-chrome-title">Resolved by Andi · last 24 hours</div></div>
           <div style="padding:1.1rem 1.25rem;">
             <div class="section-divider">During Hours</div>
-            <div class="conv-card" onclick="openConv('weiss')"><div class="conv-top"><div><div class="conv-name">Chris Weiss</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div></div>
-            <div class="conv-card" onclick="openConv('fischer')"><div class="conv-top"><div><div class="conv-name">Joel Fischer</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div></div>
+            <div class="conv-card" onclick="openConv('calloway')"><div class="conv-top"><div><div class="conv-name">Dave Calloway</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">7:14 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN control and audio down after power flicker.</div><div class="conv-row"><strong>Andi:</strong> Rebooted ELAN processor and AVR in sequence. Both systems restored.</div><div class="conv-mindset">Client was surprised it was that simple.</div></div>
+            <div class="conv-card" onclick="openConv('hartley')"><div class="conv-top"><div><div class="conv-name">Marcus Hartley</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">9:51 PM</div></div><div class="conv-row"><strong>Issue:</strong> Pro Control remote not responding.</div><div class="conv-row"><strong>Andi:</strong> Confirmed dead batteries. Client replaced AAs and remote came back immediately.</div><div class="conv-mindset">Quick fix. Client was happy.</div></div>
             <div class="section-divider">After Hours</div>
-            <div class="conv-card" onclick="openConv('everson')"><div class="conv-top"><div><div class="conv-name">Roseanne Everson</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div></div>
-            <div class="conv-card" onclick="openConv('rydeen')"><div class="conv-top"><div><div class="conv-name">Tom Rydeen</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div></div>
-            <div class="conv-card" onclick="openConv('green')"><div class="conv-top"><div><div class="conv-name">Robyn Green</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div></div>
+            <div class="conv-card" onclick="openConv('brennan')"><div class="conv-top"><div><div class="conv-name">Paula Brennan</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">10:09 PM</div></div><div class="conv-row"><strong>Issue:</strong> Smoke detector beeping.</div><div class="conv-row"><strong>Andi:</strong> Identified as high voltage ceiling detector. Client replaced battery.</div><div class="conv-mindset">Client was relieved.</div></div>
+            <div class="conv-card" onclick="openConv('whitfield')"><div class="conv-top"><div><div class="conv-name">Glen Whitfield</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">8:33 PM</div></div><div class="conv-row"><strong>Issue:</strong> ELAN controller offline.</div><div class="conv-row"><strong>Andi:</strong> Guided client through processor reboot. System back online in 3 minutes.</div><div class="conv-mindset">Client was straightforward. In and out fast.</div></div>
+            <div class="conv-card" onclick="openConv('ashby')"><div class="conv-top"><div><div class="conv-name">Nadia Ashby</div><span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div><div class="conv-time">11:42 PM</div></div><div class="conv-row"><strong>Issue:</strong> Internet outage.</div><div class="conv-row"><strong>Andi:</strong> Walked client through modem reboot. Connectivity restored in under 4 minutes.</div><div class="conv-mindset">Client was calm and thanked us.</div></div>
           </div>
         </div>
       </div>
@@ -636,9 +636,9 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div id="ticket-list-view">
           <div class="panel-chrome">
             <div class="panel-chrome-header"><div class="panel-chrome-title">Tickets</div><div class="panel-chrome-action">+ New ticket</div></div>
-            <div class="ticket-row" onclick="openTicket('happe')">
+            <div class="ticket-row" onclick="openTicket('marlowe')">
               <div class="ticket-icon t-red">🔇</div>
-              <div class="ticket-body"><div class="ticket-client">Shannon Happe</div><div class="ticket-issue">No audio on 2 TVs in main living areas. AVR reboot did not resolve.</div><div class="ticket-meta">Opened 10:17 PM · Unassigned · Client has guests Friday</div></div>
+              <div class="ticket-body"><div class="ticket-client">Carla Marlowe</div><div class="ticket-issue">No audio on 2 TVs in main living areas. AVR reboot did not resolve.</div><div class="ticket-meta">Opened 10:17 PM · Unassigned · Client has guests Friday</div></div>
               <div class="ticket-right"><div class="t-pill t-open">Open</div><div class="clock-badge">⏱ 9h 43m</div></div>
             </div>
           </div>
@@ -653,8 +653,8 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div class="panel-chrome">
           <div class="panel-chrome-header"><div class="panel-chrome-title">Follow ups</div><div class="panel-chrome-action" id="fu-count" style="border:none;cursor:default;color:var(--ink-soft);">2 remaining</div></div>
           <div>
-            <div class="followup-row" id="fu-1"><div class="followup-check" id="fc-1" onclick="resolveFollowup('1','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Shannon Happe</div><div class="followup-note">Needs tech visit. Client has guests coming Friday. Schedule before end of day.</div><div class="followup-meta">Flagged by Andi · 10:17 PM last night</div><div class="followup-resolved-note" id="fr-1"></div></div></div>
-            <div class="followup-row" id="fu-2"><div class="followup-check" id="fc-2" onclick="resolveFollowup('2','Andy Hepola')"></div><div class="followup-body"><div class="followup-client">Roseanne Everson</div><div class="followup-note">Note at next visit that ceiling smoke detectors are not our equipment.</div><div class="followup-meta">Flagged by Andi · 10:09 PM last night</div><div class="followup-resolved-note" id="fr-2"></div></div></div>
+            <div class="followup-row" id="fu-1"><div class="followup-check" id="fc-1" onclick="resolveFollowup('1','Sam Okafor')"></div><div class="followup-body"><div class="followup-client">Carla Marlowe</div><div class="followup-note">Needs tech visit. Client has guests coming Friday. Schedule before end of day.</div><div class="followup-meta">Flagged by Andi · 10:17 PM last night</div><div class="followup-resolved-note" id="fr-1"></div></div></div>
+            <div class="followup-row" id="fu-2"><div class="followup-check" id="fc-2" onclick="resolveFollowup('2','Sam Okafor')"></div><div class="followup-body"><div class="followup-client">Paula Brennan</div><div class="followup-note">Note at next visit that ceiling smoke detectors are not our equipment.</div><div class="followup-meta">Flagged by Andi · 10:09 PM last night</div><div class="followup-resolved-note" id="fr-2"></div></div></div>
           </div>
         </div>
       </div>
@@ -850,7 +850,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <input class="fld-input" type="email" id="me-email" oninput="meEmailTouched()" />
         <div class="login-pwhint" id="me-email-note" style="color:var(--ink-soft);display:none;">Changing the email sends a confirmation link to the new address. It must be confirmed before they can sign in there.</div>
       </div>
-      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="me-cell" placeholder="612-695-7701" /></div>
+      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="me-cell" placeholder="555-123-4567" /></div>
       <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
       <div class="fld"><div class="fld-label">Bubble color</div>
         <div id="me-palette" class="me-palette" style="margin-bottom:0.6rem;"></div>
@@ -878,26 +878,29 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="us-first" /></div>
         <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="us-last" /></div>
       </div>
-      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="us-cell" placeholder="612-695-7701" /></div>
+      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="us-cell" placeholder="555-123-4567" /></div>
       <div class="set-saverow"><button class="btn-primary" onclick="saveMyName()">Save profile</button><span id="us-name-msg" class="us-ok"></span></div>
 
-      <div class="set-section-title" style="margin:1.1rem 0 0.6rem;">Email</div>
+      <div class="set-section-title" style="margin:0.9rem 0 0.5rem;">Email</div>
       <div class="fld">
         <input class="fld-input" type="email" id="us-email" autocomplete="email" />
         <div class="login-pwhint" style="color:var(--ink-soft);">Changing your email sends a confirmation link to the new address. You will need to confirm it there before you can sign in with it.</div>
       </div>
       <div class="set-saverow"><button class="btn-primary" onclick="saveMyEmail()">Change email</button><span id="us-email-msg" class="us-ok"></span></div>
 
-      <div class="set-section-title" style="margin:1.1rem 0 0.6rem;">Change password</div>
-      <div class="fld"><div class="fld-label">Current password</div><input class="fld-input" type="password" id="us-cur" autocomplete="current-password" /></div>
-      <div class="fld"><div class="fld-label">New password</div><input class="fld-input" type="password" id="us-new" autocomplete="new-password" /><div class="login-pwhint" style="color:var(--ink-soft);">At least 10 characters, with an uppercase, lowercase, number, and special character.</div></div>
-      <div class="set-saverow"><button class="btn-primary" onclick="saveMyPassword()">Change password</button><span id="us-pw-msg" class="us-ok"></span></div>
+      <div class="set-section-title" style="margin:0.9rem 0 0.4rem;">Password</div>
+      <div id="us-pw-trigger"><a class="set-link" onclick="showChangePw()">Change password</a></div>
+      <div id="us-pw-block" style="display:none;">
+        <div class="fld"><div class="fld-label">Current password</div><input class="fld-input" type="password" id="us-cur" autocomplete="current-password" /></div>
+        <div class="fld"><div class="fld-label">New password</div><input class="fld-input" type="password" id="us-new" autocomplete="new-password" /><div class="login-pwhint" style="color:var(--ink-soft);">At least 10 characters, with an uppercase, lowercase, number, and special character.</div></div>
+        <div class="set-saverow"><button class="btn-primary" onclick="saveMyPassword()">Save password</button><span id="us-pw-msg" class="us-ok"></span></div>
+      </div>
 
-      <div class="set-section-title" style="margin:1.1rem 0 0.4rem;">Your color</div>
+      <div class="set-section-title" style="margin:0.9rem 0 0.4rem;">Your color</div>
       <div class="us-color-row"><span class="us-color-dot" id="us-color-dot"></span><span style="font-size:0.8rem;color:var(--ink-soft);">Set by your company for who answered which message.</span></div>
 
-      <div class="set-section-title" style="margin:1.1rem 0 0.4rem;">Notifications</div>
-      <div class="set-readonly">Notification preferences are coming soon.</div>
+      <div class="set-section-title" style="margin:0.9rem 0 0.3rem;">Notifications</div>
+      <div style="font-size:0.8rem;color:var(--ink-soft);">Coming soon.</div>
     </div>
     <div class="wiz-foot" style="justify-content:flex-end;"><button class="btn-ghost" onclick="closeUserSettings()">Close</button></div>
   </div>
@@ -1665,11 +1668,17 @@ function openUserSettings(e) {
   document.getElementById('us-name-msg').textContent = '';
   document.getElementById('us-email-msg').textContent = '';
   document.getElementById('us-pw-msg').textContent = '';
+  document.getElementById('us-pw-block').style.display = 'none';
+  document.getElementById('us-pw-trigger').style.display = 'block';
   var dot = document.getElementById('us-color-dot');
   if (dot) dot.style.background = u.bubble_color || 'var(--ink-soft)';
   document.getElementById('us-overlay').classList.add('show');
 }
 function closeUserSettings() { document.getElementById('us-overlay').classList.remove('show'); }
+function showChangePw() {
+  document.getElementById('us-pw-trigger').style.display = 'none';
+  document.getElementById('us-pw-block').style.display = 'block';
+}
 
 async function saveMyName() {
   var msg = document.getElementById('us-name-msg');
@@ -2539,7 +2548,7 @@ function nav(name, el) {
 
 // ── DEMO CONV DATA ───────────────────────────────────────────────────────────
 var convData = {
-  weiss: { name:'Chris Weiss', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
+  calloway: { name:'Dave Calloway', time:'7:14 PM', status:'resolved', issue:'ELAN control and audio down after a power flicker.', andi_action:'Rebooted ELAN processor and AVR in sequence. Both systems restored.', mindset:'Client was surprised it was that simple.', thread:[
     {from:'client',text:'Hey everything went out during that storm. TV and music are both dead',time:'7:14 PM'},
     {from:'andi',text:'Got it. Can you head to your rack and find the ELAN processor?',time:'7:14 PM'},
     {from:'client',text:'Ok found it',time:'7:16 PM'},
@@ -2549,7 +2558,7 @@ var convData = {
     {from:'client',text:'Music is back too. That was easy',time:'7:21 PM'},
     {from:'andi',text:'Good timing. Let me know if anything else comes up.',time:'7:21 PM'}
   ]},
-  fischer: { name:'Joel Fischer', time:'9:51 PM', status:'resolved', issue:'Pro Control remote not responding.', andi_action:'Confirmed dead batteries. Client replaced AAs and remote came back immediately.', mindset:'Quick fix. Client was happy.', thread:[
+  hartley: { name:'Marcus Hartley', time:'9:51 PM', status:'resolved', issue:'Pro Control remote not responding.', andi_action:'Confirmed dead batteries. Client replaced AAs and remote came back immediately.', mindset:'Quick fix. Client was happy.', thread:[
     {from:'client',text:'Remote stopped working',time:'9:51 PM'},
     {from:'andi',text:'Which remote? The Pro Control one on the coffee table?',time:'9:51 PM'},
     {from:'client',text:'Yes the big one',time:'9:52 PM'},
@@ -2557,7 +2566,7 @@ var convData = {
     {from:'client',text:'That did it. Thanks',time:'9:54 PM'},
     {from:'andi',text:'Good. Let me know if it keeps happening.',time:'9:54 PM'}
   ]},
-  everson: { name:'Roseanne Everson', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping.', andi_action:'Identified as high voltage ceiling detector. Client replaced battery.', mindset:'Client was relieved.', thread:[
+  brennan: { name:'Paula Brennan', time:'10:09 PM', status:'resolved', issue:'Smoke detector beeping.', andi_action:'Identified as high voltage ceiling detector. Client replaced battery.', mindset:'Client was relieved.', thread:[
     {from:'client',text:'Our smoke detector is going off. Is something wrong with the security system?',time:'10:09 PM'},
     {from:'andi',text:'First things first. Is everyone safe and still in the house?',time:'10:09 PM'},
     {from:'client',text:'Yes everyone is fine. It just started beeping',time:'10:10 PM'},
@@ -2566,7 +2575,7 @@ var convData = {
     {from:'client',text:'Perfect that makes so much more sense. Thank you!',time:'10:14 PM'},
     {from:'andi',text:'Glad we got that sorted. Hope the rest of your night is quiet.',time:'10:15 PM'}
   ]},
-  rydeen: { name:'Tom Rydeen', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
+  whitfield: { name:'Glen Whitfield', time:'8:33 PM', status:'resolved', issue:'ELAN controller offline.', andi_action:'Guided client through processor reboot. System back online in 3 minutes.', mindset:'Client was straightforward. In and out fast.', thread:[
     {from:'client',text:'Nothing is working. Remotes dead and the app is not connecting',time:'8:33 PM'},
     {from:'andi',text:'Sounds like the ELAN processor needs a reboot. Head to your equipment rack.',time:'8:33 PM'},
     {from:'client',text:'Got it',time:'8:35 PM'},
@@ -2574,7 +2583,7 @@ var convData = {
     {from:'client',text:'All good. Everything came back',time:'8:37 PM'},
     {from:'andi',text:'Good. Let me know if it happens again.',time:'8:37 PM'}
   ]},
-  green: { name:'Robyn Green', time:'11:42 PM', status:'resolved', issue:'Internet outage.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
+  ashby: { name:'Nadia Ashby', time:'11:42 PM', status:'resolved', issue:'Internet outage.', andi_action:'Walked client through modem reboot. Connectivity restored in under 4 minutes.', mindset:'Client was calm and thanked us.', thread:[
     {from:'client',text:'Hey our wifi is completely out. Nothing is working',time:'11:42 PM'},
     {from:'andi',text:'Can you head to your rack and tell me if anything looks dark?',time:'11:42 PM'},
     {from:'client',text:'Yeah the WattBox at the top has no lights at all',time:'11:44 PM'},
@@ -2612,7 +2621,7 @@ function closeConv() {
 }
 
 // ── TICKETS ──────────────────────────────────────────────────────────────────
-var ticketData = { happe: { client:'Shannon Happe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
+var ticketData = { marlowe: { client:'Carla Marlowe', address:'Wayzata, MN', issue:'No audio on 2 TVs in main living areas. AVR reboot attempted twice, did not resolve.', context:'Client mentioned guests coming Friday. Urgent to schedule before then.', opened:'10:17 PM last night', elapsed:'9h 43m' } };
 function openTicket(id) {
   var t = ticketData[id]; if (!t) return;
   document.getElementById('ticket-list-view').style.display = 'none';
