@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — household create + dense list, search, alpha sort -->
+<!-- dashboard.html — June 6 2026 — household naming pass: filing label, two people, project name -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -345,6 +345,8 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .hh-name { font-size:0.88rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .hh-sub { font-size:0.76rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px; }
 .hh-empty { padding:3rem 1.5rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;line-height:1.8; }
+.hh-project { display:inline-block;font-size:0.66rem;font-weight:600;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 8px;margin-left:0.45rem;vertical-align:middle; }
+.hh-label-preview { font-size:0.8rem;color:var(--brand-dark);background:var(--brand-light);border-radius:8px;padding:0.5rem 0.75rem;margin-bottom:0.5rem;font-weight:600; }
 </style>
 </head>
 <body>
@@ -710,19 +712,27 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
   <div class="wiz-card">
     <div class="wiz-head">
       <div class="wiz-title">Add a household</div>
-      <div class="wiz-sub">The basics now. Equipment, ISP, and notes get added later from the household.</div>
+      <div class="wiz-sub">Files by last name. Equipment, ISP, and notes get added later from the household.</div>
     </div>
     <div class="wiz-body">
-      <div class="fld"><div class="fld-label">Household name</div><input class="fld-input" type="text" id="hh-name" placeholder="e.g. Todd and Brittany Moitz" /></div>
-      <div class="fld"><div class="fld-label">Address</div><input class="fld-input" type="text" id="hh-address" placeholder="City, state (optional)" /></div>
+      <div class="fld-label" style="margin-bottom:0.4rem;">Primary contact</div>
       <div class="fld fld-row">
-        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="hh-first" placeholder="First" /></div>
-        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="hh-last" placeholder="Last (optional)" /></div>
+        <div><input class="fld-input" type="text" id="hh-first" placeholder="First name" oninput="updateLabelPreview()" /></div>
+        <div><input class="fld-input" type="text" id="hh-last" placeholder="Last name" oninput="updateLabelPreview()" /></div>
       </div>
+      <div class="fld"><input class="fld-input" type="tel" id="hh-phone" placeholder="Phone" /></div>
+
+      <div class="fld-label" style="margin:0.5rem 0 0.4rem;">Second person (optional)</div>
       <div class="fld fld-row">
-        <div><div class="fld-label">Phone</div><input class="fld-input" type="tel" id="hh-phone" placeholder="612 555 0100" /></div>
-        <div><div class="fld-label">Relationship</div><input class="fld-input" type="text" id="hh-rel" placeholder="Owner (optional)" /></div>
+        <div><input class="fld-input" type="text" id="hh-first2" placeholder="First name" oninput="updateLabelPreview()" /></div>
+        <div><input class="fld-input" type="text" id="hh-last2" placeholder="Last name (same if blank)" oninput="updateLabelPreview()" /></div>
       </div>
+      <div class="fld"><input class="fld-input" type="tel" id="hh-phone2" placeholder="Phone (optional)" /></div>
+
+      <div class="fld"><div class="fld-label">Project name</div><input class="fld-input" type="text" id="hh-project" placeholder="Nickname, e.g. Black House (optional)" /></div>
+      <div class="fld"><div class="fld-label">Address</div><input class="fld-input" type="text" id="hh-address" placeholder="Street, city, state (optional)" /></div>
+
+      <div class="hh-label-preview" id="hh-label-preview" style="display:none;"></div>
       <div class="wiz-err" id="hh-err"></div>
     </div>
     <div class="wiz-foot">
@@ -1160,10 +1170,7 @@ function fmtPhone(p) { return p ? p.replace('+1','').replace(/(\d{3})(\d{3})(\d{
 function householdSub(h) {
   var parts = [];
   if (h.address) parts.push(h.address);
-  var people = (h.people || []).filter(Boolean);
-  var names = people.map(function(p) { return ((p.first_name || '') + ' ' + (p.last_name || '')).trim(); }).filter(Boolean);
-  if (names.length) parts.push(names.join(', '));
-  var phones = people.map(function(p) { return fmtPhone(p.phone); }).filter(Boolean);
+  var phones = (h.people || []).map(function(p) { return fmtPhone(p.phone); }).filter(Boolean);
   if (phones.length) parts.push(phones.join(', '));
   return parts.join('  ·  ');
 }
@@ -1177,10 +1184,11 @@ function renderHouseholds(list) {
   }
   var html = '';
   list.forEach(function(h) {
+    var proj = h.project_name ? ' <span class="hh-project">' + esc(h.project_name) + '</span>' : '';
     html += '<div class="hh-row">' +
       '<div class="hh-dot" style="background:var(--green);"></div>' +
       '<div class="hh-main">' +
-        '<div class="hh-name">' + esc(h.name || '') + '</div>' +
+        '<div class="hh-name">' + esc(h.name || '') + proj + '</div>' +
         '<div class="hh-sub">' + esc(householdSub(h)) + '</div>' +
       '</div></div>';
   });
@@ -1191,18 +1199,37 @@ function filterHouseholds(q) {
   q = (q || '').toLowerCase().trim();
   if (!q) { renderHouseholds(_households); return; }
   var f = _households.filter(function(h) {
-    var hay = (h.name || '') + ' ' + (h.address || '') + ' ' +
+    var hay = (h.name || '') + ' ' + (h.project_name || '') + ' ' + (h.address || '') + ' ' +
       (h.people || []).map(function(p) { return (p.first_name || '') + ' ' + (p.last_name || '') + ' ' + (p.phone || ''); }).join(' ');
     return hay.toLowerCase().indexOf(q) !== -1;
   });
   renderHouseholds(f);
 }
 
+function hhVal(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
+
+// Mirrors the server label assembly so the integrator sees how it will file as they type.
+function buildLabelPreview() {
+  var f1 = hhVal('hh-first'), l1 = hhVal('hh-last'), f2 = hhVal('hh-first2'), l2 = hhVal('hh-last2') || l1;
+  if (!f1 || !l1) return '';
+  var base = l1 + ', ' + f1;
+  if (!f2) return base;
+  if (l2.toLowerCase() === l1.toLowerCase()) return base + ' & ' + f2;
+  return base + ' & ' + l2 + ', ' + f2;
+}
+function updateLabelPreview() {
+  var el = document.getElementById('hh-label-preview');
+  var lbl = buildLabelPreview();
+  if (lbl) { el.textContent = 'Files as: ' + lbl; el.style.display = 'block'; }
+  else { el.style.display = 'none'; }
+}
+
 function openAddHousehold() {
-  ['hh-name','hh-address','hh-first','hh-last','hh-phone','hh-rel'].forEach(function(id) { var e = document.getElementById(id); if (e) e.value = ''; });
+  ['hh-first','hh-last','hh-phone','hh-first2','hh-last2','hh-phone2','hh-project','hh-address'].forEach(function(id) { var e = document.getElementById(id); if (e) e.value = ''; });
   document.getElementById('hh-err').textContent = '';
+  updateLabelPreview();
   document.getElementById('hh-overlay').classList.add('show');
-  setTimeout(function() { var n = document.getElementById('hh-name'); if (n) n.focus(); }, 50);
+  setTimeout(function() { var n = document.getElementById('hh-first'); if (n) n.focus(); }, 50);
 }
 function closeAddHousehold() { document.getElementById('hh-overlay').classList.remove('show'); }
 
@@ -1210,23 +1237,18 @@ async function submitAddHousehold() {
   var btn = document.getElementById('hh-save-btn');
   var err = document.getElementById('hh-err');
   err.textContent = '';
-  var name = document.getElementById('hh-name').value.trim();
-  var first = document.getElementById('hh-first').value.trim();
-  var phone = document.getElementById('hh-phone').value.trim();
-  if (!name) { err.textContent = 'Household name is required.'; return; }
+  var first = hhVal('hh-first'), last = hhVal('hh-last'), phone = hhVal('hh-phone');
   if (!first) { err.textContent = 'First name is required.'; return; }
+  if (!last) { err.textContent = 'Last name is required.'; return; }
   if (!phone) { err.textContent = 'A phone number is required.'; return; }
   btn.disabled = true; btn.textContent = 'Adding...';
   try {
     var res = await rwFetch('/api/households', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: name,
-        address: document.getElementById('hh-address').value,
-        first_name: first,
-        last_name: document.getElementById('hh-last').value,
-        relationship: document.getElementById('hh-rel').value,
-        phone: phone
+        first_name: first, last_name: last, phone: phone,
+        first_name_2: hhVal('hh-first2'), last_name_2: hhVal('hh-last2'), phone_2: hhVal('hh-phone2'),
+        project_name: hhVal('hh-project'), address: hhVal('hh-address')
       })
     });
     var data = await res.json();
