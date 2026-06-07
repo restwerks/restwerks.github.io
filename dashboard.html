@@ -68,6 +68,16 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .user-role { font-size:0.65rem;color:rgba(255,255,255,0.35); }
 .sidebar-rw { font-size:0.62rem;color:rgba(255,255,255,0.18); }
 .sidebar-rw span { color:var(--brand); }
+.sidebar-user { position:relative; }
+.user-row { cursor:pointer;border-radius:8px;padding:0.3rem;transition:background 0.15s; }
+.user-row:hover { background:rgba(255,255,255,0.05); }
+.user-caret { margin-left:auto;color:rgba(255,255,255,0.3);font-size:0.62rem;transition:transform 0.15s; }
+.sidebar-user.open .user-caret { transform:rotate(180deg); }
+.user-menu { display:none;position:absolute;bottom:calc(100% - 0.5rem);left:1.2rem;right:1.2rem;background:#23231f;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.35rem;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:50; }
+.sidebar-user.open .user-menu { display:block; }
+.user-menu-item { display:flex;align-items:center;gap:0.55rem;padding:0.55rem 0.65rem;border-radius:7px;font-size:0.85rem;color:rgba(255,255,255,0.82);cursor:pointer;transition:background 0.12s; }
+.user-menu-item:hover { background:rgba(255,255,255,0.07); }
+.user-menu-item.danger { color:#f87171; }
 .main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0; }
 .topbar { background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background 0.2s,border-color 0.2s; }
 .topbar-left { display:flex;align-items:center;gap:0.75rem; }
@@ -359,10 +369,15 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       <div class="nav-group-label" style="margin-top:0.5rem;">Account</div>
       <div class="nav-item" onclick="nav('settings',this)"><span class="nav-icon">⚙</span> Settings</div>
     </nav>
-    <div class="sidebar-user">
-      <div class="user-row">
+    <div class="sidebar-user" id="sidebar-user">
+      <div class="user-row" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="sb-avatar">AH</div>
-        <div><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
+        <div style="min-width:0;"><div class="user-name" id="sb-username">Andy Hepola</div><div class="user-role" id="sb-role">Owner</div></div>
+        <div class="user-caret">▾</div>
+      </div>
+      <div class="user-menu">
+        <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
+        <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -718,6 +733,27 @@ async function resendVerification() {
   }
   history.replaceState({}, '', window.location.pathname);
 })();
+
+// ── USER MENU ────────────────────────────────────────────────────────────────
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar-user').classList.toggle('open');
+}
+function openUserSettings(e) {
+  if (e) e.stopPropagation();
+  // User settings panel is built in a later pass. Close the menu for now.
+  document.getElementById('sidebar-user').classList.remove('open');
+}
+async function doLogout(e) {
+  if (e) e.stopPropagation();
+  try { await rwFetch('/auth/logout', { method: 'POST' }); } catch (err) {}
+  localStorage.removeItem('rw-token');
+  location.reload();
+}
+document.addEventListener('click', function() {
+  var su = document.getElementById('sidebar-user');
+  if (su) su.classList.remove('open');
+});
 
 // ── SSE REAL-TIME ────────────────────────────────────────────────────────────
 var _sseSource = null;
