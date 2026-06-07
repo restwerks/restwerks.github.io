@@ -1333,22 +1333,36 @@ function renderTeam(users) {
   window._team = _team;
   var body = document.getElementById('team-body');
   if (!body) return;
+  var active = _team.filter(function(u){ return u.active; });
   var removed = _team.filter(function(u){ return !u.active; });
-  var shown = _team.filter(function(u){ return u.active || _showRemoved; });
-  var html = '<div class="team-list">';
-  shown.forEach(function(u) {
+
+  function rowHtml(u) {
     var name = esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim());
     var roleLabel = u.role === 'owner' ? 'Owner' : 'Member';
     var statusPill = u.pending
       ? '<span class="team-pill pending">Pending</span>'
       : (u.active ? '' : '<span class="team-pill off">Removed</span>');
-    html += '<div class="team-row" onclick="openMemberEdit(' + u.id + ')" style="padding-left:0.4rem;padding-right:0.4rem;">' +
+    return '<div class="team-row" onclick="openMemberEdit(' + u.id + ')" style="padding-left:0.4rem;padding-right:0.4rem;">' +
       '<div class="team-dot" style="background:' + (u.bubble_color || 'var(--ink-soft)') + ';"></div>' +
       '<div class="team-main"><div class="team-name">' + name + (u.is_self ? ' <span class="team-you">you</span>' : '') + ' ' + statusPill + '</div>' +
       '<div class="team-email">' + esc(u.email || '') + '  ·  ' + roleLabel + '</div></div>' +
       '<div class="user-caret" style="color:var(--ink-soft);">›</div></div>';
-  });
-  html += '</div>';
+  }
+
+  var html = '';
+  if (_showRemoved && removed.length) {
+    // Two labeled sections so active and removed never blur together.
+    html += '<div class="eq-section-title" style="margin:0.2rem 0 0.3rem;">Active</div><div class="team-list">';
+    active.forEach(function(u){ html += rowHtml(u); });
+    html += '</div>';
+    html += '<div class="eq-section-title" style="margin:0.9rem 0 0.3rem;">Removed</div><div class="team-list">';
+    removed.forEach(function(u){ html += rowHtml(u); });
+    html += '</div>';
+  } else {
+    html += '<div class="team-list">';
+    active.forEach(function(u){ html += rowHtml(u); });
+    html += '</div>';
+  }
   if (removed.length) {
     html += '<span class="team-toggle" onclick="toggleRemoved()">' +
       (_showRemoved ? 'Hide removed' : 'Show removed (' + removed.length + ')') + '</span>';
