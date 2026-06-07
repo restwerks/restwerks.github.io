@@ -1412,24 +1412,50 @@ function openMemberEdit(id) {
 }
 function closeMemberEdit() { document.getElementById('me-overlay').classList.remove('show'); }
 
+// Build exactly 8 selectable quick colors: the free curated colors first, then backfill with
+// generated distinct hues so a reserved color is replaced rather than leaving a gap. Mirrors the
+// server's generate-when-exhausted approach; the server still validates the final choice.
+function hexFromHsl(h, s, l) {
+  s /= 100; l /= 100;
+  var k = function(n){ return (n + h / 30) % 12; };
+  var a = s * Math.min(l, 1 - l);
+  var f = function(n){ return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); };
+  var to = function(x){ return Math.round(255 * x).toString(16).padStart(2, '0'); };
+  return '#' + to(f(0)) + to(f(8)) + to(f(4));
+}
+function buildQuickColors(takenLower) {
+  var out = [], seen = {};
+  ME_PALETTE.forEach(function(c){
+    var lc = c.toLowerCase();
+    if (takenLower.indexOf(lc) === -1 && !seen[lc]) { out.push(c); seen[lc] = 1; }
+  });
+  var i = 0;
+  while (out.length < 8 && i < 3000) {
+    var hex = hexFromHsl((i * 47) % 360, 55, 45);
+    var lc = hex.toLowerCase();
+    if (takenLower.indexOf(lc) === -1 && !seen[lc]) { out.push(hex); seen[lc] = 1; }
+    i++;
+  }
+  return out;
+}
 function renderMePalette() {
   var wrap = document.getElementById('me-palette');
   if (!wrap) return;
-  // Colors held by OTHER users (active or removed) are reserved, so not pickable here.
+  // Colors held by OTHER users (active or removed) are reserved to that person and excluded.
   var takenByOthers = (_team || [])
     .filter(function(x){ return x.id !== (_meUser && _meUser.id) && x.bubble_color; })
     .map(function(x){ return x.bubble_color.toLowerCase(); });
+  var quicks = buildQuickColors(takenByOthers);
   var html = '';
-  var inPalette = false;
-  ME_PALETTE.forEach(function(c) {
-    var taken = takenByOthers.indexOf(c.toLowerCase()) !== -1;
+  var inQuicks = false;
+  quicks.forEach(function(c) {
     var sel = _meColor && _meColor.toLowerCase() === c.toLowerCase();
-    if (sel) inPalette = true;
-    html += '<div class="me-swatch' + (sel ? ' sel' : '') + (taken ? ' taken' : '') + '" style="background:' + c + ';" ' +
-      (taken ? '' : 'onclick="meSelectColor(\'' + c + '\')"') + ' title="' + c + (taken ? ' (in use)' : '') + '"></div>';
+    if (sel) inQuicks = true;
+    html += '<div class="me-swatch' + (sel ? ' sel' : '') + '" style="background:' + c + ';" ' +
+      'onclick="meSelectColor(\'' + c + '\')" title="' + c + '"></div>';
   });
-  // If the current color was auto-generated (outside the palette), show it as a selected swatch too.
-  if (_meColor && !inPalette) {
+  // If the current color is outside the 8 quicks (custom or auto-generated), show it selected too.
+  if (_meColor && !inQuicks) {
     html += '<div class="me-swatch sel" style="background:' + _meColor + ';" title="' + _meColor + ' (current)"></div>';
   }
   wrap.innerHTML = html;
