@@ -34,6 +34,18 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .login-hint { font-size:0.72rem;color:rgba(255,255,255,0.18);text-align:center; }
 .login-footer { font-size:0.7rem;color:rgba(255,255,255,0.15);display:flex;align-items:center;gap:0.35rem; }
 .login-footer span { color:var(--brand); }
+.login-toggle { font-size:0.78rem;color:rgba(255,255,255,0.4);text-align:center;margin-top:0.2rem; }
+.login-toggle a { color:var(--brand);cursor:pointer;text-decoration:none;font-weight:500; }
+.login-toggle a:hover { text-decoration:underline; }
+.login-pwhint { font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.45;margin-top:5px; }
+.login-pwhint.ok { color:#34d399; }
+.login-note { font-size:0.78rem;text-align:center;min-height:1rem; }
+.login-note.ok { color:#34d399; } .login-note.bad { color:#f87171; }
+.acct-banner { display:none;align-items:center;justify-content:space-between;gap:1rem;padding:0.6rem 1.5rem;font-size:0.82rem;font-weight:500; }
+.acct-banner.show { display:flex; }
+.acct-banner.preview { background:rgba(45,125,210,0.12);color:#2D7DD2;border-bottom:1px solid rgba(45,125,210,0.25); }
+.acct-banner.verify { background:rgba(224,134,0,0.13);color:#b36b00;border-bottom:1px solid rgba(224,134,0,0.25); }
+.acct-banner .linkbtn { color:inherit;font-weight:600;cursor:pointer;text-decoration:underline;background:none;border:none;font-size:0.82rem;font-family:inherit;white-space:nowrap; }
 #app { display:none;min-height:100vh; }
 .shell { display:flex;min-height:100vh; }
 .sidebar { width:var(--sidebar-w);background:var(--sidebar);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);z-index:50; }
@@ -270,21 +282,56 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       <div class="login-brand-name"><span class="rw">Rest</span><span class="accent">Werks</span></div>
       <div class="login-powered">Integrator dashboard</div>
     </div>
-    <div>
-      <div class="login-label">Email</div>
-      <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
+    <div id="login-note" class="login-note"></div>
+
+    <!-- SIGN IN -->
+    <div id="login-form">
+      <div>
+        <div class="login-label">Email</div>
+        <input class="login-input" type="email" id="login-email" placeholder="you@yourcompany.com" autocomplete="username" />
+      </div>
+      <div style="margin-top:0.9rem;">
+        <div class="login-label">Password</div>
+        <input class="login-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.9rem;">
+        <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--brand);cursor:pointer;" />
+        <label for="remember-me" style="font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;">Keep me signed in for 30 days</label>
+      </div>
+      <button class="login-btn" onclick="doLogin()" style="margin-top:1rem;">Sign in</button>
+      <div class="login-error" id="login-error"></div>
+      <div class="login-toggle">New to RestWerks? <a onclick="showSignup()">Create an account</a></div>
     </div>
-    <div>
-      <div class="login-label">Password</div>
-      <input class="login-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
+
+    <!-- SIGN UP -->
+    <div id="signup-form" style="display:none;">
+      <div>
+        <div class="login-label">Company name</div>
+        <input class="login-input" type="text" id="su-company" placeholder="Your company" autocomplete="organization" />
+      </div>
+      <div style="display:flex;gap:0.6rem;margin-top:0.9rem;">
+        <div style="flex:1;min-width:0;">
+          <div class="login-label">First name</div>
+          <input class="login-input" type="text" id="su-first" placeholder="First" autocomplete="given-name" />
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="login-label">Last name</div>
+          <input class="login-input" type="text" id="su-last" placeholder="Last" autocomplete="family-name" />
+        </div>
+      </div>
+      <div style="margin-top:0.9rem;">
+        <div class="login-label">Email</div>
+        <input class="login-input" type="email" id="su-email" placeholder="you@yourcompany.com" autocomplete="email" />
+      </div>
+      <div style="margin-top:0.9rem;">
+        <div class="login-label">Password</div>
+        <input class="login-input" type="password" id="su-pw" placeholder="Create a password" autocomplete="new-password" oninput="checkPw()" />
+        <div class="login-pwhint" id="su-pwhint">At least 10 characters, with an uppercase, lowercase, number, and special character.</div>
+      </div>
+      <button class="login-btn" onclick="doSignup()" style="margin-top:1rem;">Create account</button>
+      <div class="login-error" id="signup-error"></div>
+      <div class="login-toggle">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
-    <div style="display:flex;align-items:center;gap:0.5rem;">
-      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--brand);cursor:pointer;" />
-      <label for="remember-me" style="font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;">Keep me signed in for 30 days</label>
-    </div>
-    <button class="login-btn" onclick="doLogin()">Sign in</button>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-hint">andy@restwerks.com</div>
   </div>
   <div class="login-footer">Powered by <span>RestWerks</span></div>
 </div>
@@ -322,6 +369,13 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
   </aside>
 
   <main class="main">
+    <div id="acct-banner-preview" class="acct-banner preview">
+      <span>Preview mode. You are exploring with sample data. Go live to connect your number and start texting your clients.</span>
+    </div>
+    <div id="acct-banner-verify" class="acct-banner verify">
+      <span>Confirm your email to finish setup. Check your inbox for the link.</span>
+      <button class="linkbtn" id="resend-btn" onclick="resendVerification()">Resend email</button>
+    </div>
     <div class="topbar">
       <div class="topbar-left">
         <div class="page-title" id="page-title">Dashboard</div>
@@ -579,7 +633,91 @@ function applyIntegratorContext(user) {
   document.getElementById('sb-avatar').textContent = initials;
   document.getElementById('sb-avatar').style.background = accent;
   window._rwUser = user;
+  applyAccountState(user);
 }
+
+// ── ACCOUNT STATE (preview / verify banners) ─────────────────────────────────
+function applyAccountState(user) {
+  var prev = document.getElementById('acct-banner-preview');
+  var ver = document.getElementById('acct-banner-verify');
+  if (prev) prev.classList.toggle('show', !!user && user.status === 'preview');
+  if (ver) ver.classList.toggle('show', !!user && user.email_verified === false);
+}
+
+// ── SIGN UP ──────────────────────────────────────────────────────────────────
+function showSignup() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('signup-form').style.display = 'block';
+  document.getElementById('login-note').textContent = '';
+}
+function showLogin() {
+  document.getElementById('signup-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+function checkPw() {
+  var pw = document.getElementById('su-pw').value;
+  var ok = pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+  document.getElementById('su-pwhint').classList.toggle('ok', ok);
+}
+
+function enterDashboard(data) {
+  if (data.auth_token) localStorage.setItem('rw-token', data.auth_token);
+  applyIntegratorContext(data);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadRealConversations();
+  startSSE();
+}
+
+async function doSignup() {
+  var company = document.getElementById('su-company').value.trim();
+  var first = document.getElementById('su-first').value.trim();
+  var last = document.getElementById('su-last').value.trim();
+  var email = document.getElementById('su-email').value.trim().toLowerCase();
+  var pw = document.getElementById('su-pw').value;
+  var errEl = document.getElementById('signup-error');
+  var btn = document.querySelector('#signup-form .login-btn');
+  errEl.textContent = '';
+  if (!company || !first || !last || !email || !pw) { errEl.textContent = 'All fields are required.'; return; }
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+  try {
+    var res = await fetch(PORTAL_URL + '/auth/signup', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      body: JSON.stringify({ company_name: company, first_name: first, last_name: last, email: email, password: pw })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Could not create account.';
+      btn.textContent = 'Create account'; btn.disabled = false; return;
+    }
+    enterDashboard(data);
+  } catch (err) {
+    errEl.textContent = 'Connection error. Please try again.';
+    btn.textContent = 'Create account'; btn.disabled = false;
+  }
+}
+
+async function resendVerification() {
+  var b = document.getElementById('resend-btn');
+  if (b) { b.textContent = 'Sending...'; b.disabled = true; }
+  try {
+    var res = await rwFetch('/auth/resend-verification', { method: 'POST' });
+    var data = await res.json();
+    if (b) b.textContent = data.already_verified ? 'Already verified' : 'Email sent';
+  } catch (e) { if (b) { b.textContent = 'Try again'; b.disabled = false; } }
+}
+
+// ── EMAIL VERIFICATION REDIRECT NOTICE ───────────────────────────────────────
+(function handleVerifiedParam() {
+  var p = new URLSearchParams(window.location.search);
+  if (!p.has('verified')) return;
+  var note = document.getElementById('login-note');
+  if (note) {
+    if (p.get('verified') === '1') { note.textContent = 'Email confirmed.'; note.className = 'login-note ok'; }
+    else { note.textContent = 'That confirmation link was invalid or expired.'; note.className = 'login-note bad'; }
+  }
+  history.replaceState({}, '', window.location.pathname);
+})();
 
 // ── SSE REAL-TIME ────────────────────────────────────────────────────────────
 var _sseSource = null;
@@ -1265,6 +1403,7 @@ function toggleMode() {
 }
 if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='☀️'; }
 document.getElementById('login-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
+document.getElementById('su-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doSignup(); });
 </script>
 </body>
 </html>
