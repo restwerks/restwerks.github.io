@@ -1,4 +1,4 @@
-<!-- dashboard.html — 2026-06-07_1610 CT — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Personal settings: editable email (re-verify disclaimer) + cell phone, all users. Member modal + self both store cell as E.164, display dashed. Portal v1.8.1. Password collapsed behind a link in personal settings. Scrubbed real client names + my cell from demo/placeholder data (now fictional). Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
+<!-- dashboard.html — Dashboard v1.0.0 — 2026-06-07_2105 CT — Dashboard now carries its own independent version number, starting at v1.0.0 (separate from the portal track; shown here and quietly in the user menu). This build: household detail / edit view. Clicking a household row opens a detail panel (panel swap inside the Households tab, Back button returns to the list). Edit the system fields (control, ISP, network, priority, lighting, cameras, locks, security manager, project name, address, notes, remote reboot) with one Save. People are fully editable: add a person, edit name/phone/relationship, remove (soft, guarded so the last contact stays), restore removed people behind their own list. The filing label reassembles server side on any people change. Households themselves soft delete: Remove moves to a Removed section (Show removed toggle on the list); Restore brings them back with history and reserved numbers intact, mirroring the team model. Photos in the detail panel use the existing gallery + lightbox, keyed by household id. Needs portal v1.9.0. Photo labels/sections + cross-surface management + inbound MMS capture + non-blocking expand are a separate Photo System session (columns laid in v1.9.0). Base: portal-index_2026-06-07_1530 / dashboard 1610. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -347,6 +347,58 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .hh-empty { padding:3rem 1.5rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;line-height:1.8; }
 .hh-project { display:inline-block;font-size:0.66rem;font-weight:600;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 8px;margin-left:0.45rem;vertical-align:middle; }
 .hh-label-preview { font-size:0.8rem;color:var(--brand-dark);background:var(--brand-light);border-radius:8px;padding:0.5rem 0.75rem;margin-bottom:0.5rem;font-weight:600; }
+.hh-row.clickable { cursor:pointer;transition:background 0.12s; }
+.hh-row.clickable:hover { background:var(--canvas-warm); }
+.hh-chev { color:var(--ink-soft);font-size:0.9rem;flex-shrink:0;padding-left:0.25rem; }
+.hh-section-head { font-size:0.7rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-soft);padding:0.7rem 1rem 0.35rem; }
+.hh-show-removed { font-size:0.76rem;color:var(--brand-dark);cursor:pointer;padding:0.6rem 1rem;display:inline-block; }
+.hh-show-removed:hover { text-decoration:underline; }
+.hh-row.removed .hh-name, .hh-row.removed .hh-sub { opacity:0.55; }
+/* detail panel */
+.hd-head { display:flex;align-items:center;gap:0.7rem;padding:0.85rem 1rem;border-bottom:1px solid var(--border); }
+.hd-back { background:none;border:1px solid var(--border);color:var(--ink-mid);border-radius:8px;padding:0.4rem 0.7rem;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap; }
+.hd-back:hover { background:var(--canvas-warm); }
+.hd-title { font-size:1rem;font-weight:700;color:var(--ink);min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hd-removed-tag { font-size:0.66rem;font-weight:700;color:#9a6a00;background:#fdf0d8;border:1px solid #f0d9a8;border-radius:100px;padding:1px 9px; }
+.hd-body { padding:1rem;max-height:calc(100vh - 220px);overflow-y:auto; }
+.hd-block { margin-bottom:1.4rem; }
+.hd-block-title { font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between; }
+.hd-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.7rem; }
+.hd-fld { display:flex;flex-direction:column; }
+.hd-fld.full { grid-column:1 / -1; }
+.hd-fld label { font-size:0.72rem;color:var(--ink-soft);margin-bottom:0.25rem; }
+.hd-input { background:var(--canvas);border:1px solid var(--border);color:var(--ink);padding:0.5rem 0.65rem;border-radius:8px;font-size:0.85rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s; }
+.hd-input:focus { border-color:var(--brand); }
+textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
+.hd-toggle-row { display:flex;align-items:center;gap:0.55rem;font-size:0.85rem;color:var(--ink);margin-top:0.2rem; }
+.hd-save-bar { display:flex;align-items:center;gap:0.75rem;padding-top:0.4rem; }
+.hd-save { background:var(--brand);color:white;border:none;padding:0.55rem 1.1rem;border-radius:8px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif; }
+.hd-save:hover { background:var(--brand-dark); }
+.hd-save:disabled { opacity:0.6;cursor:default; }
+.hd-saved-note { font-size:0.8rem;color:var(--brand-dark);font-weight:600;opacity:0;transition:opacity 0.2s; }
+.hd-saved-note.show { opacity:1; }
+.hd-err { font-size:0.8rem;color:#c0392b;font-weight:600; }
+.hd-person { display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
+.hd-person:last-of-type { border-bottom:none; }
+.hd-person.removed { opacity:0.6; }
+.hd-person-main { min-width:0;flex:1; }
+.hd-person-name { font-size:0.88rem;font-weight:600;color:var(--ink); }
+.hd-person-sub { font-size:0.76rem;color:var(--ink-soft);margin-top:1px; }
+.hd-person-rel { font-size:0.66rem;font-weight:600;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 8px;margin-left:0.4rem; }
+.hd-person-actions { display:flex;gap:0.4rem;flex-shrink:0; }
+.hd-mini { background:none;border:1px solid var(--border);color:var(--ink-mid);border-radius:7px;padding:0.32rem 0.6rem;font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif; }
+.hd-mini:hover { background:var(--canvas-warm); }
+.hd-mini.danger { color:#c0392b;border-color:#e6b3ab; }
+.hd-mini.danger:hover { background:#fbeae7; }
+.hd-add-person { background:none;border:1px dashed var(--border);color:var(--brand-dark);border-radius:8px;padding:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;width:100%;margin-top:0.6rem;font-family:'DM Sans',sans-serif; }
+.hd-add-person:hover { background:var(--brand-light); }
+.hd-photo-add { display:inline-flex;align-items:center;gap:0.4rem;background:none;border:1px dashed var(--border);color:var(--brand-dark);border-radius:8px;padding:0.5rem 0.8rem;font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:0.6rem;font-family:'DM Sans',sans-serif; }
+.hd-photo-add:hover { background:var(--brand-light); }
+.hd-danger-zone { border:1px solid #e6b3ab;background:#fdf3f1;border-radius:9px;padding:0.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem; }
+.hd-danger-zone .dz-text { font-size:0.78rem;color:var(--ink-mid);line-height:1.5; }
+.hd-danger-btn { background:#c0392b;color:white;border:none;padding:0.5rem 0.95rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif; }
+.hd-danger-btn:hover { background:#a93226; }
+.hd-restore-btn { background:var(--brand);color:white;border:none;padding:0.5rem 0.95rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif; }
 .team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
 .team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
 .team-row:last-child { border-bottom:none; }
@@ -511,6 +563,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.0.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -660,12 +713,24 @@ select.fld-input { appearance:auto;cursor:pointer; }
       </div>
 
       <div id="panel-households" class="panel">
-        <div class="panel-chrome">
-          <div class="hh-toolbar">
-            <input class="hh-search" id="hh-search" type="text" placeholder="Search households..." oninput="filterHouseholds(this.value)" />
-            <button class="hh-add-btn" onclick="openAddHousehold()">+ Add household</button>
+        <div id="hh-list-view">
+          <div class="panel-chrome">
+            <div class="hh-toolbar">
+              <input class="hh-search" id="hh-search" type="text" placeholder="Search households..." oninput="filterHouseholds(this.value)" />
+              <button class="hh-add-btn" onclick="openAddHousehold()">+ Add household</button>
+            </div>
+            <div class="hh-list" id="hh-list"><div class="hh-empty">Loading...</div></div>
           </div>
-          <div class="hh-list" id="hh-list"><div class="hh-empty">Loading...</div></div>
+        </div>
+        <div id="hh-detail-view" style="display:none;">
+          <div class="panel-chrome">
+            <div class="hd-head">
+              <button class="hd-back" onclick="backToHouseholds()">‹ Households</button>
+              <div class="hd-title" id="hd-title">Household</div>
+              <span class="hd-removed-tag" id="hd-removed-tag" style="display:none;">Removed</span>
+            </div>
+            <div class="hd-body" id="hd-body"><div class="hh-empty">Loading...</div></div>
+          </div>
         </div>
       </div>
 
@@ -806,6 +871,47 @@ select.fld-input { appearance:auto;cursor:pointer; }
     <div class="wiz-foot">
       <button class="btn-ghost" onclick="closeAddHousehold()">Cancel</button>
       <button class="btn-primary" id="hh-save-btn" onclick="submitAddHousehold()">Add household</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD / EDIT PERSON MODAL (v1.9.0) ── -->
+<div id="hp-overlay" class="wiz-overlay" onclick="if(event.target===this)closeHpModal()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title" id="hp-title">Add a person</div>
+      <div class="wiz-sub" id="hp-sub">They become a contact on this household.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="fld fld-row">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="hp-first" placeholder="First" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="hp-last" placeholder="Same as household if blank" /></div>
+      </div>
+      <div class="fld"><div class="fld-label">Phone (optional)</div><input class="fld-input" type="tel" id="hp-phone" placeholder="Phone" /></div>
+      <div class="fld"><div class="fld-label">Relationship (optional)</div><input class="fld-input" type="text" id="hp-rel" placeholder="e.g. Spouse, Property manager" /></div>
+      <div class="wiz-err" id="hp-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeHpModal()">Cancel</button>
+      <button class="btn-primary" id="hp-save-btn" onclick="submitHpModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REMOVE HOUSEHOLD CONFIRM MODAL (v1.9.0) ── -->
+<div id="hd-del-overlay" class="wiz-overlay" onclick="if(event.target===this)closeRemoveHousehold()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title">Remove this household?</div>
+      <div class="wiz-sub" id="hd-del-sub">It moves to Removed. Nothing is deleted.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="wiz-sub" style="line-height:1.6;">The household and its people stop showing in the active list. Conversation history and photos are kept, and the phone numbers stay reserved, so you can bring them back any time from the Removed list.</div>
+      <div class="wiz-err" id="hd-del-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeRemoveHousehold()">Cancel</button>
+      <button class="hd-danger-btn" id="hd-del-btn" onclick="confirmRemoveHousehold()">Remove household</button>
     </div>
   </div>
 </div>
@@ -1728,6 +1834,7 @@ async function saveMyPassword() {
 var _households = [];
 
 async function loadHouseholds() {
+  backToHouseholds();
   var list = document.getElementById('hh-list');
   if (list) list.innerHTML = '<div class="hh-empty">Loading...</div>';
   try {
@@ -1749,24 +1856,47 @@ function householdSub(h) {
   return parts.join('  ·  ');
 }
 
+var _hhShowRemoved = false;
+
+function householdRowHtml(h, removed) {
+  var proj = h.project_name ? ' <span class="hh-project">' + esc(h.project_name) + '</span>' : '';
+  return '<div class="hh-row clickable' + (removed ? ' removed' : '') + '" onclick="openHouseholdDetail(' + h.id + ')">' +
+    '<div class="hh-dot" style="background:' + (removed ? 'var(--ink-soft)' : 'var(--green)') + ';"></div>' +
+    '<div class="hh-main">' +
+      '<div class="hh-name">' + esc(h.name || '') + proj + '</div>' +
+      '<div class="hh-sub">' + esc(householdSub(h)) + '</div>' +
+    '</div>' +
+    '<div class="hh-chev">›</div></div>';
+}
+
 function renderHouseholds(list) {
   var el = document.getElementById('hh-list');
   if (!el) return;
-  if (!list.length) {
+  var active = list.filter(function(h) { return h.active !== false; });
+  var removed = list.filter(function(h) { return h.active === false; });
+  if (!active.length && !removed.length) {
     el.innerHTML = '<div class="hh-empty">No households yet.<br><br><button class="hh-add-btn" onclick="openAddHousehold()">+ Add your first household</button></div>';
     return;
   }
   var html = '';
-  list.forEach(function(h) {
-    var proj = h.project_name ? ' <span class="hh-project">' + esc(h.project_name) + '</span>' : '';
-    html += '<div class="hh-row">' +
-      '<div class="hh-dot" style="background:var(--green);"></div>' +
-      '<div class="hh-main">' +
-        '<div class="hh-name">' + esc(h.name || '') + proj + '</div>' +
-        '<div class="hh-sub">' + esc(householdSub(h)) + '</div>' +
-      '</div></div>';
-  });
+  if (!active.length) html += '<div class="hh-empty" style="padding:2rem 1.5rem;">No active households.</div>';
+  active.forEach(function(h) { html += householdRowHtml(h, false); });
+  if (removed.length) {
+    html += '<div class="hh-show-removed" onclick="toggleShowRemoved(event)">' +
+      (_hhShowRemoved ? 'Hide' : 'Show') + ' removed (' + removed.length + ')</div>';
+    if (_hhShowRemoved) {
+      html += '<div class="hh-section-head">Removed</div>';
+      removed.forEach(function(h) { html += householdRowHtml(h, true); });
+    }
+  }
   el.innerHTML = html;
+}
+
+function toggleShowRemoved(e) {
+  if (e) e.stopPropagation();
+  _hhShowRemoved = !_hhShowRemoved;
+  var s = document.getElementById('hh-search');
+  filterHouseholds(s ? s.value : '');
 }
 
 function filterHouseholds(q) {
@@ -1831,6 +1961,297 @@ async function submitAddHousehold() {
     await loadHouseholds();
   } catch (e) { err.textContent = 'Connection error.'; }
   btn.disabled = false; btn.textContent = 'Add household';
+}
+
+// ── HOUSEHOLD DETAIL / EDIT (v1.9.0) ───────────────────────────────────────────
+var _hd = null;          // the loaded household record
+var _hpClientId = null;  // person being edited in the person modal, null = adding
+
+function backToHouseholds() {
+  var lv = document.getElementById('hh-list-view');
+  var dv = document.getElementById('hh-detail-view');
+  if (lv) lv.style.display = '';
+  if (dv) dv.style.display = 'none';
+  _hd = null;
+}
+
+async function openHouseholdDetail(id) {
+  document.getElementById('hh-list-view').style.display = 'none';
+  document.getElementById('hh-detail-view').style.display = '';
+  document.getElementById('hd-title').textContent = 'Household';
+  document.getElementById('hd-removed-tag').style.display = 'none';
+  document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Loading...</div>';
+  try {
+    var res = await rwFetch('/api/households/' + id);
+    if (!res.ok) { document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Could not load this household.</div>'; return; }
+    _hd = await res.json();
+    renderHouseholdDetail();
+  } catch (e) { document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+
+function hdField(label, id, val) {
+  return '<div class="hd-fld"><label>' + label + '</label><input class="hd-input" id="' + id + '" type="text" value="' + esc(val || '') + '" /></div>';
+}
+
+function renderHouseholdDetail() {
+  var h = _hd;
+  var removed = h.active === false;
+  document.getElementById('hd-title').textContent = h.name || 'Household';
+  document.getElementById('hd-removed-tag').style.display = removed ? '' : 'none';
+
+  var people = h.people || [];
+  var activePeople = people.filter(function(p) { return p.active !== false; });
+  var removedPeople = people.filter(function(p) { return p.active === false; });
+
+  var html = '';
+
+  // People
+  html += '<div class="hd-block"><div class="hd-block-title">People</div>';
+  if (!activePeople.length) html += '<div class="hd-person-sub" style="padding:0.4rem 0;">No active contacts.</div>';
+  activePeople.forEach(function(p) { html += personRowHtml(p, false); });
+  html += '<button class="hd-add-person" onclick="openHpAdd()">+ Add a person</button>';
+  if (removedPeople.length) {
+    html += '<div style="margin-top:0.6rem;">';
+    removedPeople.forEach(function(p) { html += personRowHtml(p, true); });
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // System fields
+  html += '<div class="hd-block"><div class="hd-block-title">System</div><div class="hd-grid">' +
+    hdField('Control system', 'hd-control', h.control_system_type) +
+    hdField('Internet provider', 'hd-isp', h.isp_name) +
+    hdField('Network', 'hd-network', h.network_tier) +
+    hdField('Priority tier', 'hd-priority', h.priority_tier) +
+    hdField('Lighting', 'hd-lighting', h.lighting_system_type) +
+    hdField('Cameras', 'hd-cameras', h.camera_system_type) +
+    hdField('Locks', 'hd-locks', h.lock_system_type) +
+    hdField('Security manager', 'hd-security', h.security_manager_name) +
+    '<div class="hd-fld"><label>Project name</label><input class="hd-input" id="hd-project" type="text" value="' + esc(h.project_name || '') + '" /></div>' +
+    '<div class="hd-fld full"><label>Address</label><input class="hd-input" id="hd-address" type="text" value="' + esc(h.address || '') + '" /></div>' +
+    '<div class="hd-fld full"><label>Notes</label><textarea class="hd-input" id="hd-notes">' + esc(h.household_notes || '') + '</textarea></div>' +
+    '</div>' +
+    '<div class="hd-toggle-row"><input type="checkbox" id="hd-reboot"' + (h.remote_reboot_enabled ? ' checked' : '') + ' /> <label for="hd-reboot" style="cursor:pointer;">Remote reboot enabled for this household</label></div>' +
+    '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>' +
+    '</div>';
+
+  // Photos
+  html += '<div class="hd-block"><div class="hd-block-title">Photos</div>' +
+    '<div id="hd-photo-container"><div class="hd-person-sub">Loading photos...</div></div>' +
+    '<button class="hd-photo-add" id="hd-photo-add" onclick="document.getElementById(\'hd-photo-input\').click()">+ Add photo</button>' +
+    '<input type="file" id="hd-photo-input" accept="image/*" style="display:none;" onchange="uploadDetailPhoto(this)" />' +
+    '</div>';
+
+  // Danger / restore zone
+  html += '<div class="hd-block">';
+  if (removed) {
+    html += '<div class="hd-danger-zone" style="border-color:var(--border);background:var(--canvas-warm);">' +
+      '<div class="dz-text">This household is removed. Bring it back with its history and reserved numbers intact.</div>' +
+      '<button class="hd-restore-btn" onclick="reactivateHousehold()">Restore household</button></div>';
+  } else {
+    html += '<div class="hd-danger-zone">' +
+      '<div class="dz-text">Remove this household. It moves to Removed and can be brought back later. Nothing is deleted.</div>' +
+      '<button class="hd-danger-btn" onclick="openRemoveHousehold()">Remove household</button></div>';
+  }
+  html += '</div>';
+
+  document.getElementById('hd-body').innerHTML = html;
+  loadDetailPhotos();
+}
+
+function personRowHtml(p, removed) {
+  var name = ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
+  var rel = p.relationship ? '<span class="hd-person-rel">' + esc(p.relationship) + '</span>' : '';
+  var phone = p.phone_number ? fmtPhone(p.phone_number) : 'No phone on file';
+  var actions = '';
+  if (removed) {
+    actions = '<button class="hd-mini" onclick="reactivatePerson(' + p.client_id + ')">Restore</button>';
+  } else {
+    actions = '<button class="hd-mini" onclick="openHpEdit(' + p.client_id + ')">Edit</button>' +
+      '<button class="hd-mini danger" onclick="removePerson(' + p.client_id + ')">Remove</button>';
+  }
+  return '<div class="hd-person' + (removed ? ' removed' : '') + '">' +
+    '<div class="hd-person-main">' +
+      '<div class="hd-person-name">' + esc(name) + rel + '</div>' +
+      '<div class="hd-person-sub">' + esc(phone) + '</div>' +
+    '</div>' +
+    '<div class="hd-person-actions">' + actions + '</div></div>';
+}
+
+async function saveHouseholdFields() {
+  var btn = document.getElementById('hd-save-btn');
+  var err = document.getElementById('hd-fields-err');
+  var note = document.getElementById('hd-saved-note');
+  err.textContent = '';
+  var body = {
+    control_system_type: hhVal('hd-control'), isp_name: hhVal('hd-isp'),
+    network_tier: hhVal('hd-network'), priority_tier: hhVal('hd-priority'),
+    lighting_system_type: hhVal('hd-lighting'), camera_system_type: hhVal('hd-cameras'),
+    lock_system_type: hhVal('hd-locks'), security_manager_name: hhVal('hd-security'),
+    project_name: hhVal('hd-project'), address: hhVal('hd-address'),
+    household_notes: hhVal('hd-notes'),
+    remote_reboot_enabled: document.getElementById('hd-reboot').checked
+  };
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save changes'; return; }
+    // keep the local copy current so the project chip / address render right if people change next
+    Object.keys(body).forEach(function(k) { _hd[k] = body[k]; });
+    note.classList.add('show');
+    setTimeout(function() { note.classList.remove('show'); }, 1800);
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Save changes';
+}
+
+// ── people add / edit / remove ──
+function openHpAdd() {
+  _hpClientId = null;
+  document.getElementById('hp-title').textContent = 'Add a person';
+  document.getElementById('hp-sub').textContent = 'They become a contact on this household.';
+  document.getElementById('hp-first').value = '';
+  document.getElementById('hp-last').value = '';
+  document.getElementById('hp-phone').value = '';
+  document.getElementById('hp-rel').value = '';
+  document.getElementById('hp-err').textContent = '';
+  document.getElementById('hp-overlay').classList.add('show');
+  setTimeout(function() { document.getElementById('hp-first').focus(); }, 50);
+}
+function openHpEdit(clientId) {
+  var p = (_hd.people || []).filter(function(x) { return x.client_id === clientId; })[0];
+  if (!p) return;
+  _hpClientId = clientId;
+  document.getElementById('hp-title').textContent = 'Edit person';
+  document.getElementById('hp-sub').textContent = 'Update their name, phone, or relationship.';
+  document.getElementById('hp-first').value = p.first_name || '';
+  document.getElementById('hp-last').value = p.last_name || '';
+  document.getElementById('hp-phone').value = fmtPhone(p.phone_number || '');
+  document.getElementById('hp-rel').value = p.relationship || '';
+  document.getElementById('hp-err').textContent = '';
+  document.getElementById('hp-overlay').classList.add('show');
+}
+function closeHpModal() { document.getElementById('hp-overlay').classList.remove('show'); }
+
+async function submitHpModal() {
+  var btn = document.getElementById('hp-save-btn');
+  var err = document.getElementById('hp-err');
+  err.textContent = '';
+  var first = hhVal('hp-first');
+  if (!first) { err.textContent = 'First name is required.'; return; }
+  var body = { first_name: first, last_name: hhVal('hp-last'), phone: hhVal('hp-phone'), relationship: hhVal('hp-rel') };
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var url = '/api/households/' + _hd.id + '/clients' + (_hpClientId ? '/' + _hpClientId : '');
+    var res = await rwFetch(url, {
+      method: _hpClientId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save'; return; }
+    closeHpModal();
+    await refreshDetail();
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Save';
+}
+
+async function removePerson(clientId) {
+  if (!confirm('Remove this person from the household? They move to removed and can be restored.')) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/clients/' + clientId + '/deactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not remove.'); return; }
+    await refreshDetail();
+  } catch (e) { alert('Connection error.'); }
+}
+async function reactivatePerson(clientId) {
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/clients/' + clientId + '/reactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not restore.'); return; }
+    await refreshDetail();
+  } catch (e) { alert('Connection error.'); }
+}
+
+// Reload the detail record in place (after a people change) without leaving the panel.
+async function refreshDetail() {
+  if (!_hd) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id);
+    if (res.ok) { _hd = await res.json(); renderHouseholdDetail(); }
+  } catch (e) {}
+}
+
+// ── household remove / restore ──
+function openRemoveHousehold() { document.getElementById('hd-del-err').textContent = ''; document.getElementById('hd-del-overlay').classList.add('show'); }
+function closeRemoveHousehold() { document.getElementById('hd-del-overlay').classList.remove('show'); }
+async function confirmRemoveHousehold() {
+  var btn = document.getElementById('hd-del-btn');
+  var err = document.getElementById('hd-del-err');
+  btn.disabled = true; btn.textContent = 'Removing...';
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/deactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not remove.'; btn.disabled = false; btn.textContent = 'Remove household'; return; }
+    closeRemoveHousehold();
+    backToHouseholds();
+    await loadHouseholds();
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Remove household';
+}
+async function reactivateHousehold() {
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/reactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not restore.'); return; }
+    await refreshDetail();
+  } catch (e) { alert('Connection error.'); }
+}
+
+// ── detail photos (keyed by household id) ──
+async function loadDetailPhotos() {
+  var c = document.getElementById('hd-photo-container');
+  if (!c || !_hd) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/photos');
+    if (!res.ok) { c.innerHTML = '<div class="hd-person-sub">No photos yet.</div>'; return; }
+    var photos = await res.json();
+    if (!photos.length) { c.innerHTML = '<div class="hd-person-sub">No photos yet.</div>'; return; }
+    c.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    photos.forEach(function(p) {
+      var thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      var img = document.createElement('img');
+      img.src = p.url; img.alt = p.filename || ''; img.loading = 'lazy';
+      thumb.appendChild(img);
+      thumb.addEventListener('click', function() { openLightbox(p.url); });
+      grid.appendChild(thumb);
+    });
+    c.appendChild(grid);
+  } catch (e) { c.innerHTML = '<div class="hd-person-sub">Could not load photos.</div>'; }
+}
+
+async function uploadDetailPhoto(input) {
+  var file = input.files[0];
+  if (!file || !_hd) return;
+  var btn = document.getElementById('hd-photo-add');
+  btn.textContent = 'Uploading...';
+  var formData = new FormData();
+  formData.append('photo', file);
+  try {
+    var token = localStorage.getItem('rw-token');
+    var headers = {};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    var res = await fetch(PORTAL_URL + '/api/households/' + _hd.id + '/photos', {
+      method: 'POST', headers: headers, credentials: 'include', body: formData
+    });
+    input.value = '';
+    if (res.ok) { btn.textContent = '+ Add photo'; loadDetailPhotos(); }
+    else { btn.textContent = 'Upload failed. Try again.'; }
+  } catch (e) { btn.textContent = 'Upload failed. Try again.'; }
 }
 
 // ── SIGN UP ──────────────────────────────────────────────────────────────────
