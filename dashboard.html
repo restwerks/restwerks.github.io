@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — hour reclaim + resume countdown -->
+<!-- dashboard.html — June 6 2026 — increment #3: first-login setup wizard + company Settings -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -282,6 +282,53 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .session-summary-card .ss-row { display:block;margin-bottom:0.1rem; }
 .session-summary-card .ss-row strong { color:var(--ink-mid);font-weight:600; }
 .session-summary-card .ss-mindset { font-style:italic;color:var(--ink-soft); }
+/* ── Setup wizard + company settings (increment #3) ── */
+.wiz-overlay { display:none;position:fixed;inset:0;background:rgba(10,10,9,0.72);backdrop-filter:blur(3px);z-index:2000;align-items:center;justify-content:center;padding:1.5rem; }
+.wiz-overlay.show { display:flex; }
+.wiz-card { background:var(--white);border:1px solid var(--border);border-radius:16px;width:520px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.4); }
+.wiz-head { padding:1.5rem 1.75rem 1rem; }
+.wiz-steps { display:flex;gap:0.4rem;margin-bottom:1rem; }
+.wiz-pip { height:4px;flex:1;border-radius:100px;background:var(--border);transition:background 0.2s; }
+.wiz-pip.on { background:var(--brand); }
+.wiz-title { font-family:'DM Serif Display',serif;font-size:1.5rem;letter-spacing:-0.01em;color:var(--ink); }
+.wiz-sub { font-size:0.85rem;color:var(--ink-soft);margin-top:0.35rem;line-height:1.45; }
+.wiz-body { padding:0.5rem 1.75rem; }
+.wiz-foot { padding:1.25rem 1.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem; }
+.wiz-step { display:none; } .wiz-step.on { display:block; }
+.fld { margin-bottom:0.9rem; }
+.fld-label { font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-soft);margin-bottom:0.35rem; }
+.fld-input { width:100%;background:var(--canvas);border:1px solid var(--border);color:var(--ink);padding:0.6rem 0.8rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.15s; }
+.fld-input:focus { border-color:var(--brand); }
+.fld-row { display:flex;gap:0.6rem; } .fld-row > * { flex:1;min-width:0; }
+.btn-primary { background:var(--brand);color:white;border:none;padding:0.6rem 1.2rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600;cursor:pointer;transition:background 0.15s; }
+.btn-primary:hover { background:var(--brand-dark); }
+.btn-primary:disabled { opacity:0.55;cursor:default; }
+.btn-ghost { background:none;border:none;color:var(--ink-soft);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;padding:0.6rem 0.4rem; }
+.btn-ghost:hover { color:var(--ink); }
+.wiz-err { font-size:0.78rem;color:var(--red);min-height:1rem;margin-top:0.2rem; }
+.logo-drop { border:1.5px dashed var(--border);border-radius:10px;padding:1.1rem;text-align:center;cursor:pointer;transition:border-color 0.15s,background 0.15s;color:var(--ink-soft);font-size:0.82rem; }
+.logo-drop:hover { border-color:var(--brand);background:var(--canvas); }
+.logo-preview { display:flex;align-items:center;gap:0.8rem;background:var(--canvas);border:1px solid var(--border);border-radius:10px;padding:0.7rem 0.9rem; }
+.logo-preview img { height:40px;width:auto;max-width:160px;object-fit:contain;border-radius:4px;background:#fff; }
+.color-row { display:flex;gap:0.75rem;flex-wrap:wrap; }
+.color-cell { flex:1;min-width:120px; }
+.color-pick { display:flex;align-items:center;gap:0.5rem; }
+.color-pick input[type=color] { width:34px;height:34px;border:1px solid var(--border);border-radius:7px;background:none;cursor:pointer;padding:2px;flex-shrink:0; }
+.color-pick input[type=text] { flex:1;min-width:0; }
+.sb-logo-img { max-width:100%;max-height:34px;width:auto;object-fit:contain;display:block; }
+.set-section { padding:1.25rem 1.5rem;border-bottom:1px solid var(--border); }
+.set-section:last-child { border-bottom:none; }
+.set-section-title { font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:0.15rem; }
+.set-section-note { font-size:0.76rem;color:var(--ink-soft);margin-bottom:0.9rem;line-height:1.45; }
+.set-readonly { font-size:0.86rem;color:var(--ink-mid);background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem; }
+.set-saverow { display:flex;align-items:center;gap:0.9rem;margin-top:0.4rem; }
+.set-saved { font-size:0.78rem;color:var(--green);opacity:0;transition:opacity 0.2s; }
+.set-saved.show { opacity:1; }
+.set-status-pill { display:inline-block;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 9px;border-radius:100px; }
+.set-status-pill.preview { background:var(--blue-bg);color:var(--blue); }
+.set-status-pill.live { background:var(--green-bg);color:var(--green); }
+.set-link { color:var(--brand);cursor:pointer;font-size:0.82rem;font-weight:500;text-decoration:none; }
+.set-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -544,11 +591,108 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 
       <div id="panel-summaries" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Morning summaries</div></div><div class="placeholder-body">Archive of every morning summary email. Coming next session.</div></div></div>
       <div id="panel-analytics" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Analytics</div></div><div class="placeholder-body">Full resolution rate trends, issue breakdowns, and Andi performance over time. Coming next session.</div></div></div>
-      <div id="panel-settings" class="panel"><div class="panel-chrome"><div class="panel-chrome-header"><div class="panel-chrome-title">Settings</div></div><div class="placeholder-body">Account info, SMS number, brand color, users and roles, notification preferences. Coming next session.</div></div></div>
+      <div id="panel-settings" class="panel">
+        <div class="panel-chrome">
+          <div class="panel-chrome-header">
+            <div class="panel-chrome-title">Company settings</div>
+            <div class="panel-chrome-action" id="set-status-slot" style="border:none;cursor:default;background:none;padding:0;"></div>
+          </div>
+          <div id="settings-body">
+            <div class="placeholder-body">Loading...</div>
+          </div>
+        </div>
+      </div>
 
     </div>
   </main>
 </div>
+</div>
+
+<!-- ── SETUP WIZARD (increment #3) ── -->
+<div id="wiz-overlay" class="wiz-overlay" onclick="if(event.target===this)closeWizard()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-steps">
+        <div class="wiz-pip on" id="wiz-pip-1"></div>
+        <div class="wiz-pip" id="wiz-pip-2"></div>
+        <div class="wiz-pip" id="wiz-pip-3"></div>
+      </div>
+      <div class="wiz-title" id="wiz-title">Set up your company</div>
+      <div class="wiz-sub" id="wiz-sub">A few details so Andi can introduce your company correctly. All of this is optional and you can change it anytime in Settings.</div>
+    </div>
+
+    <!-- Step 1: company info -->
+    <div class="wiz-step on" id="wiz-step-1">
+      <div class="wiz-body">
+        <div class="fld">
+          <div class="fld-label">Company name</div>
+          <input class="fld-input" type="text" id="wiz-name" placeholder="Your company" />
+        </div>
+        <div class="fld">
+          <div class="fld-label">Address</div>
+          <input class="fld-input" type="text" id="wiz-address" placeholder="Street, city, state" />
+        </div>
+        <div class="fld fld-row">
+          <div>
+            <div class="fld-label">Office phone</div>
+            <input class="fld-input" type="tel" id="wiz-phone" placeholder="612 555 0100" />
+          </div>
+          <div>
+            <div class="fld-label">Company email</div>
+            <input class="fld-input" type="email" id="wiz-email" placeholder="office@yourcompany.com" />
+          </div>
+        </div>
+        <div class="wiz-err" id="wiz-err-1"></div>
+      </div>
+      <div class="wiz-foot">
+        <button class="btn-ghost" onclick="wizSkip(2)">Skip for now</button>
+        <button class="btn-primary" id="wiz-next-1" onclick="wizSaveStep1()">Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 2: branding -->
+    <div class="wiz-step" id="wiz-step-2">
+      <div class="wiz-body">
+        <div class="fld">
+          <div class="fld-label">Logo</div>
+          <input type="file" id="wiz-logo-file" accept="image/*" style="display:none;" onchange="wizLogoChosen(this)" />
+          <div id="wiz-logo-zone" class="logo-drop" onclick="document.getElementById('wiz-logo-file').click()">Click to upload a logo. PNG or JPG.</div>
+          <div id="wiz-logo-preview" class="logo-preview" style="display:none;">
+            <img id="wiz-logo-img" src="" alt="logo" />
+            <button class="btn-ghost" style="margin-left:auto;" onclick="wizRemoveLogo()">Remove</button>
+          </div>
+        </div>
+        <div class="fld">
+          <div class="fld-label">Brand colors</div>
+          <div class="color-row">
+            <div class="color-cell"><div class="color-pick"><input type="color" id="wiz-c1" value="#1D9E75" oninput="wizSyncColor(1,'pick')" /><input class="fld-input" type="text" id="wiz-c1-hex" value="#1D9E75" oninput="wizSyncColor(1,'hex')" /></div></div>
+            <div class="color-cell"><div class="color-pick"><input type="color" id="wiz-c2" value="#3B5168" oninput="wizSyncColor(2,'pick')" /><input class="fld-input" type="text" id="wiz-c2-hex" placeholder="optional" oninput="wizSyncColor(2,'hex')" /></div></div>
+            <div class="color-cell"><div class="color-pick"><input type="color" id="wiz-c3" value="#888780" oninput="wizSyncColor(3,'pick')" /><input class="fld-input" type="text" id="wiz-c3-hex" placeholder="optional" oninput="wizSyncColor(3,'hex')" /></div></div>
+          </div>
+          <div class="wiz-sub" style="margin-top:0.5rem;">The first color is your main accent. Leave the others blank if you only have one.</div>
+        </div>
+        <div class="wiz-err" id="wiz-err-2"></div>
+      </div>
+      <div class="wiz-foot">
+        <button class="btn-ghost" onclick="wizSkip(3)">Skip for now</button>
+        <button class="btn-primary" id="wiz-next-2" onclick="wizSaveStep2()">Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 3: route -->
+    <div class="wiz-step" id="wiz-step-3">
+      <div class="wiz-body" style="text-align:center;padding-top:1rem;padding-bottom:0.5rem;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">✓</div>
+        <div class="wiz-title" style="font-size:1.3rem;">You are set up</div>
+        <div class="wiz-sub" style="margin-top:0.5rem;">Want to add your first household now? You can always do this later from the Households tab.</div>
+        <div class="wiz-err" id="wiz-err-3"></div>
+      </div>
+      <div class="wiz-foot" style="justify-content:center;flex-direction:column;gap:0.5rem;">
+        <button class="btn-primary" style="width:100%;" onclick="wizFinish('household')">Add a household</button>
+        <button class="btn-ghost" onclick="wizFinish('later')">I will do this later</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -649,6 +793,11 @@ function applyIntegratorContext(user) {
   document.getElementById('sb-avatar').style.background = accent;
   window._rwUser = user;
   applyAccountState(user);
+  loadCompanyContext();
+  // First-login gate. Owner only (a member cannot complete account setup).
+  if (user.setup_completed === false && user.role === 'owner') {
+    setTimeout(function() { openWizard(); }, 200);
+  }
 }
 
 // ── ACCOUNT STATE (preview / verify banners) ─────────────────────────────────
@@ -657,6 +806,298 @@ function applyAccountState(user) {
   var ver = document.getElementById('acct-banner-verify');
   if (prev) prev.classList.toggle('show', !!user && user.status === 'preview');
   if (ver) ver.classList.toggle('show', !!user && user.email_verified === false);
+}
+
+// ── COMPANY CONTEXT + BRANDING (increment #3) ────────────────────────────────
+var _rwCompany = null;
+
+async function loadCompanyContext() {
+  try {
+    var res = await rwFetch('/api/company');
+    if (!res.ok) return;
+    _rwCompany = await res.json();
+    window._rwCompany = _rwCompany;
+    applyCompanyBranding(_rwCompany);
+  } catch (e) {}
+}
+
+function applyCompanyBranding(c) {
+  if (!c) return;
+  var accent = c.brand_color || '#1D9E75';
+  document.documentElement.style.setProperty('--i-brand', accent);
+  var avatar = document.getElementById('sb-avatar');
+  if (avatar) avatar.style.background = accent;
+  // Logo replaces the text name in the sidebar header when present.
+  var nameEl = document.getElementById('sb-name');
+  if (nameEl) {
+    if (c.logo_url) {
+      nameEl.innerHTML = '<img class="sb-logo-img" src="' + c.logo_url + '" alt="' + (c.name || 'logo') + '" />';
+    } else if (c.name) {
+      nameEl.innerHTML = c.name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
+    }
+  }
+}
+
+// ── SETUP WIZARD ─────────────────────────────────────────────────────────────
+var _wizStep = 1;
+var _wizLogoFile = null;
+
+async function openWizard() {
+  // Pull the current record so re-running setup prefills correctly.
+  if (!_rwCompany) { try { var r = await rwFetch('/api/company'); if (r.ok) { _rwCompany = await r.json(); window._rwCompany = _rwCompany; } } catch (e) {} }
+  var c = _rwCompany || {};
+  setVal('wiz-name', c.name || (window._rwUser && window._rwUser.integrator_name) || '');
+  setVal('wiz-address', c.address || '');
+  setVal('wiz-phone', c.office_phone || '');
+  setVal('wiz-email', c.company_email || '');
+  var c1 = c.brand_color || '#1D9E75';
+  setColor(1, c1); setColor(2, c.brand_color_2 || ''); setColor(3, c.brand_color_3 || '');
+  _wizLogoFile = null;
+  renderWizLogo(c.logo_url || null);
+  wizGoStep(1);
+  document.getElementById('wiz-overlay').classList.add('show');
+}
+function closeWizard() { document.getElementById('wiz-overlay').classList.remove('show'); }
+
+function wizGoStep(n) {
+  _wizStep = n;
+  for (var i = 1; i <= 3; i++) {
+    document.getElementById('wiz-step-' + i).classList.toggle('on', i === n);
+    document.getElementById('wiz-pip-' + i).classList.toggle('on', i <= n);
+  }
+  var titles = { 1:'Set up your company', 2:'Make it yours', 3:'You are set up' };
+  var subs = {
+    1:'A few details so Andi can introduce your company correctly. All of this is optional and you can change it anytime in Settings.',
+    2:'Add your logo and brand colors. Optional, and easy to change later.'
+  };
+  document.getElementById('wiz-title').textContent = titles[n];
+  if (subs[n]) document.getElementById('wiz-sub').textContent = subs[n];
+  document.getElementById('wiz-sub').style.display = subs[n] ? '' : 'none';
+}
+
+function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v; }
+function setColor(slot, hex) {
+  var pick = document.getElementById('wiz-c' + slot);
+  var text = document.getElementById('wiz-c' + slot + '-hex');
+  if (hex) { if (/^#[0-9a-fA-F]{6}$/.test(hex)) pick.value = hex; text.value = hex; }
+  else { text.value = ''; }
+}
+function wizSyncColor(slot, from) {
+  var pick = document.getElementById('wiz-c' + slot);
+  var text = document.getElementById('wiz-c' + slot + '-hex');
+  if (from === 'pick') text.value = pick.value;
+  else if (/^#[0-9a-fA-F]{6}$/.test(text.value)) pick.value = text.value;
+}
+
+function wizLogoChosen(input) {
+  if (!input.files || !input.files[0]) return;
+  _wizLogoFile = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) { renderWizLogo(e.target.result); };
+  reader.readAsDataURL(_wizLogoFile);
+}
+function renderWizLogo(url) {
+  var zone = document.getElementById('wiz-logo-zone');
+  var prev = document.getElementById('wiz-logo-preview');
+  if (url) { document.getElementById('wiz-logo-img').src = url; prev.style.display = 'flex'; zone.style.display = 'none'; }
+  else { prev.style.display = 'none'; zone.style.display = 'block'; }
+}
+function wizRemoveLogo() {
+  _wizLogoFile = null;
+  renderWizLogo(null);
+  // Clear any stored logo on the server too.
+  rwFetch('/api/company/logo/remove', { method: 'POST' }).catch(function(){});
+  if (_rwCompany) { _rwCompany.logo_url = null; _rwCompany.logo_r2_key = null; }
+}
+
+async function wizSaveStep1() {
+  var btn = document.getElementById('wiz-next-1');
+  var err = document.getElementById('wiz-err-1');
+  err.textContent = '';
+  var name = document.getElementById('wiz-name').value.trim();
+  if (!name) { err.textContent = 'Company name is required.'; return; }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await rwFetch('/api/company', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        address: document.getElementById('wiz-address').value,
+        office_phone: document.getElementById('wiz-phone').value,
+        company_email: document.getElementById('wiz-email').value
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Continue'; return; }
+    wizGoStep(2);
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Continue';
+}
+
+async function wizSaveStep2() {
+  var btn = document.getElementById('wiz-next-2');
+  var err = document.getElementById('wiz-err-2');
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    // Upload logo first if a new file was chosen.
+    if (_wizLogoFile) {
+      var fd = new FormData(); fd.append('logo', _wizLogoFile);
+      var up = await rwFetch('/api/company/logo', { method: 'POST', body: fd });
+      if (!up.ok) { var ue = await up.json(); err.textContent = ue.error || 'Logo upload failed.'; btn.disabled = false; btn.textContent = 'Continue'; return; }
+      _wizLogoFile = null;
+    }
+    var colors = { brand_color: document.getElementById('wiz-c1-hex').value.trim() };
+    var c2 = document.getElementById('wiz-c2-hex').value.trim();
+    var c3 = document.getElementById('wiz-c3-hex').value.trim();
+    colors.brand_color_2 = c2; colors.brand_color_3 = c3;
+    var res = await rwFetch('/api/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(colors) });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Continue'; return; }
+    await loadCompanyContext();
+    wizGoStep(3);
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Continue';
+}
+
+function wizSkip(toStep) { wizGoStep(toStep); }
+
+async function wizFinish(route) {
+  try { await rwFetch('/api/company/complete-setup', { method: 'POST' }); } catch (e) {}
+  if (window._rwUser) window._rwUser.setup_completed = true;
+  closeWizard();
+  await loadCompanyContext();
+  if (route === 'household') { nav('households', navItem('households')); }
+  else { nav('dashboard', navItem('dashboard')); }
+}
+
+// ── COMPANY SETTINGS PANEL ───────────────────────────────────────────────────
+async function loadSettings() {
+  var body = document.getElementById('settings-body');
+  try {
+    var res = await rwFetch('/api/company');
+    if (!res.ok) { body.innerHTML = '<div class="placeholder-body">Could not load settings.</div>'; return; }
+    _rwCompany = await res.json(); window._rwCompany = _rwCompany;
+    renderSettings(_rwCompany);
+  } catch (e) { body.innerHTML = '<div class="placeholder-body">Connection error.</div>'; }
+}
+
+function renderSettings(c) {
+  var isOwner = window._rwUser && window._rwUser.role === 'owner';
+  var ro = isOwner ? '' : ' disabled';
+  var status = (c.status || 'preview');
+  var slot = document.getElementById('set-status-slot');
+  if (slot) slot.innerHTML = '<span class="set-status-pill ' + status + '">' + status + '</span>';
+
+  var num = c.telnyx_number ? c.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : 'Not assigned yet';
+  var logoBlock = c.logo_url
+    ? '<div class="logo-preview"><img src="' + c.logo_url + '" alt="logo" />' + (isOwner ? '<button class="btn-ghost" style="margin-left:auto;" onclick="settingsRemoveLogo()">Remove</button>' : '') + '</div>'
+    : '<div class="logo-drop" ' + (isOwner ? 'onclick="document.getElementById(\'set-logo-file\').click()"' : '') + '>' + (isOwner ? 'Click to upload a logo. PNG or JPG.' : 'No logo set.') + '</div>';
+
+  var html = '';
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Company info</div>';
+  html += '<div class="set-section-note">How Andi refers to your company.</div>';
+  html += '<div class="fld"><div class="fld-label">Company name</div><input class="fld-input" type="text" id="set-name" value="' + esc(c.name || '') + '"' + ro + ' /></div>';
+  html += '<div class="fld"><div class="fld-label">Address</div><input class="fld-input" type="text" id="set-address" value="' + esc(c.address || '') + '"' + ro + ' /></div>';
+  html += '<div class="fld fld-row"><div><div class="fld-label">Office phone</div><input class="fld-input" type="tel" id="set-phone" value="' + esc(c.office_phone || '') + '"' + ro + ' /></div>';
+  html += '<div><div class="fld-label">Company email</div><input class="fld-input" type="email" id="set-email" value="' + esc(c.company_email || '') + '"' + ro + ' /></div></div>';
+  if (isOwner) html += '<div class="set-saverow"><button class="btn-primary" onclick="settingsSaveInfo()">Save</button><span class="set-saved" id="set-saved-info">Saved</span></div>';
+  html += '</div>';
+
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Branding</div>';
+  html += '<div class="set-section-note">Logo and brand colors carry into your dashboard. The first color is your main accent.</div>';
+  html += '<input type="file" id="set-logo-file" accept="image/*" style="display:none;" onchange="settingsLogoChosen(this)" />';
+  html += '<div class="fld">' + logoBlock + '</div>';
+  html += '<div class="fld"><div class="fld-label">Brand colors</div><div class="color-row">';
+  html += colorCell('set', 1, c.brand_color || '#1D9E75', isOwner);
+  html += colorCell('set', 2, c.brand_color_2 || '', isOwner);
+  html += colorCell('set', 3, c.brand_color_3 || '', isOwner);
+  html += '</div></div>';
+  if (isOwner) html += '<div class="set-saverow"><button class="btn-primary" onclick="settingsSaveBranding()">Save</button><span class="set-saved" id="set-saved-brand">Saved</span></div>';
+  html += '</div>';
+
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">SMS number</div>';
+  html += '<div class="set-section-note">Your number is assigned when you go live. This is part of the go live step.</div>';
+  html += '<div class="set-readonly">' + num + '</div>';
+  html += '</div>';
+
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Team</div>';
+  html += '<div class="set-section-note">Adding teammates with their own logins is coming soon.</div>';
+  html += '</div>';
+
+  if (isOwner) {
+    html += '<div class="set-section">';
+    html += '<div class="set-section-title">Setup</div>';
+    html += '<div class="set-section-note">Walk through the setup steps again anytime.</div>';
+    html += '<a class="set-link" onclick="openWizard()">Run setup wizard again</a>';
+    html += '</div>';
+  }
+
+  document.getElementById('settings-body').innerHTML = html;
+}
+
+function colorCell(prefix, slot, hex, isOwner) {
+  var dis = isOwner ? '' : ' disabled';
+  var pickVal = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : '#cccccc';
+  return '<div class="color-cell"><div class="color-pick">' +
+    '<input type="color" id="' + prefix + '-c' + slot + '" value="' + pickVal + '" oninput="settingsSyncColor(' + slot + ',\'pick\')"' + dis + ' />' +
+    '<input class="fld-input" type="text" id="' + prefix + '-c' + slot + '-hex" value="' + esc(hex) + '" placeholder="' + (slot === 1 ? '#1D9E75' : 'optional') + '" oninput="settingsSyncColor(' + slot + ',\'hex\')"' + dis + ' />' +
+    '</div></div>';
+}
+function settingsSyncColor(slot, from) {
+  var pick = document.getElementById('set-c' + slot);
+  var text = document.getElementById('set-c' + slot + '-hex');
+  if (from === 'pick') text.value = pick.value;
+  else if (/^#[0-9a-fA-F]{6}$/.test(text.value)) pick.value = text.value;
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function flashSaved(id) { var el = document.getElementById(id); if (!el) return; el.classList.add('show'); setTimeout(function(){ el.classList.remove('show'); }, 1800); }
+
+async function settingsSaveInfo() {
+  var res = await rwFetch('/api/company', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('set-name').value,
+      address: document.getElementById('set-address').value,
+      office_phone: document.getElementById('set-phone').value,
+      company_email: document.getElementById('set-email').value
+    })
+  });
+  var data = await res.json();
+  if (!res.ok) { alert(data.error || 'Could not save.'); return; }
+  await loadCompanyContext();
+  flashSaved('set-saved-info');
+}
+async function settingsSaveBranding() {
+  var body = {
+    brand_color: document.getElementById('set-c1-hex').value.trim(),
+    brand_color_2: document.getElementById('set-c2-hex').value.trim(),
+    brand_color_3: document.getElementById('set-c3-hex').value.trim()
+  };
+  var res = await rwFetch('/api/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  var data = await res.json();
+  if (!res.ok) { alert(data.error || 'Could not save.'); return; }
+  await loadCompanyContext();
+  flashSaved('set-saved-brand');
+}
+function settingsLogoChosen(input) {
+  if (!input.files || !input.files[0]) return;
+  var fd = new FormData(); fd.append('logo', input.files[0]);
+  rwFetch('/api/company/logo', { method: 'POST', body: fd }).then(async function(res) {
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Logo upload failed.'); return; }
+    await loadCompanyContext();
+    loadSettings();
+  });
+}
+async function settingsRemoveLogo() {
+  await rwFetch('/api/company/logo/remove', { method: 'POST' });
+  await loadCompanyContext();
+  loadSettings();
 }
 
 // ── SIGN UP ──────────────────────────────────────────────────────────────────
@@ -1302,6 +1743,7 @@ function nav(name, el) {
   document.getElementById('page-title').textContent = panelTitles[name] || name;
   closeConv(); closeTicket();
   if (name === 'conversations') loadRealConversations();
+  if (name === 'settings') loadSettings();
 }
 
 // ── DEMO CONV DATA ───────────────────────────────────────────────────────────
