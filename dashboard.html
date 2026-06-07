@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — household naming pass: filing label, two people, project name -->
+<!-- dashboard.html — June 6 2026 — increment #4: team management, invites, password reset, personal settings -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -347,6 +347,23 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .hh-empty { padding:3rem 1.5rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;line-height:1.8; }
 .hh-project { display:inline-block;font-size:0.66rem;font-weight:600;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 8px;margin-left:0.45rem;vertical-align:middle; }
 .hh-label-preview { font-size:0.8rem;color:var(--brand-dark);background:var(--brand-light);border-radius:8px;padding:0.5rem 0.75rem;margin-bottom:0.5rem;font-weight:600; }
+.team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
+.team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
+.team-row:last-child { border-bottom:none; }
+.team-dot { width:9px;height:9px;border-radius:50%;flex-shrink:0; }
+.team-main { flex:1;min-width:0; }
+.team-name { font-size:0.85rem;font-weight:600;color:var(--ink); }
+.team-email { font-size:0.75rem;color:var(--ink-soft);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.team-you { font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);background:var(--canvas-warm);border-radius:100px;padding:1px 6px;margin-left:0.2rem; }
+.team-pill { font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;border-radius:100px;padding:1px 7px;margin-left:0.3rem; }
+.team-pill.pending { background:rgba(224,134,0,0.14);color:#b36b00; }
+.team-pill.off { background:var(--canvas-warm);color:var(--ink-soft); }
+.team-actions { display:flex;gap:0.4rem;flex-shrink:0; }
+.team-action { background:none;border:1px solid var(--border);color:var(--ink-mid);font-family:'DM Sans',sans-serif;font-size:0.74rem;padding:0.28rem 0.6rem;border-radius:6px;cursor:pointer; }
+.team-action:hover { background:var(--canvas-warm); }
+.team-action.danger { color:var(--red);border-color:var(--red-bg); }
+.us-ok { font-size:0.78rem;color:var(--green); }
+select.fld-input { appearance:auto;cursor:pointer; }
 </style>
 </head>
 <body>
@@ -375,6 +392,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       </div>
       <button class="login-btn" onclick="doLogin()" style="margin-top:1rem;">Sign in</button>
       <div class="login-error" id="login-error"></div>
+      <div class="login-toggle"><a onclick="showForgot()">Forgot password?</a></div>
       <div class="login-toggle">New to RestWerks? <a onclick="showSignup()">Create an account</a></div>
     </div>
 
@@ -406,6 +424,33 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
       <button class="login-btn" onclick="doSignup()" style="margin-top:1rem;">Create account</button>
       <div class="login-error" id="signup-error"></div>
       <div class="login-toggle">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgot-form" style="display:none;">
+      <div>
+        <div class="login-label">Email</div>
+        <input class="login-input" type="email" id="fp-email" placeholder="you@yourcompany.com" autocomplete="email" />
+      </div>
+      <button class="login-btn" onclick="submitForgot()" style="margin-top:1rem;">Send reset link</button>
+      <div class="login-note" id="fp-note" style="margin-top:0.6rem;"></div>
+      <div class="login-toggle"><a onclick="showLogin()">Back to sign in</a></div>
+    </div>
+
+    <!-- SET PASSWORD (invite + reset landing) -->
+    <div id="setpw-form" style="display:none;">
+      <div class="login-label" style="text-align:center;margin-bottom:0.6rem;">Set your password</div>
+      <div>
+        <div class="login-label">New password</div>
+        <input class="login-input" type="password" id="sp-pw" placeholder="Create a password" autocomplete="new-password" oninput="checkSpPw()" />
+        <div class="login-pwhint" id="sp-pwhint">At least 10 characters, with an uppercase, lowercase, number, and special character.</div>
+      </div>
+      <div style="margin-top:0.9rem;">
+        <div class="login-label">Confirm password</div>
+        <input class="login-input" type="password" id="sp-pw2" placeholder="Re-enter password" autocomplete="new-password" />
+      </div>
+      <button class="login-btn" onclick="submitSetpw()" style="margin-top:1rem;">Set password and sign in</button>
+      <div class="login-error" id="sp-error"></div>
     </div>
   </div>
   <div class="login-footer">Powered by <span>RestWerks</span></div>
@@ -742,6 +787,53 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
   </div>
 </div>
 
+<!-- ── ADD TEAMMATE MODAL (increment #4) ── -->
+<div id="au-overlay" class="wiz-overlay" onclick="if(event.target===this)closeAddUser()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title">Add a teammate</div>
+      <div class="wiz-sub">They get an email with a link to set their own password and sign in.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="fld fld-row">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="au-first" placeholder="First" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="au-last" placeholder="Last" /></div>
+      </div>
+      <div class="fld"><div class="fld-label">Email</div><input class="fld-input" type="email" id="au-email" placeholder="them@company.com" /></div>
+      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="au-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
+      <div class="wiz-err" id="au-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeAddUser()">Cancel</button>
+      <button class="btn-primary" id="au-save-btn" onclick="submitAddUser()">Send invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PERSONAL SETTINGS MODAL (increment #4) ── -->
+<div id="us-overlay" class="wiz-overlay" onclick="if(event.target===this)closeUserSettings()">
+  <div class="wiz-card">
+    <div class="wiz-head"><div class="wiz-title">Your settings</div></div>
+    <div class="wiz-body">
+      <div class="set-section-title" style="margin-bottom:0.6rem;">Your name</div>
+      <div class="fld fld-row">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="us-first" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="us-last" /></div>
+      </div>
+      <div class="set-saverow"><button class="btn-primary" onclick="saveMyName()">Save name</button><span id="us-name-msg" class="us-ok"></span></div>
+
+      <div class="set-section-title" style="margin:1.1rem 0 0.6rem;">Change password</div>
+      <div class="fld"><div class="fld-label">Current password</div><input class="fld-input" type="password" id="us-cur" autocomplete="current-password" /></div>
+      <div class="fld"><div class="fld-label">New password</div><input class="fld-input" type="password" id="us-new" autocomplete="new-password" /><div class="login-pwhint" style="color:var(--ink-soft);">At least 10 characters, with an uppercase, lowercase, number, and special character.</div></div>
+      <div class="set-saverow"><button class="btn-primary" onclick="saveMyPassword()">Change password</button><span id="us-pw-msg" class="us-ok"></span></div>
+
+      <div class="set-section-title" style="margin:1.1rem 0 0.4rem;">Notifications</div>
+      <div class="set-readonly">Notification preferences are coming soon.</div>
+    </div>
+    <div class="wiz-foot" style="justify-content:flex-end;"><button class="btn-ghost" onclick="closeUserSettings()">Close</button></div>
+  </div>
+</div>
+
 <script>
 const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
 
@@ -807,6 +899,9 @@ async function doLogin() {
 }
 
 async function tryAutoLogin() {
+  // A set-password link takes priority over any stored session.
+  var sp = new URLSearchParams(window.location.search).get('setpw');
+  if (sp) { showSetpw(sp); return; }
   var token = localStorage.getItem('rw-token');
   if (!token) return;
   try {
@@ -1076,7 +1171,13 @@ function renderSettings(c) {
 
   html += '<div class="set-section">';
   html += '<div class="set-section-title">Team</div>';
-  html += '<div class="set-section-note">Adding teammates with their own logins is coming soon.</div>';
+  html += '<div class="set-section-note">People who can log in to this dashboard.</div>';
+  if (isOwner) {
+    html += '<div id="team-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
+    html += '<div style="margin-top:0.85rem;"><button class="btn-primary" onclick="openAddUser()">+ Add teammate</button></div>';
+  } else {
+    html += '<div class="set-readonly">Only owners can manage the team.</div>';
+  }
   html += '</div>';
 
   if (isOwner) {
@@ -1088,6 +1189,7 @@ function renderSettings(c) {
   }
 
   document.getElementById('settings-body').innerHTML = html;
+  if (isOwner) loadTeam();
 }
 
 function colorCell(prefix, slot, hex, isOwner) {
@@ -1149,6 +1251,133 @@ async function settingsRemoveLogo() {
   await loadCompanyContext();
   loadSettings();
 }
+
+// ── TEAM MANAGEMENT (increment #4) ───────────────────────────────────────────
+async function loadTeam() {
+  var body = document.getElementById('team-body');
+  if (!body) return;
+  try {
+    var res = await rwFetch('/api/users');
+    if (!res.ok) { body.innerHTML = '<div class="set-readonly">Could not load the team.</div>'; return; }
+    var users = await res.json();
+    renderTeam(users);
+  } catch (e) { body.innerHTML = '<div class="set-readonly">Connection error.</div>'; }
+}
+
+function renderTeam(users) {
+  var body = document.getElementById('team-body');
+  if (!body) return;
+  var html = '<div class="team-list">';
+  users.forEach(function(u) {
+    var name = esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim());
+    var roleLabel = u.role === 'owner' ? 'Owner' : 'Member';
+    var statusPill = u.pending
+      ? '<span class="team-pill pending">Pending</span>'
+      : (u.active ? '' : '<span class="team-pill off">Removed</span>');
+    var actions = '';
+    if (u.pending) actions += '<button class="team-action" onclick="resendUser(' + u.id + ',this)">Resend</button>';
+    if (!u.is_self && u.active) actions += '<button class="team-action danger" onclick="removeUser(' + u.id + ',\'' + name.replace(/'/g,"\\'") + '\')">Remove</button>';
+    html += '<div class="team-row">' +
+      '<div class="team-dot" style="background:' + (u.bubble_color || 'var(--ink-soft)') + ';"></div>' +
+      '<div class="team-main"><div class="team-name">' + name + (u.is_self ? ' <span class="team-you">you</span>' : '') + ' ' + statusPill + '</div>' +
+      '<div class="team-email">' + esc(u.email || '') + '  ·  ' + roleLabel + '</div></div>' +
+      '<div class="team-actions">' + actions + '</div></div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function openAddUser() {
+  ['au-first','au-last','au-email'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('au-role').value = 'member';
+  document.getElementById('au-err').textContent = '';
+  document.getElementById('au-overlay').classList.add('show');
+  setTimeout(function(){ var n=document.getElementById('au-first'); if(n) n.focus(); }, 50);
+}
+function closeAddUser() { document.getElementById('au-overlay').classList.remove('show'); }
+
+async function submitAddUser() {
+  var btn = document.getElementById('au-save-btn');
+  var err = document.getElementById('au-err');
+  err.textContent = '';
+  var first = hhVal('au-first'), last = hhVal('au-last'), email = hhVal('au-email').toLowerCase(), role = document.getElementById('au-role').value;
+  if (!first || !last) { err.textContent = 'First and last name are required.'; return; }
+  if (!email) { err.textContent = 'Email is required.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending invite...';
+  try {
+    var res = await rwFetch('/api/users', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not add teammate.'; btn.disabled = false; btn.textContent = 'Send invite'; return; }
+    closeAddUser();
+    loadTeam();
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Send invite';
+}
+
+async function resendUser(id, el) {
+  if (el) { el.textContent = 'Sending...'; el.disabled = true; }
+  try {
+    var res = await rwFetch('/api/users/' + id + '/resend', { method: 'POST' });
+    if (el) el.textContent = res.ok ? 'Sent' : 'Try again';
+  } catch (e) { if (el) el.textContent = 'Try again'; }
+}
+
+async function removeUser(id, name) {
+  if (!confirm('Remove ' + name + ' from the team? They will lose access. Their history stays.')) return;
+  try {
+    var res = await rwFetch('/api/users/' + id + '/deactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not remove.'); return; }
+    loadTeam();
+  } catch (e) { alert('Connection error.'); }
+}
+
+// ── PERSONAL ACCOUNT SETTINGS (user menu) ────────────────────────────────────
+function openUserSettings(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar-user').classList.remove('open');
+  var u = window._rwUser || {};
+  document.getElementById('us-first').value = u.first_name || '';
+  document.getElementById('us-last').value = u.last_name || '';
+  document.getElementById('us-cur').value = '';
+  document.getElementById('us-new').value = '';
+  document.getElementById('us-name-msg').textContent = '';
+  document.getElementById('us-pw-msg').textContent = '';
+  document.getElementById('us-overlay').classList.add('show');
+}
+function closeUserSettings() { document.getElementById('us-overlay').classList.remove('show'); }
+
+async function saveMyName() {
+  var msg = document.getElementById('us-name-msg');
+  var first = hhVal('us-first'), last = hhVal('us-last');
+  if (!first || !last) { msg.textContent = 'First and last name are required.'; msg.className = 'wiz-err'; return; }
+  try {
+    var res = await rwFetch('/api/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ first_name: first, last_name: last }) });
+    var data = await res.json();
+    if (!res.ok) { msg.textContent = data.error || 'Could not save.'; msg.className = 'wiz-err'; return; }
+    if (window._rwUser) { window._rwUser.first_name = first; window._rwUser.last_name = last; }
+    document.getElementById('sb-username').textContent = (first + ' ' + last).trim();
+    document.getElementById('sb-avatar').textContent = ((first.charAt(0) || '') + (last.charAt(0) || '')).toUpperCase();
+    msg.textContent = 'Saved'; msg.className = 'us-ok';
+  } catch (e) { msg.textContent = 'Connection error.'; msg.className = 'wiz-err'; }
+}
+
+async function saveMyPassword() {
+  var msg = document.getElementById('us-pw-msg');
+  var cur = document.getElementById('us-cur').value, nw = document.getElementById('us-new').value;
+  if (!cur || !nw) { msg.textContent = 'Fill in both fields.'; msg.className = 'wiz-err'; return; }
+  try {
+    var res = await rwFetch('/api/me/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ current_password: cur, new_password: nw }) });
+    var data = await res.json();
+    if (!res.ok) { msg.textContent = data.error || 'Could not change password.'; msg.className = 'wiz-err'; return; }
+    document.getElementById('us-cur').value = ''; document.getElementById('us-new').value = '';
+    msg.textContent = 'Password changed'; msg.className = 'us-ok';
+  } catch (e) { msg.textContent = 'Connection error.'; msg.className = 'wiz-err'; }
+}
+
 
 // ── HOUSEHOLDS (list + create) ───────────────────────────────────────────────
 var _households = [];
@@ -1260,19 +1489,78 @@ async function submitAddHousehold() {
 }
 
 // ── SIGN UP ──────────────────────────────────────────────────────────────────
+function hideAllLoginViews() {
+  ['login-form','signup-form','forgot-form','setpw-form'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+}
 function showSignup() {
-  document.getElementById('login-form').style.display = 'none';
+  hideAllLoginViews();
   document.getElementById('signup-form').style.display = 'block';
   document.getElementById('login-note').textContent = '';
 }
 function showLogin() {
-  document.getElementById('signup-form').style.display = 'none';
+  hideAllLoginViews();
   document.getElementById('login-form').style.display = 'block';
+}
+function showForgot() {
+  hideAllLoginViews();
+  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('fp-note').textContent = '';
+  document.getElementById('login-note').textContent = '';
 }
 function checkPw() {
   var pw = document.getElementById('su-pw').value;
   var ok = pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
   document.getElementById('su-pwhint').classList.toggle('ok', ok);
+}
+function checkSpPw() {
+  var pw = document.getElementById('sp-pw').value;
+  var ok = pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+  document.getElementById('sp-pwhint').classList.toggle('ok', ok);
+}
+
+async function submitForgot() {
+  var email = document.getElementById('fp-email').value.trim().toLowerCase();
+  var note = document.getElementById('fp-note');
+  if (!email) { note.textContent = 'Enter your email.'; note.className = 'login-note bad'; return; }
+  try {
+    await fetch(PORTAL_URL + '/auth/request-reset', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    });
+  } catch (e) {}
+  // Always the same message, no matter whether the email exists.
+  note.textContent = 'If that email has an account, a reset link is on its way.';
+  note.className = 'login-note ok';
+}
+
+var _setpwToken = null;
+function showSetpw(token) {
+  _setpwToken = token;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  hideAllLoginViews();
+  document.getElementById('setpw-form').style.display = 'block';
+}
+async function submitSetpw() {
+  var pw = document.getElementById('sp-pw').value;
+  var pw2 = document.getElementById('sp-pw2').value;
+  var err = document.getElementById('sp-error');
+  err.textContent = '';
+  if (pw !== pw2) { err.textContent = 'Passwords do not match.'; return; }
+  var btn = document.querySelector('#setpw-form .login-btn');
+  btn.textContent = 'Setting password...'; btn.disabled = true;
+  try {
+    var res = await fetch(PORTAL_URL + '/auth/set-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      body: JSON.stringify({ token: _setpwToken, password: pw })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not set password.'; btn.textContent = 'Set password and sign in'; btn.disabled = false; return; }
+    history.replaceState({}, '', window.location.pathname);
+    enterDashboard(data);
+  } catch (e) {
+    err.textContent = 'Connection error. Please try again.'; btn.textContent = 'Set password and sign in'; btn.disabled = false;
+  }
 }
 
 function enterDashboard(data) {
@@ -1338,11 +1626,6 @@ async function resendVerification() {
 function toggleUserMenu(e) {
   if (e) e.stopPropagation();
   document.getElementById('sidebar-user').classList.toggle('open');
-}
-function openUserSettings(e) {
-  if (e) e.stopPropagation();
-  // User settings panel is built in a later pass. Close the menu for now.
-  document.getElementById('sidebar-user').classList.remove('open');
 }
 async function doLogout(e) {
   if (e) e.stopPropagation();
