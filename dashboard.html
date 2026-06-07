@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — increment #3: first-login setup wizard + company Settings -->
+<!-- dashboard.html — June 6 2026 — increment #3 + sidebar logo left, name right -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,6 +316,9 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .color-pick input[type=color] { width:34px;height:34px;border:1px solid var(--border);border-radius:7px;background:none;cursor:pointer;padding:2px;flex-shrink:0; }
 .color-pick input[type=text] { flex:1;min-width:0; }
 .sb-logo-img { max-width:100%;max-height:34px;width:auto;object-fit:contain;display:block; }
+.sb-brandrow { display:flex;align-items:center;gap:0.55rem;min-width:0; }
+.sb-brandrow .sb-logo-img { max-height:32px;max-width:84px;flex-shrink:0; }
+.sb-brandname { font-size:0.92rem;font-weight:600;color:white;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0; }
 .set-section { padding:1.25rem 1.5rem;border-bottom:1px solid var(--border); }
 .set-section:last-child { border-bottom:none; }
 .set-section-title { font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:0.15rem; }
@@ -830,10 +833,13 @@ function applyCompanyBranding(c) {
   // Logo replaces the text name in the sidebar header when present.
   var nameEl = document.getElementById('sb-name');
   if (nameEl) {
+    var nameHtml = esc(c.name || '').replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
     if (c.logo_url) {
-      nameEl.innerHTML = '<img class="sb-logo-img" src="' + c.logo_url + '" alt="' + (c.name || 'logo') + '" />';
+      // Logo left, company name right, on one line. Name ellipsizes if long.
+      nameEl.innerHTML = '<div class="sb-brandrow"><img class="sb-logo-img" src="' + c.logo_url + '" alt="logo" />' +
+        '<span class="sb-brandname">' + nameHtml + '</span></div>';
     } else if (c.name) {
-      nameEl.innerHTML = c.name.replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
+      nameEl.innerHTML = nameHtml;
     }
   }
 }
