@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
+<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker has palette swatches + color wheel + hex entry. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -843,7 +843,10 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div class="login-pwhint" id="me-email-note" style="color:var(--ink-soft);display:none;">Changing the email sends a confirmation link to the new address. It must be confirmed before they can sign in there.</div>
       </div>
       <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
-      <div class="fld"><div class="fld-label">Bubble color</div><div id="me-palette" class="me-palette"></div></div>
+      <div class="fld"><div class="fld-label">Bubble color</div>
+        <div id="me-palette" class="me-palette" style="margin-bottom:0.6rem;"></div>
+        <div class="color-pick"><input type="color" id="me-color-pick" oninput="meSyncCustom('pick')" /><input class="fld-input" type="text" id="me-color-hex" placeholder="#2D7DD2" oninput="meSyncCustom('hex')" /></div>
+      </div>
       <div class="wiz-err" id="me-err"></div>
     </div>
     <div class="wiz-foot" style="flex-wrap:wrap;gap:0.5rem;">
@@ -1389,6 +1392,7 @@ function openMemberEdit(id) {
   document.getElementById('me-email-note').style.display = 'none';
   document.getElementById('me-err').textContent = '';
   renderMePalette();
+  syncMeCustomInputs();
   renderMeActions();
   document.getElementById('me-overlay').classList.add('show');
 }
@@ -1416,7 +1420,33 @@ function renderMePalette() {
   }
   wrap.innerHTML = html;
 }
-function meSelectColor(c) { _meColor = c; renderMePalette(); }
+function meSelectColor(c) { _meColor = c; syncMeCustomInputs(); renderMePalette(); }
+function syncMeCustomInputs() {
+  var cp = document.getElementById('me-color-pick');
+  var ch = document.getElementById('me-color-hex');
+  if (!cp || !ch) return;
+  if (_meColor && /^#[0-9a-fA-F]{6}$/.test(_meColor)) { cp.value = _meColor; ch.value = _meColor; }
+  else { ch.value = _meColor || ''; }
+}
+// Wheel and hex box drive the same _meColor as the palette swatches.
+function meSyncCustom(from) {
+  var cp = document.getElementById('me-color-pick');
+  var ch = document.getElementById('me-color-hex');
+  if (from === 'pick') { _meColor = cp.value; ch.value = cp.value; }
+  else {
+    var v = ch.value.trim();
+    if (!/^#[0-9a-fA-F]{6}$/.test(v)) return; // wait for a full valid hex
+    _meColor = v; cp.value = v;
+  }
+  renderMePalette();
+  meColorCollisionNote();
+}
+function meColorCollisionNote() {
+  var err = document.getElementById('me-err');
+  if (!err || !_meColor) return;
+  var clash = (_team || []).some(function(x){ return x.id !== (_meUser && _meUser.id) && x.bubble_color && x.bubble_color.toLowerCase() === _meColor.toLowerCase(); });
+  err.textContent = clash ? 'Another teammate already uses that color.' : '';
+}
 function meEmailTouched() {
   var v = document.getElementById('me-email').value.toLowerCase().trim();
   document.getElementById('me-email-note').style.display = (v && v !== _meOrigEmail) ? 'block' : 'none';
