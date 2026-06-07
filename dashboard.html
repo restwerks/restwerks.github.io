@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 6 2026 — increment #3 + sidebar logo left, name right -->
+<!-- dashboard.html — June 6 2026 — household create + dense list, search, alpha sort -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -332,6 +332,19 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .set-status-pill.live { background:var(--green-bg);color:var(--green); }
 .set-link { color:var(--brand);cursor:pointer;font-size:0.82rem;font-weight:500;text-decoration:none; }
 .set-link:hover { text-decoration:underline; }
+.hh-toolbar { display:flex;align-items:center;gap:0.75rem;padding:0.8rem 1rem;border-bottom:1px solid var(--border); }
+.hh-search { flex:1;min-width:0;background:var(--canvas);border:1px solid var(--border);color:var(--ink);padding:0.5rem 0.8rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.15s; }
+.hh-search:focus { border-color:var(--brand); }
+.hh-add-btn { background:var(--brand);color:white;border:none;padding:0.52rem 0.95rem;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background 0.15s; }
+.hh-add-btn:hover { background:var(--brand-dark); }
+.hh-list { display:flex;flex-direction:column; }
+.hh-row { display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1rem;border-bottom:1px solid var(--border); }
+.hh-row:last-child { border-bottom:none; }
+.hh-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.hh-main { min-width:0;flex:1; }
+.hh-name { font-size:0.88rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hh-sub { font-size:0.76rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px; }
+.hh-empty { padding:3rem 1.5rem;text-align:center;color:var(--ink-soft);font-size:0.875rem;line-height:1.8; }
 </style>
 </head>
 <body>
@@ -578,17 +591,11 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 
       <div id="panel-households" class="panel">
         <div class="panel-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">Client households</div><div class="panel-chrome-action">+ Add household</div></div>
-          <div class="household-grid">
-            <div class="household-card"><div class="household-top"><div class="household-avatar">RG</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Robyn Green</div><div class="household-address">Edina, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">SH</div><div class="h-status" style="background:var(--red);"></div></div><div class="household-name">Shannon Happe</div><div class="household-address">Wayzata, MN</div><div class="household-last">Last contact: last night · Open ticket</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">RE</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Roseanne Everson</div><div class="household-address">Eden Prairie, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">JF</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Joel Fischer</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">TR</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Tom Rydeen</div><div class="household-address">Plymouth, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">CW</div><div class="h-status" style="background:var(--green);"></div></div><div class="household-name">Chris Weiss</div><div class="household-address">Orono, MN</div><div class="household-last">Last contact: last night</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">JB</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Jeff Belzer</div><div class="household-address">Deephaven, MN</div><div class="household-last">Last contact: 3 days ago</div></div>
-            <div class="household-card"><div class="household-top"><div class="household-avatar">BS</div><div class="h-status" style="background:var(--border);"></div></div><div class="household-name">Brent Bullis</div><div class="household-address">Minnetonka, MN</div><div class="household-last">Last contact: 5 days ago</div></div>
+          <div class="hh-toolbar">
+            <input class="hh-search" id="hh-search" type="text" placeholder="Search households..." oninput="filterHouseholds(this.value)" />
+            <button class="hh-add-btn" onclick="openAddHousehold()">+ Add household</button>
           </div>
+          <div class="hh-list" id="hh-list"><div class="hh-empty">Loading...</div></div>
         </div>
       </div>
 
@@ -694,6 +701,33 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
         <button class="btn-primary" style="width:100%;" onclick="wizFinish('household')">Add a household</button>
         <button class="btn-ghost" onclick="wizFinish('later')">I will do this later</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD HOUSEHOLD MODAL ── -->
+<div id="hh-overlay" class="wiz-overlay" onclick="if(event.target===this)closeAddHousehold()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title">Add a household</div>
+      <div class="wiz-sub">The basics now. Equipment, ISP, and notes get added later from the household.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="fld"><div class="fld-label">Household name</div><input class="fld-input" type="text" id="hh-name" placeholder="e.g. Todd and Brittany Moitz" /></div>
+      <div class="fld"><div class="fld-label">Address</div><input class="fld-input" type="text" id="hh-address" placeholder="City, state (optional)" /></div>
+      <div class="fld fld-row">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="hh-first" placeholder="First" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="hh-last" placeholder="Last (optional)" /></div>
+      </div>
+      <div class="fld fld-row">
+        <div><div class="fld-label">Phone</div><input class="fld-input" type="tel" id="hh-phone" placeholder="612 555 0100" /></div>
+        <div><div class="fld-label">Relationship</div><input class="fld-input" type="text" id="hh-rel" placeholder="Owner (optional)" /></div>
+      </div>
+      <div class="wiz-err" id="hh-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeAddHousehold()">Cancel</button>
+      <button class="btn-primary" id="hh-save-btn" onclick="submitAddHousehold()">Add household</button>
     </div>
   </div>
 </div>
@@ -973,7 +1007,7 @@ async function wizFinish(route) {
   if (window._rwUser) window._rwUser.setup_completed = true;
   closeWizard();
   await loadCompanyContext();
-  if (route === 'household') { nav('households', navItem('households')); }
+  if (route === 'household') { nav('households', navItem('households')); setTimeout(openAddHousehold, 250); }
   else { nav('dashboard', navItem('dashboard')); }
 }
 
@@ -1104,6 +1138,103 @@ async function settingsRemoveLogo() {
   await rwFetch('/api/company/logo/remove', { method: 'POST' });
   await loadCompanyContext();
   loadSettings();
+}
+
+// ── HOUSEHOLDS (list + create) ───────────────────────────────────────────────
+var _households = [];
+
+async function loadHouseholds() {
+  var list = document.getElementById('hh-list');
+  if (list) list.innerHTML = '<div class="hh-empty">Loading...</div>';
+  try {
+    var res = await rwFetch('/api/households');
+    if (!res.ok) { if (list) list.innerHTML = '<div class="hh-empty">Could not load households.</div>'; return; }
+    _households = await res.json();
+    var s = document.getElementById('hh-search');
+    filterHouseholds(s ? s.value : '');
+  } catch (e) { if (list) list.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+
+function fmtPhone(p) { return p ? p.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : ''; }
+
+function householdSub(h) {
+  var parts = [];
+  if (h.address) parts.push(h.address);
+  var people = (h.people || []).filter(Boolean);
+  var names = people.map(function(p) { return ((p.first_name || '') + ' ' + (p.last_name || '')).trim(); }).filter(Boolean);
+  if (names.length) parts.push(names.join(', '));
+  var phones = people.map(function(p) { return fmtPhone(p.phone); }).filter(Boolean);
+  if (phones.length) parts.push(phones.join(', '));
+  return parts.join('  ·  ');
+}
+
+function renderHouseholds(list) {
+  var el = document.getElementById('hh-list');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div class="hh-empty">No households yet.<br><br><button class="hh-add-btn" onclick="openAddHousehold()">+ Add your first household</button></div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(h) {
+    html += '<div class="hh-row">' +
+      '<div class="hh-dot" style="background:var(--green);"></div>' +
+      '<div class="hh-main">' +
+        '<div class="hh-name">' + esc(h.name || '') + '</div>' +
+        '<div class="hh-sub">' + esc(householdSub(h)) + '</div>' +
+      '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function filterHouseholds(q) {
+  q = (q || '').toLowerCase().trim();
+  if (!q) { renderHouseholds(_households); return; }
+  var f = _households.filter(function(h) {
+    var hay = (h.name || '') + ' ' + (h.address || '') + ' ' +
+      (h.people || []).map(function(p) { return (p.first_name || '') + ' ' + (p.last_name || '') + ' ' + (p.phone || ''); }).join(' ');
+    return hay.toLowerCase().indexOf(q) !== -1;
+  });
+  renderHouseholds(f);
+}
+
+function openAddHousehold() {
+  ['hh-name','hh-address','hh-first','hh-last','hh-phone','hh-rel'].forEach(function(id) { var e = document.getElementById(id); if (e) e.value = ''; });
+  document.getElementById('hh-err').textContent = '';
+  document.getElementById('hh-overlay').classList.add('show');
+  setTimeout(function() { var n = document.getElementById('hh-name'); if (n) n.focus(); }, 50);
+}
+function closeAddHousehold() { document.getElementById('hh-overlay').classList.remove('show'); }
+
+async function submitAddHousehold() {
+  var btn = document.getElementById('hh-save-btn');
+  var err = document.getElementById('hh-err');
+  err.textContent = '';
+  var name = document.getElementById('hh-name').value.trim();
+  var first = document.getElementById('hh-first').value.trim();
+  var phone = document.getElementById('hh-phone').value.trim();
+  if (!name) { err.textContent = 'Household name is required.'; return; }
+  if (!first) { err.textContent = 'First name is required.'; return; }
+  if (!phone) { err.textContent = 'A phone number is required.'; return; }
+  btn.disabled = true; btn.textContent = 'Adding...';
+  try {
+    var res = await rwFetch('/api/households', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        address: document.getElementById('hh-address').value,
+        first_name: first,
+        last_name: document.getElementById('hh-last').value,
+        relationship: document.getElementById('hh-rel').value,
+        phone: phone
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not add household.'; btn.disabled = false; btn.textContent = 'Add household'; return; }
+    closeAddHousehold();
+    await loadHouseholds();
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Add household';
 }
 
 // ── SIGN UP ──────────────────────────────────────────────────────────────────
@@ -1749,6 +1880,7 @@ function nav(name, el) {
   document.getElementById('page-title').textContent = panelTitles[name] || name;
   closeConv(); closeTicket();
   if (name === 'conversations') loadRealConversations();
+  if (name === 'households') loadHouseholds();
   if (name === 'settings') loadSettings();
 }
 
