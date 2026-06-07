@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 7 2026 — set-password token fix (declare _setpwToken before tryAutoLogin so the URL token is not wiped; submit reads token from var or URL) + green "Passwords match" check on the set-password screen. Base: increment #4 team management, invites, password reset, personal settings. -->
+<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -364,6 +364,20 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .team-action.danger { color:var(--red);border-color:var(--red-bg); }
 .us-ok { font-size:0.78rem;color:var(--green); }
 select.fld-input { appearance:auto;cursor:pointer; }
+.me-palette { display:flex;gap:0.45rem;flex-wrap:wrap; }
+.me-swatch { width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.12s;position:relative; }
+.me-swatch.sel { border-color:var(--ink); }
+.me-swatch.taken { opacity:0.28;cursor:not-allowed; }
+.team-row { cursor:pointer;border-radius:8px;transition:background 0.12s; }
+.team-row:hover { background:var(--canvas-warm); }
+.team-toggle { font-size:0.76rem;color:var(--brand);cursor:pointer;font-weight:500;margin-top:0.6rem;display:inline-block; }
+.team-toggle:hover { text-decoration:underline; }
+.acct-id-row { display:flex;align-items:center;gap:0.6rem;background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem; }
+.acct-id-val { font-size:0.9rem;font-weight:600;color:var(--ink);letter-spacing:0.04em;font-family:'DM Sans',monospace; }
+.acct-id-copy { margin-left:auto;font-size:0.74rem;color:var(--brand);cursor:pointer;font-weight:500;border:1px solid var(--brand);border-radius:6px;padding:0.2rem 0.6rem;background:none;font-family:inherit; }
+.acct-id-copy:hover { background:var(--brand);color:white; }
+.us-color-row { display:flex;align-items:center;gap:0.6rem; }
+.us-color-dot { width:22px;height:22px;border-radius:50%;flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -811,6 +825,37 @@ select.fld-input { appearance:auto;cursor:pointer; }
   </div>
 </div>
 
+<!-- ── MEMBER DETAIL / EDIT MODAL (June 7) ── -->
+<div id="me-overlay" class="wiz-overlay" onclick="if(event.target===this)closeMemberEdit()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title" id="me-title">Edit teammate</div>
+      <div class="wiz-sub" id="me-sub"></div>
+    </div>
+    <div class="wiz-body">
+      <div class="fld fld-row">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="me-first" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="me-last" /></div>
+      </div>
+      <div class="fld">
+        <div class="fld-label">Email</div>
+        <input class="fld-input" type="email" id="me-email" oninput="meEmailTouched()" />
+        <div class="login-pwhint" id="me-email-note" style="color:var(--ink-soft);display:none;">Changing the email sends a confirmation link to the new address. It must be confirmed before they can sign in there.</div>
+      </div>
+      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
+      <div class="fld"><div class="fld-label">Bubble color</div><div id="me-palette" class="me-palette"></div></div>
+      <div class="wiz-err" id="me-err"></div>
+    </div>
+    <div class="wiz-foot" style="flex-wrap:wrap;gap:0.5rem;">
+      <div id="me-actions" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
+      <div style="margin-left:auto;display:flex;gap:0.5rem;">
+        <button class="btn-ghost" onclick="closeMemberEdit()">Cancel</button>
+        <button class="btn-primary" id="me-save-btn" onclick="submitMemberEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── PERSONAL SETTINGS MODAL (increment #4) ── -->
 <div id="us-overlay" class="wiz-overlay" onclick="if(event.target===this)closeUserSettings()">
   <div class="wiz-card">
@@ -827,6 +872,9 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="fld"><div class="fld-label">Current password</div><input class="fld-input" type="password" id="us-cur" autocomplete="current-password" /></div>
       <div class="fld"><div class="fld-label">New password</div><input class="fld-input" type="password" id="us-new" autocomplete="new-password" /><div class="login-pwhint" style="color:var(--ink-soft);">At least 10 characters, with an uppercase, lowercase, number, and special character.</div></div>
       <div class="set-saverow"><button class="btn-primary" onclick="saveMyPassword()">Change password</button><span id="us-pw-msg" class="us-ok"></span></div>
+
+      <div class="set-section-title" style="margin:1.1rem 0 0.4rem;">Your color</div>
+      <div class="us-color-row"><span class="us-color-dot" id="us-color-dot"></span><span style="font-size:0.8rem;color:var(--ink-soft);">Set by your company for who answered which message.</span></div>
 
       <div class="set-section-title" style="margin:1.1rem 0 0.4rem;">Notifications</div>
       <div class="set-readonly">Notification preferences are coming soon.</div>
@@ -1174,6 +1222,13 @@ function renderSettings(c) {
   html += '</div>';
 
   html += '<div class="set-section">';
+  html += '<div class="set-section-title">Account ID</div>';
+  html += '<div class="set-section-note">Read this to RestWerks support to identify your account.</div>';
+  html += '<div class="acct-id-row"><span class="acct-id-val" id="acct-id-val">' + esc(formatAccountId()) + '</span>';
+  html += '<button class="acct-id-copy" id="acct-id-copy" onclick="copyAccountId()">Copy</button></div>';
+  html += '</div>';
+
+  html += '<div class="set-section">';
   html += '<div class="set-section-title">Team</div>';
   html += '<div class="set-section-note">People who can log in to this dashboard.</div>';
   if (isOwner) {
@@ -1268,27 +1323,185 @@ async function loadTeam() {
   } catch (e) { body.innerHTML = '<div class="set-readonly">Connection error.</div>'; }
 }
 
+var _team = [];
+var _showRemoved = false;
 function renderTeam(users) {
+  _team = users || [];
+  window._team = _team;
   var body = document.getElementById('team-body');
   if (!body) return;
+  var removed = _team.filter(function(u){ return !u.active; });
+  var shown = _team.filter(function(u){ return u.active || _showRemoved; });
   var html = '<div class="team-list">';
-  users.forEach(function(u) {
+  shown.forEach(function(u) {
     var name = esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim());
     var roleLabel = u.role === 'owner' ? 'Owner' : 'Member';
     var statusPill = u.pending
       ? '<span class="team-pill pending">Pending</span>'
       : (u.active ? '' : '<span class="team-pill off">Removed</span>');
-    var actions = '';
-    if (u.pending) actions += '<button class="team-action" onclick="resendUser(' + u.id + ',this)">Resend</button>';
-    if (!u.is_self && u.active) actions += '<button class="team-action danger" onclick="removeUser(' + u.id + ',\'' + name.replace(/'/g,"\\'") + '\')">Remove</button>';
-    html += '<div class="team-row">' +
+    html += '<div class="team-row" onclick="openMemberEdit(' + u.id + ')" style="padding-left:0.4rem;padding-right:0.4rem;">' +
       '<div class="team-dot" style="background:' + (u.bubble_color || 'var(--ink-soft)') + ';"></div>' +
       '<div class="team-main"><div class="team-name">' + name + (u.is_self ? ' <span class="team-you">you</span>' : '') + ' ' + statusPill + '</div>' +
       '<div class="team-email">' + esc(u.email || '') + '  ·  ' + roleLabel + '</div></div>' +
-      '<div class="team-actions">' + actions + '</div></div>';
+      '<div class="user-caret" style="color:var(--ink-soft);">›</div></div>';
   });
   html += '</div>';
+  if (removed.length) {
+    html += '<span class="team-toggle" onclick="toggleRemoved()">' +
+      (_showRemoved ? 'Hide removed' : 'Show removed (' + removed.length + ')') + '</span>';
+  }
   body.innerHTML = html;
+}
+function toggleRemoved() { _showRemoved = !_showRemoved; renderTeam(_team); }
+
+// ── ACCOUNT ID ───────────────────────────────────────────────────────────────
+function formatAccountId() {
+  var id = (window._rwUser && window._rwUser.integrator_id) || 0;
+  return 'RW-' + String(id).padStart(4, '0');
+}
+function copyAccountId() {
+  var val = formatAccountId();
+  var btn = document.getElementById('acct-id-copy');
+  var done = function(){ if (btn) { btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(done, done); }
+  else { done(); }
+}
+
+// ── MEMBER DETAIL / EDIT (June 7) ────────────────────────────────────────────
+var ME_PALETTE = ['#2D7DD2','#7B5EA7','#1D9E75','#E08600','#C0392B','#0E8A8A','#D6336C','#5C7CFA'];
+var _meUser = null;
+var _meColor = null;
+var _meOrigEmail = '';
+
+function openMemberEdit(id) {
+  var u = (_team || []).filter(function(x){ return x.id === id; })[0];
+  if (!u) return;
+  _meUser = u;
+  _meColor = u.bubble_color || null;
+  _meOrigEmail = (u.email || '').toLowerCase();
+  document.getElementById('me-title').textContent = ((u.first_name || '') + ' ' + (u.last_name || '')).trim() || 'Teammate';
+  var sub = u.pending ? 'Invited, has not set a password yet.' : (u.active ? '' : 'Removed. No access until reactivated.');
+  document.getElementById('me-sub').textContent = sub;
+  document.getElementById('me-first').value = u.first_name || '';
+  document.getElementById('me-last').value = u.last_name || '';
+  document.getElementById('me-email').value = u.email || '';
+  document.getElementById('me-role').value = u.role === 'owner' ? 'owner' : 'member';
+  document.getElementById('me-email-note').style.display = 'none';
+  document.getElementById('me-err').textContent = '';
+  renderMePalette();
+  renderMeActions();
+  document.getElementById('me-overlay').classList.add('show');
+}
+function closeMemberEdit() { document.getElementById('me-overlay').classList.remove('show'); }
+
+function renderMePalette() {
+  var wrap = document.getElementById('me-palette');
+  if (!wrap) return;
+  // Colors held by OTHER users (active or removed) are reserved, so not pickable here.
+  var takenByOthers = (_team || [])
+    .filter(function(x){ return x.id !== (_meUser && _meUser.id) && x.bubble_color; })
+    .map(function(x){ return x.bubble_color.toLowerCase(); });
+  var html = '';
+  var inPalette = false;
+  ME_PALETTE.forEach(function(c) {
+    var taken = takenByOthers.indexOf(c.toLowerCase()) !== -1;
+    var sel = _meColor && _meColor.toLowerCase() === c.toLowerCase();
+    if (sel) inPalette = true;
+    html += '<div class="me-swatch' + (sel ? ' sel' : '') + (taken ? ' taken' : '') + '" style="background:' + c + ';" ' +
+      (taken ? '' : 'onclick="meSelectColor(\'' + c + '\')"') + ' title="' + c + (taken ? ' (in use)' : '') + '"></div>';
+  });
+  // If the current color was auto-generated (outside the palette), show it as a selected swatch too.
+  if (_meColor && !inPalette) {
+    html += '<div class="me-swatch sel" style="background:' + _meColor + ';" title="' + _meColor + ' (current)"></div>';
+  }
+  wrap.innerHTML = html;
+}
+function meSelectColor(c) { _meColor = c; renderMePalette(); }
+function meEmailTouched() {
+  var v = document.getElementById('me-email').value.toLowerCase().trim();
+  document.getElementById('me-email-note').style.display = (v && v !== _meOrigEmail) ? 'block' : 'none';
+}
+
+function renderMeActions() {
+  var wrap = document.getElementById('me-actions');
+  var u = _meUser;
+  var html = '';
+  if (u.pending) {
+    html += '<button class="team-action" onclick="resendMember(' + u.id + ',this)">Resend invite</button>';
+    if (!u.is_self) html += '<button class="team-action danger" onclick="revokeMember(' + u.id + ')">Revoke invite</button>';
+  } else if (!u.active) {
+    html += '<button class="team-action" onclick="reactivateMember(' + u.id + ",'fresh')\">Reactivate (set new password)</button>";
+    html += '<button class="team-action" onclick="reactivateMember(' + u.id + ",'restore')\">Restore prior access</button>";
+  } else if (!u.is_self) {
+    html += '<button class="team-action danger" onclick="removeMember(' + u.id + ')">Remove</button>';
+  }
+  wrap.innerHTML = html;
+}
+
+async function submitMemberEdit() {
+  var btn = document.getElementById('me-save-btn');
+  var err = document.getElementById('me-err');
+  err.textContent = '';
+  var first = hhVal('me-first'), last = hhVal('me-last'), email = hhVal('me-email').toLowerCase(), role = document.getElementById('me-role').value;
+  if (!first || !last) { err.textContent = 'First and last name are required.'; return; }
+  if (!email) { err.textContent = 'Email is required.'; return; }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await rwFetch('/api/users/' + _meUser.id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor })
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save'; return; }
+    // If the owner edited their own name/color, refresh the sidebar.
+    if (_meUser.is_self) {
+      if (window._rwUser) { window._rwUser.first_name = first; window._rwUser.last_name = last; window._rwUser.bubble_color = _meColor; window._rwUser.role = role; }
+      document.getElementById('sb-username').textContent = (first + ' ' + last).trim();
+      document.getElementById('sb-avatar').textContent = ((first.charAt(0) || '') + (last.charAt(0) || '')).toUpperCase();
+    }
+    closeMemberEdit();
+    loadTeam();
+    if (data.email_changed) alert('Saved. A confirmation link was sent to ' + email + '. They must confirm it before signing in with the new address.');
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Save';
+}
+
+async function resendMember(id, el) {
+  if (el) { el.textContent = 'Sending...'; el.disabled = true; }
+  try {
+    var res = await rwFetch('/api/users/' + id + '/resend', { method: 'POST' });
+    if (el) el.textContent = res.ok ? 'Sent' : 'Try again';
+  } catch (e) { if (el) el.textContent = 'Try again'; }
+}
+async function revokeMember(id) {
+  if (!confirm('Revoke this invite? The pending teammate is deleted and the email frees up for a new invite.')) return;
+  try {
+    var res = await rwFetch('/api/users/' + id + '/revoke', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not revoke.'); return; }
+    closeMemberEdit(); loadTeam();
+  } catch (e) { alert('Connection error.'); }
+}
+async function reactivateMember(id, mode) {
+  var msg = mode === 'restore'
+    ? 'Restore this teammate with their previous password?'
+    : 'Reactivate this teammate? Their old password is cleared and they get an email to set a new one before any access.';
+  if (!confirm(msg)) return;
+  try {
+    var res = await rwFetch('/api/users/' + id + '/reactivate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: mode }) });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not reactivate.'); return; }
+    closeMemberEdit(); loadTeam();
+  } catch (e) { alert('Connection error.'); }
+}
+async function removeMember(id) {
+  if (!confirm('Remove this teammate? They lose access. Their history and color stay, and you can reactivate them later.')) return;
+  try {
+    var res = await rwFetch('/api/users/' + id + '/deactivate', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert(data.error || 'Could not remove.'); return; }
+    closeMemberEdit(); loadTeam();
+  } catch (e) { alert('Connection error.'); }
 }
 
 function openAddUser() {
@@ -1350,6 +1563,8 @@ function openUserSettings(e) {
   document.getElementById('us-new').value = '';
   document.getElementById('us-name-msg').textContent = '';
   document.getElementById('us-pw-msg').textContent = '';
+  var dot = document.getElementById('us-color-dot');
+  if (dot) dot.style.background = u.bubble_color || 'var(--ink-soft)';
   document.getElementById('us-overlay').classList.add('show');
 }
 function closeUserSettings() { document.getElementById('us-overlay').classList.remove('show'); }
