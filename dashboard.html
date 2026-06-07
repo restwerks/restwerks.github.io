@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
+<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Personal settings: editable email (re-verify disclaimer) + cell phone, all users. Member modal + self both store cell as E.164, display dashed. Portal v1.8.1. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -850,6 +850,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <input class="fld-input" type="email" id="me-email" oninput="meEmailTouched()" />
         <div class="login-pwhint" id="me-email-note" style="color:var(--ink-soft);display:none;">Changing the email sends a confirmation link to the new address. It must be confirmed before they can sign in there.</div>
       </div>
+      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="me-cell" placeholder="612-695-7701" /></div>
       <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
       <div class="fld"><div class="fld-label">Bubble color</div>
         <div id="me-palette" class="me-palette" style="margin-bottom:0.6rem;"></div>
@@ -872,12 +873,20 @@ select.fld-input { appearance:auto;cursor:pointer; }
   <div class="wiz-card">
     <div class="wiz-head"><div class="wiz-title">Your settings</div></div>
     <div class="wiz-body">
-      <div class="set-section-title" style="margin-bottom:0.6rem;">Your name</div>
+      <div class="set-section-title" style="margin-bottom:0.6rem;">Your profile</div>
       <div class="fld fld-row">
         <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="us-first" /></div>
         <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="us-last" /></div>
       </div>
-      <div class="set-saverow"><button class="btn-primary" onclick="saveMyName()">Save name</button><span id="us-name-msg" class="us-ok"></span></div>
+      <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="us-cell" placeholder="612-695-7701" /></div>
+      <div class="set-saverow"><button class="btn-primary" onclick="saveMyName()">Save profile</button><span id="us-name-msg" class="us-ok"></span></div>
+
+      <div class="set-section-title" style="margin:1.1rem 0 0.6rem;">Email</div>
+      <div class="fld">
+        <input class="fld-input" type="email" id="us-email" autocomplete="email" />
+        <div class="login-pwhint" style="color:var(--ink-soft);">Changing your email sends a confirmation link to the new address. You will need to confirm it there before you can sign in with it.</div>
+      </div>
+      <div class="set-saverow"><button class="btn-primary" onclick="saveMyEmail()">Change email</button><span id="us-email-msg" class="us-ok"></span></div>
 
       <div class="set-section-title" style="margin:1.1rem 0 0.6rem;">Change password</div>
       <div class="fld"><div class="fld-label">Current password</div><input class="fld-input" type="password" id="us-cur" autocomplete="current-password" /></div>
@@ -1420,6 +1429,7 @@ function openMemberEdit(id) {
   document.getElementById('me-first').value = u.first_name || '';
   document.getElementById('me-last').value = u.last_name || '';
   document.getElementById('me-email').value = u.email || '';
+  document.getElementById('me-cell').value = fmtPhone(u.cell_phone || '');
   document.getElementById('me-role').value = u.role === 'owner' ? 'owner' : 'member';
   document.getElementById('me-email-note').style.display = 'none';
   document.getElementById('me-err').textContent = '';
@@ -1531,13 +1541,14 @@ async function submitMemberEdit() {
   var err = document.getElementById('me-err');
   err.textContent = '';
   var first = hhVal('me-first'), last = hhVal('me-last'), email = hhVal('me-email').toLowerCase(), role = document.getElementById('me-role').value;
+  var cell = hhVal('me-cell');
   if (!first || !last) { err.textContent = 'First and last name are required.'; return; }
   if (!email) { err.textContent = 'Email is required.'; return; }
   btn.disabled = true; btn.textContent = 'Saving...';
   try {
     var res = await rwFetch('/api/users/' + _meUser.id, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor })
+      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor, cell_phone: cell })
     });
     var data = await res.json();
     if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save'; return; }
@@ -1647,9 +1658,12 @@ function openUserSettings(e) {
   var u = window._rwUser || {};
   document.getElementById('us-first').value = u.first_name || '';
   document.getElementById('us-last').value = u.last_name || '';
+  document.getElementById('us-cell').value = fmtPhone(u.cell_phone || '');
+  document.getElementById('us-email').value = u.email || '';
   document.getElementById('us-cur').value = '';
   document.getElementById('us-new').value = '';
   document.getElementById('us-name-msg').textContent = '';
+  document.getElementById('us-email-msg').textContent = '';
   document.getElementById('us-pw-msg').textContent = '';
   var dot = document.getElementById('us-color-dot');
   if (dot) dot.style.background = u.bubble_color || 'var(--ink-soft)';
@@ -1659,16 +1673,31 @@ function closeUserSettings() { document.getElementById('us-overlay').classList.r
 
 async function saveMyName() {
   var msg = document.getElementById('us-name-msg');
-  var first = hhVal('us-first'), last = hhVal('us-last');
+  var first = hhVal('us-first'), last = hhVal('us-last'), cell = hhVal('us-cell');
   if (!first || !last) { msg.textContent = 'First and last name are required.'; msg.className = 'wiz-err'; return; }
   try {
-    var res = await rwFetch('/api/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ first_name: first, last_name: last }) });
+    var res = await rwFetch('/api/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ first_name: first, last_name: last, cell_phone: cell }) });
     var data = await res.json();
     if (!res.ok) { msg.textContent = data.error || 'Could not save.'; msg.className = 'wiz-err'; return; }
-    if (window._rwUser) { window._rwUser.first_name = first; window._rwUser.last_name = last; }
+    if (window._rwUser) { window._rwUser.first_name = first; window._rwUser.last_name = last; if (data.cell_phone !== undefined) window._rwUser.cell_phone = data.cell_phone; }
     document.getElementById('sb-username').textContent = (first + ' ' + last).trim();
     document.getElementById('sb-avatar').textContent = ((first.charAt(0) || '') + (last.charAt(0) || '')).toUpperCase();
+    if (data.cell_phone !== undefined) document.getElementById('us-cell').value = fmtPhone(data.cell_phone || '');
     msg.textContent = 'Saved'; msg.className = 'us-ok';
+  } catch (e) { msg.textContent = 'Connection error.'; msg.className = 'wiz-err'; }
+}
+
+async function saveMyEmail() {
+  var msg = document.getElementById('us-email-msg');
+  var email = hhVal('us-email').toLowerCase();
+  if (!email) { msg.textContent = 'Enter an email.'; msg.className = 'wiz-err'; return; }
+  try {
+    var res = await rwFetch('/api/me/email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) });
+    var data = await res.json();
+    if (!res.ok) { msg.textContent = data.error || 'Could not change email.'; msg.className = 'wiz-err'; return; }
+    if (window._rwUser) { window._rwUser.email = email; window._rwUser.email_verified = false; }
+    applyAccountState(window._rwUser);
+    msg.textContent = 'Confirmation sent'; msg.className = 'us-ok';
   } catch (e) { msg.textContent = 'Connection error.'; msg.className = 'wiz-err'; }
 }
 
