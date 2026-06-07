@@ -1,4 +1,4 @@
-<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker has palette swatches + color wheel + hex entry. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
+<!-- dashboard.html — June 7 2026 — member detail/edit modal (name, email re-verify, role, bubble color picker, reactivate fresh/restore, revoke pending), team list active-by-default + Show removed toggle, RW-0009 account ID in Settings (all roles, copy), read-only your-color in personal settings. Member color picker swatches + wheel + hex. Settings: top identity strip (Account ID RW-00009 + SMS number), both read-only and copyable; number copies dashed to stay tappable. Also: set-password token fix + green Passwords-match check. Base: increment #4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -373,6 +373,14 @@ select.fld-input { appearance:auto;cursor:pointer; }
 .team-toggle { font-size:0.76rem;color:var(--brand);cursor:pointer;font-weight:500;margin-top:0.6rem;display:inline-block; }
 .team-toggle:hover { text-decoration:underline; }
 .acct-id-row { display:flex;align-items:center;gap:0.6rem;background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem; }
+.id-strip { display:flex;gap:1.5rem;flex-wrap:wrap;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--canvas-warm); }
+.id-cell { display:flex;flex-direction:column;gap:0.3rem;min-width:150px; }
+.id-cell-label { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft); }
+.id-cell-row { display:flex;align-items:center;gap:0.5rem; }
+.id-cell-val { font-size:0.95rem;font-weight:600;color:var(--ink);letter-spacing:0.02em; }
+.id-cell-empty { font-size:0.9rem;color:var(--ink-soft);font-style:italic; }
+.id-cell-copy { font-size:0.7rem;color:var(--brand);cursor:pointer;font-weight:500;border:1px solid var(--border);border-radius:6px;padding:0.14rem 0.55rem;background:var(--white);font-family:inherit; }
+.id-cell-copy:hover { background:var(--brand);color:white;border-color:var(--brand); }
 .acct-id-val { font-size:0.9rem;font-weight:600;color:var(--ink);letter-spacing:0.04em;font-family:'DM Sans',monospace; }
 .acct-id-copy { margin-left:auto;font-size:0.74rem;color:var(--brand);cursor:pointer;font-weight:500;border:1px solid var(--brand);border-radius:6px;padding:0.2rem 0.6rem;background:none;font-family:inherit; }
 .acct-id-copy:hover { background:var(--brand);color:white; }
@@ -1195,6 +1203,20 @@ function renderSettings(c) {
     : '<div class="logo-drop" ' + (isOwner ? 'onclick="document.getElementById(\'set-logo-file\').click()"' : '') + '>' + (isOwner ? 'Click to upload a logo. PNG or JPG.' : 'No logo set.') + '</div>';
 
   var html = '';
+  // Identity strip at the very top: the two "which account is this" values, read-only, copyable.
+  html += '<div class="id-strip">';
+  html += '<div class="id-cell"><div class="id-cell-label">Account ID</div>';
+  html += '<div class="id-cell-row"><span class="id-cell-val" id="acct-id-val">' + esc(formatAccountId()) + '</span>';
+  html += '<button class="id-cell-copy" id="acct-id-copy" onclick="copyAccountId()">Copy</button></div></div>';
+  html += '<div class="id-cell"><div class="id-cell-label">SMS number</div>';
+  if (c.telnyx_number) {
+    html += '<div class="id-cell-row"><span class="id-cell-val" id="sms-num-val">' + esc(num) + '</span>';
+    html += '<button class="id-cell-copy" id="sms-num-copy" onclick="copySmsNumber()">Copy</button></div>';
+  } else {
+    html += '<div class="id-cell-row"><span class="id-cell-empty">Not assigned yet</span></div>';
+  }
+  html += '</div></div>';
+
   html += '<div class="set-section">';
   html += '<div class="set-section-title">Company info</div>';
   html += '<div class="set-section-note">How Andi refers to your company.</div>';
@@ -1216,19 +1238,6 @@ function renderSettings(c) {
   html += colorCell('set', 3, c.brand_color_3 || '', isOwner);
   html += '</div></div>';
   if (isOwner) html += '<div class="set-saverow"><button class="btn-primary" onclick="settingsSaveBranding()">Save</button><span class="set-saved" id="set-saved-brand">Saved</span></div>';
-  html += '</div>';
-
-  html += '<div class="set-section">';
-  html += '<div class="set-section-title">SMS number</div>';
-  html += '<div class="set-section-note">Your number is assigned when you go live. This is part of the go live step.</div>';
-  html += '<div class="set-readonly">' + num + '</div>';
-  html += '</div>';
-
-  html += '<div class="set-section">';
-  html += '<div class="set-section-title">Account ID</div>';
-  html += '<div class="set-section-note">Read this to RestWerks support to identify your account.</div>';
-  html += '<div class="acct-id-row"><span class="acct-id-val" id="acct-id-val">' + esc(formatAccountId()) + '</span>';
-  html += '<button class="acct-id-copy" id="acct-id-copy" onclick="copyAccountId()">Copy</button></div>';
   html += '</div>';
 
   html += '<div class="set-section">';
@@ -1374,11 +1383,20 @@ function toggleRemoved() { _showRemoved = !_showRemoved; renderTeam(_team); }
 // ── ACCOUNT ID ───────────────────────────────────────────────────────────────
 function formatAccountId() {
   var id = (window._rwUser && window._rwUser.integrator_id) || 0;
-  return 'RW-' + String(id).padStart(4, '0');
+  return 'RW-' + String(id).padStart(5, '0');
 }
 function copyAccountId() {
   var val = formatAccountId();
   var btn = document.getElementById('acct-id-copy');
+  var done = function(){ if (btn) { btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(done, done); }
+  else { done(); }
+}
+function copySmsNumber() {
+  var el = document.getElementById('sms-num-val');
+  if (!el) return;
+  var val = el.textContent; // dashed form, stays tappable when pasted into a message
+  var btn = document.getElementById('sms-num-copy');
   var done = function(){ if (btn) { btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500); } };
   if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(done, done); }
   else { done(); }
