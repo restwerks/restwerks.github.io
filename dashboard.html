@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.4.0 — 2026-06-08_0030 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. -->
+<!-- dashboard.html — Dashboard v1.4.1 — 2026-06-08_0115 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -601,7 +601,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3241,7 +3241,8 @@ async function loadTickets() {
     _ticketRows = await res.json();
     _tickets = {};
     _ticketRows.forEach(function(t){ _tickets[t.id] = t; });
-    setBadge('tickets', _ticketRows.filter(function(t){ return (t.status||'open') !== 'resolved'; }).length);
+    window._openTickets = _ticketRows.filter(function(t){ return (t.status||'open') !== 'resolved'; }).length;
+    setBadge('tickets', window._openTickets);
     ensureCrTeam();
     renderTickets();
   } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
@@ -3392,7 +3393,9 @@ async function submitResolveTicket() {
 }
 function closeTicket() {
   var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
-  if (lv) lv.style.display = 'block'; if (dv) { dv.style.display = 'none'; dv.innerHTML = ''; }
+  if (lv) lv.style.display = 'block';
+  if (dv) dv.style.display = 'none';
+  var c = document.getElementById('ticket-detail-content'); if (c) c.innerHTML = '';
 }
 
 // ── FOLLOW UPS ───────────────────────────────────────────────────────────────
@@ -3420,7 +3423,8 @@ function renderFollowups() {
   var el = document.getElementById('followup-list');
   if (!el) return;
   var f = _fuFilter;
-  setBadge('followups', _followups.filter(function(x){ return x.status === 'pending'; }).length);
+  window._openFollowups = _followups.filter(function(x){ return x.status === 'pending'; }).length;
+  setBadge('followups', window._openFollowups);
   var rows = _followups.filter(function(x){
     var pend = x.status === 'pending';
     if (f.status === 'pending' && !pend) return false;
@@ -3640,8 +3644,10 @@ async function loadCounts() {
     var res = await rwFetch('/api/stats');
     if (!res.ok) return;
     var s = await res.json();
-    setBadge('tickets', s.open_tickets || 0);
-    setBadge('followups', s.follow_ups || 0);
+    window._openTickets = s.open_tickets || 0;
+    window._openFollowups = s.follow_ups || 0;
+    setBadge('tickets', window._openTickets);
+    setBadge('followups', window._openFollowups);
   } catch (e) {}
 }
 
