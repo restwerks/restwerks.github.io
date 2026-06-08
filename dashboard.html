@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.5.0 — 2026-06-08_0215 CT — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.5.1 — 2026-06-08_0315 CT — Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -437,10 +437,15 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .tg { display:inline-flex;align-items:center;gap:0.35rem;font-size:0.76rem;color:var(--ink-mid);cursor:pointer;user-select:none; }
 .group-head { padding:0.55rem 1.25rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);background:var(--canvas-warm);border-bottom:1px solid var(--border); }
 .group-count { color:var(--ink-soft);font-weight:600;margin-left:0.3rem; }
-.tk-thread { max-height:340px;overflow-y:auto;padding:0.75rem 0.4rem;background:#f8f8f8;border:1px solid var(--border);border-radius:9px;margin-bottom:0.6rem; }
-body.dark .tk-thread { background:#0d0d0c; }
-.tk-reply-row { display:flex;gap:0.5rem;align-items:flex-end; }
-.tk-reply-row .reply-textarea { flex:1; }
+/* Ticket detail mirrors the conversation view (chat center, info rail right). The amber accent
+   on the rail makes a ticket read differently from a conversation at a glance. */
+.ticket-rail { border-color:#e3b778; }
+.ticket-rail-header { background:#fef3e2;color:#b45309;border-bottom-color:#e3b778; }
+.ticket-rail .eq-section-title { color:#b45309; }
+.ticket-rail .status-select { display:flex;flex-wrap:wrap;gap:0.4rem; }
+body.dark .ticket-rail { border-color:#5a4a2a; }
+body.dark .ticket-rail-header { background:#2a2310;color:#e0a955;border-bottom-color:#5a4a2a; }
+body.dark .ticket-rail .eq-section-title { color:#e0a955; }
 .team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
 .team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
 .team-row:last-child { border-bottom:none; }
@@ -605,7 +610,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.5.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.5.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3311,40 +3316,63 @@ function openTicket(id) {
   if (!t) { el.innerHTML = '<div class="hh-empty">Ticket not found. Go back and refresh.</div>'; return; }
   try {
     var st = t.status || 'open';
+    var pillCls = st==='resolved'?'t-resolved':(st==='scheduled'?'t-scheduled':'t-open');
     var teamOpts = '<option value="">Unassigned</option>' + (_crTeam||[]).map(function(u){ return '<option value="' + u.id + '"' + (t.assigned_to===u.id?' selected':'') + '>' + esc((u.first_name||'')+' '+(u.last_name||'')) + '</option>'; }).join('');
     var contactBits = [];
     if (t.phone_number) contactBits.push(fmtPhone(t.phone_number));
     if (t.contact_email) contactBits.push(t.contact_email);
+
     var statusBlock = (st === 'resolved')
-      ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Resolution</div><div class="ticket-detail-value" style="white-space:pre-wrap;">' + esc(t.resolution_note || 'No note recorded.') + '</div>' +
+      ? '<div class="eq-section"><div class="eq-section-title">Resolution</div>' +
+        '<div class="ticket-detail-value" style="white-space:pre-wrap;">' + esc(t.resolution_note || 'No note recorded.') + '</div>' +
         '<div class="detail-meta" style="margin-top:0.4rem;">' + (t.resolved_by ? 'Closed by ' + esc(t.resolved_by) : '') + (t.closed_at ? ' · ' + esc(fmtTime(t.closed_at)) : '') + '</div>' +
         '<button class="btn-ghost" style="margin-top:0.6rem;" onclick="reopenTicket(' + t.id + ')">Reopen ticket</button></div>'
-      : '<div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select">' +
+      : '<div class="eq-section"><div class="eq-section-title">Status</div><div class="status-select">' +
           '<button class="status-opt' + (st==='open'?' sel-open':'') + '" onclick="setTicketStatus(' + t.id + ',\'open\',this)">Open</button>' +
           '<button class="status-opt' + (st==='scheduled'?' sel-scheduled':'') + '" onclick="setTicketStatus(' + t.id + ',\'scheduled\',this)">Scheduled</button>' +
           '</div>' +
-          '<button class="btn-primary" style="margin-top:0.85rem;" onclick="openResolveTicket(' + t.id + ')">Resolve ticket</button>' +
+          '<button class="btn-primary" style="margin-top:0.85rem;width:100%;" onclick="openResolveTicket(' + t.id + ')">Resolve ticket</button>' +
           '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>';
+
+    var railBody =
+      '<div class="eq-section"><div class="eq-section-title">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
+      (t.issue_category ? '<div class="eq-section"><div class="eq-section-title">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
+      (contactBits.length ? '<div class="eq-section"><div class="eq-section-title">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
+      '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
+      '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
+      statusBlock;
+
+    var centerMain = t.phone_number
+      ? '<div class="sms-thread" id="tk-thread"><div class="hh-empty">Loading...</div></div>' +
+        '<div class="reply-box">' +
+          '<textarea id="tk-reply" class="reply-textarea" placeholder="Reply to the client..." rows="1"></textarea>' +
+          '<button id="tk-send" class="reply-send">Send</button>' +
+        '</div>'
+      : '<div class="sms-thread"><div class="hh-empty">This client has no text thread. Email replies inside the ticket are coming soon.</div></div>';
+
     el.innerHTML =
-      '<div class="detail-card">' +
-        '<div class="detail-header" style="padding:1.1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;"><div><div class="detail-name">' + esc(ticketClientName(t)) + '</div>' +
-        '<div class="detail-meta">' + esc(t.household_name || '') + (t.opened_at ? ' &middot; Opened ' + esc(fmtTime(t.opened_at)) : '') + (t.created_by ? ' &middot; by ' + esc(t.created_by) : '') + '</div></div>' +
-        '<span class="t-pill ' + (st==='resolved'?'t-resolved':(st==='scheduled'?'t-scheduled':'t-open')) + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span></div>' +
-        '<div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
-        (t.issue_category ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
-        (contactBits.length ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
-        '<div class="ticket-detail-section"><div class="ticket-detail-label">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
-        statusBlock +
-        (t.phone_number
-          ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Conversation</div>' +
-            '<div class="tk-thread" id="tk-thread"><div class="hh-empty">Loading...</div></div>' +
-            '<div class="tk-reply-row"><textarea id="tk-reply" class="reply-textarea" placeholder="Reply to the client..." rows="1"></textarea>' +
-            '<button class="btn-primary" onclick="sendTicketReply(' + t.id + ',\'' + encodeURIComponent(t.phone_number) + '\')">Send</button></div>' +
-            '<div class="cr-draft-note">Replying here texts the client and hands the thread to you, the same as the chat.</div></div>'
-          : '<div class="ticket-detail-section"><div class="ticket-detail-label">Conversation</div><div class="ticket-detail-value" style="color:var(--ink-soft);">This client has no text thread. Email replies inside the ticket are coming soon.</div></div>') +
+      '<div class="thread-shell">' +
+        '<div class="thread-main">' +
+          '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
+            '<div class="detail-name">' + esc(ticketClientName(t)) + (t.household_name ? ' <span class="detail-meta" style="font-weight:400;">· ' + esc(t.household_name) + '</span>' : '') + '</div>' +
+            '<span class="t-pill ' + pillCls + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>' +
+          '</div>' +
+          centerMain +
+        '</div>' +
+        '<div class="equipment-panel ticket-rail">' +
+          '<div class="equipment-panel-header ticket-rail-header"><span>🎫 Ticket</span></div>' +
+          '<div class="equipment-panel-body">' + railBody + '</div>' +
+        '</div>' +
       '</div>';
+
     window._openTicketPhone = t.phone_number ? encodeURIComponent(t.phone_number) : null;
-    if (t.phone_number) loadTicketThread(window._openTicketPhone);
+    if (t.phone_number) {
+      loadTicketThread(window._openTicketPhone);
+      var sendBtn = document.getElementById('tk-send');
+      if (sendBtn) sendBtn.addEventListener('click', function(){ sendTicketReply(id, window._openTicketPhone); });
+      var ta = document.getElementById('tk-reply');
+      if (ta) ta.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendTicketReply(id, window._openTicketPhone); } });
+    }
   } catch (e) {
     el.innerHTML = '<div class="hh-empty">Could not open this ticket.</div>';
   }
@@ -3367,13 +3395,15 @@ async function loadTicketThread(encPhone) {
 async function sendTicketReply(id, encPhone) {
   var input = document.getElementById('tk-reply'); if (!input) return;
   var message = input.value.trim(); if (!message) return;
-  input.disabled = true;
+  var btn = document.getElementById('tk-send');
+  input.disabled = true; if (btn) btn.disabled = true;
   try {
     var res = await rwFetch('/api/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ to: decodeURIComponent(encPhone), message: message }) });
     if (!res.ok) { alert('Failed to send. Please try again.'); }
     else { input.value = ''; await loadTicketThread(encPhone); loadRealConversations(); }
   } catch (e) { alert('Connection error. Please try again.'); }
-  input.disabled = false;
+  input.disabled = false; if (btn) btn.disabled = false;
+  input.focus();
 }
 async function setTicketStatus(id, status, btn) {
   if (btn) { document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; }); btn.classList.add('sel-'+status); }
