@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.4.1 — 2026-06-08_0115 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.4.3 — 2026-06-08_0145 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -601,7 +601,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.3</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3327,11 +3327,16 @@ function openTicket(id) {
   }
 }
 async function setTicketStatus(id, status, btn) {
-  document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; });
-  if (btn) btn.classList.add('sel-'+status);
+  if (btn) { document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; }); btn.classList.add('sel-'+status); }
   try {
     var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: status }) });
-    if (res.ok && _tickets[id]) { _tickets[id].status = status; var i=_ticketRows.findIndex(function(r){return r.id===id;}); if(i!==-1)_ticketRows[i].status=status; renderTickets(); }
+    if (!res.ok) { var er0 = document.getElementById('ticket-err'); if (er0) er0.textContent = 'Could not save status.'; return; }
+    var d = await res.json();
+    _tickets[id] = Object.assign(_tickets[id] || {}, d);
+    var i = _ticketRows.findIndex(function(r){ return r.id === id; });
+    if (i !== -1) _ticketRows[i] = _tickets[id];
+    openTicket(id);
+    renderTickets();
     loadCounts();
   } catch (e) { var er = document.getElementById('ticket-err'); if (er) er.textContent = 'Could not save status.'; }
 }
@@ -3360,7 +3365,7 @@ async function openResolveTicket(id) {
   if (t.phone_number) {
     note.style.display = ''; note.textContent = 'Andi is drafting the context...';
     try {
-      var res = await rwFetch('/api/draft-synopsis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone: encodeURIComponent(t.phone_number) }) });
+      var res = await rwFetch('/api/draft-synopsis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone: encodeURIComponent(t.phone_number), issue: t.summary || '' }) });
       var data = await res.json();
       if (data && data.synopsis) document.getElementById('tk-close-context').value = data.synopsis;
       note.style.display = 'none';
