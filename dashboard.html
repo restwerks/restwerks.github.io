@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.3.0 — 2026-06-07_2359 CT — Create modal: Ticket and Follow up now assign individually (separate assignee per task in Ticket+Follow up mode); Issue and Note boxes enlarged. Conversation view fixes: thread height contained so the page no longer scrolls and Back to conversations stays visible (also pinned sticky), thread min-width tightened and inner horizontal scroll suppressed so the horizontal bar holds off longer, and dark-mode scrollbars styled dark instead of white. No portal change from v1.11.0. -->
+<!-- dashboard.html — Dashboard v1.4.0 — 2026-06-08_0030 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -428,6 +428,15 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .cr-result:hover { background:var(--canvas-warm); }
 .cr-result .cr-r-sub { font-size:0.72rem;color:var(--ink-soft); }
 .cr-draft-note { font-size:0.74rem;color:var(--ink-soft);font-style:italic;margin-top:0.3rem; }
+.list-toolbar { display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;padding:0.7rem 1.25rem;border-bottom:1px solid var(--border); }
+.seg-group { display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden; }
+.seg { background:var(--white);border:none;border-right:1px solid var(--border);color:var(--ink-soft);font-size:0.76rem;font-weight:600;padding:0.35rem 0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif; }
+.seg:last-child { border-right:none; }
+.seg.on { background:var(--brand-light);color:var(--brand-dark); }
+.toolbar-toggles { display:flex;align-items:center;gap:0.9rem; }
+.tg { display:inline-flex;align-items:center;gap:0.35rem;font-size:0.76rem;color:var(--ink-mid);cursor:pointer;user-select:none; }
+.group-head { padding:0.55rem 1.25rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);background:var(--canvas-warm);border-bottom:1px solid var(--border); }
+.group-count { color:var(--ink-soft);font-weight:600;margin-left:0.3rem; }
 .team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
 .team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
 .team-row:last-child { border-bottom:none; }
@@ -592,7 +601,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.3.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1005,6 +1014,30 @@ select.fld-input { appearance:auto;cursor:pointer; }
     <div class="wiz-foot">
       <button class="btn-ghost" onclick="closeCreate()">Cancel</button>
       <button class="btn-primary" id="cr-save-btn" onclick="submitCreate()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESOLVE TICKET MODAL (v1.4.0) — human only ── -->
+<div id="tk-close-overlay" class="wiz-overlay" onclick="if(event.target===this)closeResolveModal()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title">Resolve ticket</div>
+      <div class="wiz-sub">Andi drafts the context. You add what fixed it and close.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="fld"><div class="fld-label">Context (drafted by Andi, editable)</div>
+        <textarea class="fld-input" id="tk-close-context" style="min-height:90px;resize:vertical;" placeholder="What the issue was and how it went"></textarea>
+        <div class="cr-draft-note" id="tk-close-draftnote" style="display:none;">Andi is drafting the context...</div>
+      </div>
+      <div class="fld"><div class="fld-label">What fixed it</div>
+        <textarea class="fld-input" id="tk-close-fix" style="min-height:90px;resize:vertical;" placeholder="The actual resolution. What was done."></textarea>
+      </div>
+      <div class="wiz-err" id="tk-close-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeResolveModal()">Cancel</button>
+      <button class="btn-primary" id="tk-close-btn" onclick="submitResolveTicket()">Resolve and close</button>
     </div>
   </div>
 </div>
@@ -2523,6 +2556,11 @@ function startSSE() {
     // unread rule already skips the dot when the team spoke last, so a human
     // reply updates the preview without lighting up a false unread.
     loadRealConversations();
+    loadCounts();
+    // If the tickets or follow ups tab is open, refresh it so an item Andi just created appears.
+    var actPanel = document.querySelector('.panel.active');
+    if (actPanel && actPanel.id === 'panel-tickets') loadTickets();
+    if (actPanel && actPanel.id === 'panel-followups') loadFollowups();
     // Also update open thread if it matches
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
       if (data.role === 'summary') {
@@ -3183,58 +3221,174 @@ var _tickets = {};
 function ticketClientName(t) {
   return (t.first_name || t.last_name) ? ((t.first_name||'')+' '+(t.last_name||'')).trim() : (t.household_name || t.client_name || fmtPhone(t.phone_number) || 'Unknown');
 }
+
+// Filter/group state. Owner defaults to the whole board grouped by assignee; a member defaults
+// to just their own open work. Each can change it.
+var _ticketRows = [];
+var _tkFilter = null;
+function tkDefaultFilter() {
+  var owner = window._rwUser && window._rwUser.role === 'owner';
+  return { status: 'open', mine: !owner, group: !!owner };
+}
 async function loadTickets() {
-  var el = document.getElementById('ticket-list');
   closeTicket();
+  var el = document.getElementById('ticket-list');
   if (el) el.innerHTML = '<div class="hh-empty">Loading...</div>';
+  if (!_tkFilter) _tkFilter = tkDefaultFilter();
   try {
     var res = await rwFetch('/api/tickets');
     if (!res.ok) { el.innerHTML = '<div class="hh-empty">Could not load tickets.</div>'; return; }
-    var rows = await res.json();
+    _ticketRows = await res.json();
     _tickets = {};
-    if (!rows.length) { el.innerHTML = '<div class="hh-empty">No tickets yet. Issues Andi cannot resolve show here.</div>'; setBadge('tickets', 0); return; }
-    var open = 0, html = '';
-    rows.forEach(function(t) {
-      _tickets[t.id] = t;
-      var st = t.status || 'open';
-      if (st !== 'resolved') open++;
-      var pill = st === 'resolved' ? 't-resolved' : (st === 'scheduled' ? 't-scheduled' : 't-open');
-      html += '<div class="ticket-row" onclick="openTicket(' + t.id + ')">' +
-        '<div class="ticket-icon t-red">🎫</div>' +
-        '<div class="ticket-body"><div class="ticket-client">' + esc(ticketClientName(t)) + '</div>' +
-        '<div class="ticket-issue">' + esc(t.summary || t.issue_category || 'No detail') + '</div>' +
-        '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + (t.assigned_name ? ' · assigned ' + esc(t.assigned_name) : '') + '</div></div>' +
-        '<div class="ticket-right"><div class="t-pill ' + pill + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</div></div></div>';
-    });
-    el.innerHTML = html;
-    setBadge('tickets', open);
+    _ticketRows.forEach(function(t){ _tickets[t.id] = t; });
+    setBadge('tickets', _ticketRows.filter(function(t){ return (t.status||'open') !== 'resolved'; }).length);
+    ensureCrTeam();
+    renderTickets();
   } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
 }
+function tkSet(key,val){ _tkFilter[key] = val; renderTickets(); }
+function listToolbar(f, statuses, prefix) {
+  var seg = statuses.map(function(s){ return '<button class="seg' + (f.status===s.v?' on':'') + '" onclick="' + prefix + 'Set(\'status\',\'' + s.v + '\')">' + s.label + '</button>'; }).join('');
+  return '<div class="list-toolbar">' +
+    '<div class="seg-group">' + seg + '</div>' +
+    '<div class="toolbar-toggles">' +
+      '<label class="tg"><input type="checkbox" ' + (f.mine?'checked':'') + ' onchange="' + prefix + 'Set(\'mine\',this.checked)"> Mine</label>' +
+      '<label class="tg"><input type="checkbox" ' + (f.group?'checked':'') + ' onchange="' + prefix + 'Set(\'group\',this.checked)"> Group by assignee</label>' +
+    '</div></div>';
+}
+function ticketRowHtml(t) {
+  var st = t.status || 'open';
+  var pill = st === 'resolved' ? 't-resolved' : (st === 'scheduled' ? 't-scheduled' : 't-open');
+  return '<div class="ticket-row" onclick="openTicket(' + t.id + ')">' +
+    '<div class="ticket-icon t-red">🎫</div>' +
+    '<div class="ticket-body"><div class="ticket-client">' + esc(ticketClientName(t)) + '</div>' +
+    '<div class="ticket-issue">' + esc(t.summary || t.issue_category || 'No detail') + '</div>' +
+    '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
+    '<div class="ticket-right"><div class="t-pill ' + pill + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</div></div></div>';
+}
+function groupByAssignee(rows, rowFn) {
+  var groups = {};
+  rows.forEach(function(t){ var k = t.assigned_name || 'Unassigned'; (groups[k] = groups[k] || []).push(t); });
+  return Object.keys(groups).sort(function(a,b){ if(a==='Unassigned')return 1; if(b==='Unassigned')return -1; return a.localeCompare(b); }).map(function(k){
+    return '<div class="group-head">' + esc(k) + ' <span class="group-count">' + groups[k].length + '</span></div>' + groups[k].map(rowFn).join('');
+  }).join('');
+}
+function renderTickets() {
+  var el = document.getElementById('ticket-list');
+  if (!el) return;
+  var f = _tkFilter;
+  var rows = _ticketRows.filter(function(t){
+    var st = t.status || 'open';
+    if (f.status !== 'all' && st !== f.status) return false;
+    if (f.mine && !(window._rwUser && t.assigned_to === window._rwUser.id)) return false;
+    return true;
+  });
+  var tb = listToolbar(f, [{v:'open',label:'Open'},{v:'scheduled',label:'Scheduled'},{v:'resolved',label:'Resolved'},{v:'all',label:'All'}], 'tk');
+  var body = !rows.length ? '<div class="hh-empty">No tickets match this view.</div>'
+    : (f.group ? groupByAssignee(rows, ticketRowHtml) : rows.map(ticketRowHtml).join(''));
+  el.innerHTML = tb + body;
+}
 function openTicket(id) {
-  var t = _tickets[id]; if (!t) return;
+  var t = _tickets[id];
+  var el = document.getElementById('ticket-detail-content');
   document.getElementById('ticket-list-view').style.display = 'none';
   document.getElementById('ticket-detail-view').style.display = 'block';
-  var st = t.status || 'open';
-  var el = document.getElementById('ticket-detail-content');
-  function optBtn(val,label){ return '<button class="status-opt' + (st===val?' sel-'+val:'') + '" onclick="setTicketStatus(' + t.id + ',\'' + val + '\',this)">' + label + '</button>'; }
-  el.innerHTML =
-    '<div class="detail-card">' +
-      '<div class="detail-header"><div><div class="detail-name">' + esc(ticketClientName(t)) + '</div>' +
-      '<div class="detail-meta">' + esc(t.household_name || '') + (t.opened_at ? ' &middot; Opened ' + esc(fmtTime(t.opened_at)) : '') + '</div></div></div>' +
-      '<div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
-      (t.issue_category ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
-      '<div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select">' + optBtn('open','Open') + optBtn('scheduled','Scheduled') + optBtn('resolved','Resolved') + '</div>' +
-      '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>' +
-    '</div>';
+  if (!t) { el.innerHTML = '<div class="hh-empty">Ticket not found. Go back and refresh.</div>'; return; }
+  try {
+    var st = t.status || 'open';
+    var teamOpts = '<option value="">Unassigned</option>' + (_crTeam||[]).map(function(u){ return '<option value="' + u.id + '"' + (t.assigned_to===u.id?' selected':'') + '>' + esc((u.first_name||'')+' '+(u.last_name||'')) + '</option>'; }).join('');
+    var contactBits = [];
+    if (t.phone_number) contactBits.push(fmtPhone(t.phone_number));
+    if (t.contact_email) contactBits.push(t.contact_email);
+    var statusBlock = (st === 'resolved')
+      ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Resolution</div><div class="ticket-detail-value" style="white-space:pre-wrap;">' + esc(t.resolution_note || 'No note recorded.') + '</div>' +
+        '<div class="detail-meta" style="margin-top:0.4rem;">' + (t.resolved_by ? 'Closed by ' + esc(t.resolved_by) : '') + (t.closed_at ? ' · ' + esc(fmtTime(t.closed_at)) : '') + '</div>' +
+        '<button class="btn-ghost" style="margin-top:0.6rem;" onclick="reopenTicket(' + t.id + ')">Reopen ticket</button></div>'
+      : '<div class="ticket-detail-section"><div class="ticket-detail-label">Status</div><div class="status-select">' +
+          '<button class="status-opt' + (st==='open'?' sel-open':'') + '" onclick="setTicketStatus(' + t.id + ',\'open\',this)">Open</button>' +
+          '<button class="status-opt' + (st==='scheduled'?' sel-scheduled':'') + '" onclick="setTicketStatus(' + t.id + ',\'scheduled\',this)">Scheduled</button>' +
+          '</div>' +
+          '<button class="btn-primary" style="margin-top:0.85rem;" onclick="openResolveTicket(' + t.id + ')">Resolve ticket</button>' +
+          '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>';
+    el.innerHTML =
+      '<div class="detail-card">' +
+        '<div class="detail-header" style="padding:1.1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;"><div><div class="detail-name">' + esc(ticketClientName(t)) + '</div>' +
+        '<div class="detail-meta">' + esc(t.household_name || '') + (t.opened_at ? ' &middot; Opened ' + esc(fmtTime(t.opened_at)) : '') + (t.created_by ? ' &middot; by ' + esc(t.created_by) : '') + '</div></div>' +
+        '<span class="t-pill ' + (st==='resolved'?'t-resolved':(st==='scheduled'?'t-scheduled':'t-open')) + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span></div>' +
+        '<div class="ticket-detail-section"><div class="ticket-detail-label">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
+        (t.issue_category ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
+        (contactBits.length ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
+        '<div class="ticket-detail-section"><div class="ticket-detail-label">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
+        statusBlock +
+      '</div>';
+  } catch (e) {
+    el.innerHTML = '<div class="hh-empty">Could not open this ticket.</div>';
+  }
 }
 async function setTicketStatus(id, status, btn) {
-  document.querySelectorAll('.status-opt').forEach(function(b){ b.className='status-opt'; });
-  btn.classList.add('sel-'+status);
+  document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; });
+  if (btn) btn.classList.add('sel-'+status);
   try {
     var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: status }) });
-    if (res.ok && _tickets[id]) _tickets[id].status = status;
+    if (res.ok && _tickets[id]) { _tickets[id].status = status; var i=_ticketRows.findIndex(function(r){return r.id===id;}); if(i!==-1)_ticketRows[i].status=status; renderTickets(); }
     loadCounts();
   } catch (e) { var er = document.getElementById('ticket-err'); if (er) er.textContent = 'Could not save status.'; }
+}
+async function reassignTicket(id, val) {
+  try {
+    var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ assigned_to: val }) });
+    if (res.ok && _tickets[id]) { _tickets[id].assigned_to = val ? parseInt(val,10) : null; _tickets[id].assigned_name = val && _crTeam ? (function(){ var u=_crTeam.find(function(x){return String(x.id)===String(val);}); return u?((u.first_name||'')+' '+(u.last_name||'')).trim():null; })() : null; var i=_ticketRows.findIndex(function(r){return r.id===id;}); if(i!==-1)_ticketRows[i]=_tickets[id]; }
+  } catch (e) {}
+}
+async function reopenTicket(id) {
+  try {
+    var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: 'open' }) });
+    if (res.ok) { var d = await res.json(); _tickets[id] = Object.assign(_tickets[id]||{}, d); var i=_ticketRows.findIndex(function(r){return r.id===id;}); if(i!==-1)_ticketRows[i]=_tickets[id]; openTicket(id); renderTickets(); loadCounts(); }
+  } catch (e) {}
+}
+// ── Resolve (close) modal ── humans only ever close a ticket; Andi drafts the context.
+var _resolveTicketId = null;
+async function openResolveTicket(id) {
+  var t = _tickets[id]; if (!t) return;
+  _resolveTicketId = id;
+  document.getElementById('tk-close-context').value = '';
+  document.getElementById('tk-close-fix').value = '';
+  document.getElementById('tk-close-err').textContent = '';
+  document.getElementById('tk-close-overlay').classList.add('show');
+  var note = document.getElementById('tk-close-draftnote');
+  if (t.phone_number) {
+    note.style.display = ''; note.textContent = 'Andi is drafting the context...';
+    try {
+      var res = await rwFetch('/api/draft-synopsis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone: encodeURIComponent(t.phone_number) }) });
+      var data = await res.json();
+      if (data && data.synopsis) document.getElementById('tk-close-context').value = data.synopsis;
+      note.style.display = 'none';
+    } catch (e) { note.style.display = 'none'; }
+  } else { note.style.display = 'none'; }
+}
+function closeResolveModal() { document.getElementById('tk-close-overlay').classList.remove('show'); }
+async function submitResolveTicket() {
+  var id = _resolveTicketId; if (!id) return;
+  var err = document.getElementById('tk-close-err');
+  var btn = document.getElementById('tk-close-btn');
+  var fix = hhVal('tk-close-fix');
+  var context = hhVal('tk-close-context');
+  if (!fix) { err.textContent = 'Add what fixed it before closing.'; return; }
+  var note = (context ? context + '\n\nFix: ' + fix : 'Fix: ' + fix);
+  btn.disabled = true; btn.textContent = 'Closing...';
+  try {
+    var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: 'resolved', resolution_note: note }) });
+    var d = await res.json();
+    if (!res.ok) { err.textContent = d.error || 'Could not close.'; btn.disabled=false; btn.textContent='Resolve and close'; return; }
+    _tickets[id] = Object.assign(_tickets[id]||{}, d);
+    var i = _ticketRows.findIndex(function(r){ return r.id === id; });
+    if (i !== -1) _ticketRows[i] = _tickets[id];
+    closeResolveModal();
+    openTicket(id);
+    renderTickets();
+    loadCounts();
+  } catch (e) { err.textContent = 'Connection error.'; }
+  btn.disabled = false; btn.textContent = 'Resolve and close';
 }
 function closeTicket() {
   var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
@@ -3244,30 +3398,41 @@ function closeTicket() {
 // ── FOLLOW UPS ───────────────────────────────────────────────────────────────
 var _followups = [];
 function fuTypeLabel(t){ return t==='sales'?'Sales reach out':(t==='other'?'Other':'Schedule a tech'); }
+var _fuFilter = null;
+function fuDefaultFilter() {
+  var owner = window._rwUser && window._rwUser.role === 'owner';
+  return { status: 'pending', mine: !owner, group: !!owner };
+}
 async function loadFollowups() {
   var el = document.getElementById('followup-list');
   if (el) el.innerHTML = '<div class="hh-empty">Loading...</div>';
+  if (!_fuFilter) _fuFilter = fuDefaultFilter();
   try {
     var res = await rwFetch('/api/follow-ups');
     if (!res.ok) { el.innerHTML = '<div class="hh-empty">Could not load follow ups.</div>'; return; }
     _followups = await res.json();
+    ensureCrTeam();
     renderFollowups();
   } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
 }
+function fuSet(key,val){ _fuFilter[key] = val; renderFollowups(); }
 function renderFollowups() {
   var el = document.getElementById('followup-list');
   if (!el) return;
-  var pending = _followups.filter(function(f){ return f.status === 'pending'; });
-  var done = _followups.filter(function(f){ return f.status !== 'pending'; });
-  setBadge('followups', pending.length);
-  if (!_followups.length) {
-    el.innerHTML = '<div class="hh-empty">No follow ups yet. Andi flags these when a client needs a tech scheduled or a callback. Add one with the button above.</div>';
-    return;
-  }
-  var html = '';
-  pending.forEach(function(f){ html += followupRowHtml(f, false); });
-  if (done.length) { html += '<div class="hh-section-head">Done</div>'; done.forEach(function(f){ html += followupRowHtml(f, true); }); }
-  el.innerHTML = html;
+  var f = _fuFilter;
+  setBadge('followups', _followups.filter(function(x){ return x.status === 'pending'; }).length);
+  var rows = _followups.filter(function(x){
+    var pend = x.status === 'pending';
+    if (f.status === 'pending' && !pend) return false;
+    if (f.status === 'done' && pend) return false;
+    if (f.mine && !(window._rwUser && x.assigned_to === window._rwUser.id)) return false;
+    return true;
+  });
+  var tb = listToolbar(f, [{v:'pending',label:'Pending'},{v:'done',label:'Done'},{v:'all',label:'All'}], 'fu');
+  var rowFn = function(x){ return followupRowHtml(x, x.status !== 'pending'); };
+  var body = !rows.length ? '<div class="hh-empty">No follow ups match this view.</div>'
+    : (f.group ? groupByAssignee(rows, rowFn) : rows.map(rowFn).join(''));
+  el.innerHTML = tb + body;
 }
 function followupRowHtml(f, done) {
   var who = f.client_name || fmtPhone(f.phone_number) || 'Client';
