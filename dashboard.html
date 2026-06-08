@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.4.3 — 2026-06-08_0145 CT — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.5.0 — 2026-06-08_0215 CT — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -437,6 +437,10 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .tg { display:inline-flex;align-items:center;gap:0.35rem;font-size:0.76rem;color:var(--ink-mid);cursor:pointer;user-select:none; }
 .group-head { padding:0.55rem 1.25rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);background:var(--canvas-warm);border-bottom:1px solid var(--border); }
 .group-count { color:var(--ink-soft);font-weight:600;margin-left:0.3rem; }
+.tk-thread { max-height:340px;overflow-y:auto;padding:0.75rem 0.4rem;background:#f8f8f8;border:1px solid var(--border);border-radius:9px;margin-bottom:0.6rem; }
+body.dark .tk-thread { background:#0d0d0c; }
+.tk-reply-row { display:flex;gap:0.5rem;align-items:flex-end; }
+.tk-reply-row .reply-textarea { flex:1; }
 .team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
 .team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
 .team-row:last-child { border-bottom:none; }
@@ -601,7 +605,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.4.3</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.5.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2559,7 +2563,17 @@ function startSSE() {
     loadCounts();
     // If the tickets or follow ups tab is open, refresh it so an item Andi just created appears.
     var actPanel = document.querySelector('.panel.active');
-    if (actPanel && actPanel.id === 'panel-tickets') loadTickets();
+    if (actPanel && actPanel.id === 'panel-tickets') {
+      var dv = document.getElementById('ticket-detail-view');
+      var detailOpen = dv && dv.style.display === 'block';
+      if (detailOpen) {
+        // A ticket is open. Do NOT reload the list (that would close the detail). Refresh the
+        // in-ticket conversation if this message belongs to it.
+        if (window._openTicketPhone && decodeURIComponent(window._openTicketPhone) === data.phone_number) loadTicketThread(window._openTicketPhone);
+      } else {
+        loadTickets();
+      }
+    }
     if (actPanel && actPanel.id === 'panel-followups') loadFollowups();
     // Also update open thread if it matches
     if (window._currentPhone && decodeURIComponent(window._currentPhone) === data.phone_number) {
@@ -3321,10 +3335,45 @@ function openTicket(id) {
         (contactBits.length ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
         '<div class="ticket-detail-section"><div class="ticket-detail-label">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
         statusBlock +
+        (t.phone_number
+          ? '<div class="ticket-detail-section"><div class="ticket-detail-label">Conversation</div>' +
+            '<div class="tk-thread" id="tk-thread"><div class="hh-empty">Loading...</div></div>' +
+            '<div class="tk-reply-row"><textarea id="tk-reply" class="reply-textarea" placeholder="Reply to the client..." rows="1"></textarea>' +
+            '<button class="btn-primary" onclick="sendTicketReply(' + t.id + ',\'' + encodeURIComponent(t.phone_number) + '\')">Send</button></div>' +
+            '<div class="cr-draft-note">Replying here texts the client and hands the thread to you, the same as the chat.</div></div>'
+          : '<div class="ticket-detail-section"><div class="ticket-detail-label">Conversation</div><div class="ticket-detail-value" style="color:var(--ink-soft);">This client has no text thread. Email replies inside the ticket are coming soon.</div></div>') +
       '</div>';
+    window._openTicketPhone = t.phone_number ? encodeURIComponent(t.phone_number) : null;
+    if (t.phone_number) loadTicketThread(window._openTicketPhone);
   } catch (e) {
     el.innerHTML = '<div class="hh-empty">Could not open this ticket.</div>';
   }
+}
+// The ticket is a window into the same SMS conversation that lives in the chat. Reading reuses
+// /api/thread; replying reuses /api/send, which logs a human turn and hands the thread to the
+// team exactly like a chat reply, so Andi steps back. (Email channel is a later build.)
+async function loadTicketThread(encPhone) {
+  var el = document.getElementById('tk-thread'); if (!el) return;
+  try {
+    var res = await rwFetch('/api/thread?phone=' + encPhone);
+    if (!res.ok) { el.innerHTML = '<div class="hh-empty">Could not load the conversation.</div>'; return; }
+    var data = await res.json();
+    var messages = Array.isArray(data) ? data : (data.messages || []);
+    if (!messages.length) { el.innerHTML = '<div class="hh-empty">No messages yet.</div>'; return; }
+    el.innerHTML = buildThreadHTML(messages, data.clientName || '');
+    el.scrollTop = el.scrollHeight;
+  } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+async function sendTicketReply(id, encPhone) {
+  var input = document.getElementById('tk-reply'); if (!input) return;
+  var message = input.value.trim(); if (!message) return;
+  input.disabled = true;
+  try {
+    var res = await rwFetch('/api/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ to: decodeURIComponent(encPhone), message: message }) });
+    if (!res.ok) { alert('Failed to send. Please try again.'); }
+    else { input.value = ''; await loadTicketThread(encPhone); loadRealConversations(); }
+  } catch (e) { alert('Connection error. Please try again.'); }
+  input.disabled = false;
 }
 async function setTicketStatus(id, status, btn) {
   if (btn) { document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; }); btn.classList.add('sel-'+status); }
@@ -3397,6 +3446,7 @@ async function submitResolveTicket() {
   btn.disabled = false; btn.textContent = 'Resolve and close';
 }
 function closeTicket() {
+  window._openTicketPhone = null;
   var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
   if (lv) lv.style.display = 'block';
   if (dv) dv.style.display = 'none';
