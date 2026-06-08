@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.1.0 — 2026-06-07_2230 CT — Left-menu panels wired to real data. Resolved (loads /api/resolved summary cards, click opens the real thread), Tickets (loads /api/tickets, detail with live status open/scheduled/resolved via PUT), Follow Ups (own table via /api/follow-ups, resolve stamps user+time, manual add modal, Done section). Analytics shows real /api/stats cards. New Proactive Outreach tab under Clients (coming soon). Summaries retired. Sidebar badges (tickets, follow ups) load on app start via loadCounts. Needs portal v1.10.0. -->
+<!-- dashboard.html — Dashboard v1.2.0 — 2026-06-07_2330 CT — Ticket + follow up creation system. Unified Create modal (Ticket / Follow up / Both): client type-to-search picker over existing households, or add a new client with phone/email (one required); assignee picker from /api/team; issue and/or note fields. New ticket button in Tickets, Add follow up routes through the same modal, and an in-thread + Create button auto-fills the client and auto-drafts the issue from the conversation via /api/draft-issue. created_by and assignee shown on rows. Needs portal v1.11.0. — Left-menu panels wired to real data. Resolved (loads /api/resolved summary cards, click opens the real thread), Tickets (loads /api/tickets, detail with live status open/scheduled/resolved via PUT), Follow Ups (own table via /api/follow-ups, resolve stamps user+time, manual add modal, Done section). Analytics shows real /api/stats cards. New Proactive Outreach tab under Clients (coming soon). Summaries retired. Sidebar badges (tickets, follow ups) load on app start via loadCounts. Needs portal v1.10.0. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -399,6 +399,27 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .hd-danger-btn { background:#c0392b;color:white;border:none;padding:0.5rem 0.95rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif; }
 .hd-danger-btn:hover { background:#a93226; }
 .hd-restore-btn { background:var(--brand);color:white;border:none;padding:0.5rem 0.95rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif; }
+.res-card { background:var(--white);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.75rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.12s; }
+.res-card:last-child { margin-bottom:0; }
+.res-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.07);transform:translateY(-1px); }
+.res-top { display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem; }
+.res-name { font-size:0.9rem;font-weight:600;color:var(--ink); }
+.res-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
+.res-row { font-size:0.82rem;color:var(--ink-mid);margin-bottom:4px;line-height:1.55; }
+.res-row strong { color:var(--ink);font-weight:600; }
+.res-mindset { font-size:0.78rem;color:var(--ink-soft);font-style:italic;margin-top:5px; }
+.cr-modes { display:flex;gap:0.4rem;margin-bottom:0.9rem; }
+.cr-mode { flex:1;background:var(--canvas);border:1px solid var(--border);color:var(--ink-mid);border-radius:8px;padding:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif; }
+.cr-mode.sel { background:var(--brand-light);border-color:var(--brand);color:var(--brand-dark); }
+.cr-newlink { font-size:0.76rem;color:var(--brand-dark);cursor:pointer;margin-top:0.4rem;display:inline-block; }
+.cr-newlink:hover { text-decoration:underline; }
+#cr-results { display:flex;flex-direction:column;max-height:170px;overflow-y:auto; }
+.cr-result { padding:0.5rem 0.65rem;border:1px solid var(--border);border-top:none;cursor:pointer;font-size:0.82rem; }
+.cr-result:first-child { border-top:1px solid var(--border);border-radius:8px 8px 0 0; }
+.cr-result:last-child { border-radius:0 0 8px 8px; }
+.cr-result:hover { background:var(--canvas-warm); }
+.cr-result .cr-r-sub { font-size:0.72rem;color:var(--ink-soft); }
+.cr-draft-note { font-size:0.74rem;color:var(--ink-soft);font-style:italic;margin-top:0.3rem; }
 .team-list { display:flex;flex-direction:column;margin-top:0.5rem; }
 .team-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid var(--border); }
 .team-row:last-child { border-bottom:none; }
@@ -563,7 +584,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.1.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.2.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -680,7 +701,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div id="panel-tickets" class="panel">
         <div id="ticket-list-view">
           <div class="panel-chrome">
-            <div class="panel-chrome-header"><div class="panel-chrome-title">Tickets</div></div>
+            <div class="panel-chrome-header"><div class="panel-chrome-title">Tickets</div><div class="panel-chrome-action" onclick="openCreate('ticket')">+ New ticket</div></div>
             <div id="ticket-list"><div class="hh-empty">Loading...</div></div>
           </div>
         </div>
@@ -692,7 +713,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
 
       <div id="panel-followups" class="panel">
         <div class="panel-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">Follow ups</div><div class="panel-chrome-action" onclick="openAddFollowup()">+ Add follow up</div></div>
+          <div class="panel-chrome-header"><div class="panel-chrome-title">Follow ups</div><div class="panel-chrome-action" onclick="openCreate('followup')">+ Add follow up</div></div>
           <div id="followup-list"><div class="hh-empty">Loading...</div></div>
         </div>
       </div>
@@ -916,25 +937,63 @@ select.fld-input { appearance:auto;cursor:pointer; }
   </div>
 </div>
 
-<!-- ── ADD FOLLOW UP MODAL (v1.1.0) ── -->
-<div id="fu-overlay" class="wiz-overlay" onclick="if(event.target===this)closeAddFollowup()">
+<!-- ── UNIFIED CREATE MODAL: ticket / follow up / both (v1.2.0) ── -->
+<div id="cr-overlay" class="wiz-overlay" onclick="if(event.target===this)closeCreate()">
   <div class="wiz-card">
     <div class="wiz-head">
-      <div class="wiz-title">Add a follow up</div>
-      <div class="wiz-sub">Schedule a tech or have someone reach out. This is not a service ticket.</div>
+      <div class="wiz-title" id="cr-title">Create</div>
+      <div class="wiz-sub" id="cr-sub">Open a ticket, a follow up, or both.</div>
     </div>
     <div class="wiz-body">
-      <div class="fld"><div class="fld-label">Client or household</div><input class="fld-input" type="text" id="fu-client" placeholder="Who is this about" /></div>
-      <div class="fld fld-row">
-        <div><div class="fld-label">Type</div><select class="fld-input" id="fu-type"><option value="tech">Schedule a tech</option><option value="sales">Sales reach out</option><option value="other">Other</option></select></div>
-        <div><div class="fld-label">Due date (optional)</div><input class="fld-input" type="date" id="fu-due" /></div>
+      <div class="cr-modes" id="cr-modes">
+        <button class="cr-mode" id="cr-mode-ticket" onclick="crSetMode('ticket')">Ticket</button>
+        <button class="cr-mode" id="cr-mode-followup" onclick="crSetMode('followup')">Follow up</button>
+        <button class="cr-mode" id="cr-mode-both" onclick="crSetMode('both')">Ticket + follow up</button>
       </div>
-      <div class="fld"><div class="fld-label">Note</div><textarea class="fld-input" id="fu-note" style="min-height:70px;resize:vertical;" placeholder="What needs to happen"></textarea></div>
-      <div class="wiz-err" id="fu-err"></div>
+
+      <!-- client section (hidden when launched from a thread) -->
+      <div id="cr-client-block">
+        <div class="fld-label" style="margin-bottom:0.3rem;">Client</div>
+        <div id="cr-selected" style="display:none;" class="hh-label-preview"></div>
+        <div id="cr-search-wrap">
+          <input class="fld-input" type="text" id="cr-search" placeholder="Search existing clients..." oninput="crSearch(this.value)" autocomplete="off" />
+          <div id="cr-results"></div>
+          <div class="cr-newlink" onclick="crShowNew()">Client not on file? Add a new one</div>
+        </div>
+        <div id="cr-new-fields" style="display:none;">
+          <div class="fld"><input class="fld-input" type="text" id="cr-new-name" placeholder="Client name" /></div>
+          <div class="fld fld-row">
+            <div><input class="fld-input" type="tel" id="cr-new-phone" placeholder="Phone" /></div>
+            <div><input class="fld-input" type="email" id="cr-new-email" placeholder="Email" /></div>
+          </div>
+          <div class="wiz-sub" style="margin-top:-0.2rem;">Phone or email required so they can be reached. Both is better.</div>
+          <div class="cr-newlink" onclick="crHideNew()">Back to search</div>
+        </div>
+      </div>
+      <div id="cr-about" style="display:none;" class="hh-label-preview"></div>
+
+      <div class="fld" style="margin-top:0.6rem;"><div class="fld-label">Assign to (optional)</div>
+        <select class="fld-input" id="cr-assignee"><option value="">No one yet</option></select>
+      </div>
+
+      <div id="cr-issue-block" class="fld"><div class="fld-label">Issue</div>
+        <textarea class="fld-input" id="cr-issue" style="min-height:64px;resize:vertical;" placeholder="What is the issue"></textarea>
+        <div class="cr-draft-note" id="cr-draft-note" style="display:none;">Drafting from the conversation...</div>
+      </div>
+
+      <div id="cr-followup-block">
+        <div class="fld fld-row">
+          <div><div class="fld-label">Follow up type</div><select class="fld-input" id="cr-type"><option value="tech">Schedule a tech</option><option value="sales">Sales reach out</option><option value="other">Other</option></select></div>
+          <div><div class="fld-label">Due date (optional)</div><input class="fld-input" type="date" id="cr-due" /></div>
+        </div>
+        <div class="fld"><div class="fld-label">Note</div><textarea class="fld-input" id="cr-note" style="min-height:56px;resize:vertical;" placeholder="What needs to happen"></textarea></div>
+      </div>
+
+      <div class="wiz-err" id="cr-err"></div>
     </div>
     <div class="wiz-foot">
-      <button class="btn-ghost" onclick="closeAddFollowup()">Cancel</button>
-      <button class="btn-primary" id="fu-save-btn" onclick="submitAddFollowup()">Add follow up</button>
+      <button class="btn-ghost" onclick="closeCreate()">Cancel</button>
+      <button class="btn-primary" id="cr-save-btn" onclick="submitCreate()">Create</button>
     </div>
   </div>
 </div>
@@ -2687,6 +2746,7 @@ async function openRealConv(encodedPhone, name) {
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
+            '<button class="hd-mini" onclick="openThreadCreate()">+ Create</button>' +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
@@ -3089,14 +3149,14 @@ async function loadResolved() {
     rows.forEach(function(r) {
       _resolvedByPhone[r.phone_number] = r.name;
       var enc = encodeURIComponent(r.phone_number);
-      html += '<div class="conv-card" onclick="openResolved(\'' + enc + '\')">' +
-        '<div class="conv-top"><div><div class="conv-name">' + esc(r.name) + '</div>' +
-        '<span class="status-pill pill-resolved"><span class="pill-dot"></span>Resolved</span></div>' +
-        '<div class="conv-time">' + esc(fmtTime(r.created_at)) + '</div></div>' +
-        (r.issue ? '<div class="conv-row"><strong>Issue:</strong> ' + esc(r.issue) + '</div>' : '') +
-        (r.andi_action ? '<div class="conv-row"><strong>Andi:</strong> ' + esc(r.andi_action) + '</div>' : '') +
-        (r.client_mindset ? '<div class="conv-mindset">' + esc(r.client_mindset) + '</div>' : '') +
-        (r.follow_up_note ? '<div class="conv-row"><strong>Follow up:</strong> ' + esc(r.follow_up_note) + '</div>' : '') +
+      html += '<div class="res-card" onclick="openResolved(\'' + enc + '\')">' +
+        '<div class="res-top"><div><div class="res-name">' + esc(r.name) + '</div>' +
+        '<span class="status-pill pill-resolved" style="margin-top:0.35rem;"><span class="pill-dot"></span>Resolved</span></div>' +
+        '<div class="res-time">' + esc(fmtTime(r.created_at)) + '</div></div>' +
+        (r.issue ? '<div class="res-row"><strong>Issue:</strong> ' + esc(r.issue) + '</div>' : '') +
+        (r.andi_action ? '<div class="res-row"><strong>Andi:</strong> ' + esc(r.andi_action) + '</div>' : '') +
+        (r.client_mindset ? '<div class="res-mindset">' + esc(r.client_mindset) + '</div>' : '') +
+        (r.follow_up_note ? '<div class="res-row" style="margin-top:5px;"><strong>Follow up:</strong> ' + esc(r.follow_up_note) + '</div>' : '') +
         '</div>';
     });
     el.innerHTML = html;
@@ -3110,7 +3170,7 @@ function openResolved(enc) {
 // ── TICKETS ──────────────────────────────────────────────────────────────────
 var _tickets = {};
 function ticketClientName(t) {
-  return (t.first_name || t.last_name) ? ((t.first_name||'')+' '+(t.last_name||'')).trim() : (t.household_name || fmtPhone(t.phone_number) || 'Unknown');
+  return (t.first_name || t.last_name) ? ((t.first_name||'')+' '+(t.last_name||'')).trim() : (t.household_name || t.client_name || fmtPhone(t.phone_number) || 'Unknown');
 }
 async function loadTickets() {
   var el = document.getElementById('ticket-list');
@@ -3132,7 +3192,7 @@ async function loadTickets() {
         '<div class="ticket-icon t-red">🎫</div>' +
         '<div class="ticket-body"><div class="ticket-client">' + esc(ticketClientName(t)) + '</div>' +
         '<div class="ticket-issue">' + esc(t.summary || t.issue_category || 'No detail') + '</div>' +
-        '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.issue_category ? ' · ' + esc(t.issue_category) : '') + '</div></div>' +
+        '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + (t.assigned_name ? ' · assigned ' + esc(t.assigned_name) : '') + '</div></div>' +
         '<div class="ticket-right"><div class="t-pill ' + pill + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</div></div></div>';
     });
     el.innerHTML = html;
@@ -3201,7 +3261,7 @@ function renderFollowups() {
 function followupRowHtml(f, done) {
   var who = f.client_name || fmtPhone(f.phone_number) || 'Client';
   var typeChip = '<span class="hh-project">' + esc(fuTypeLabel(f.type)) + '</span>';
-  var meta = 'Flagged by ' + esc(f.flagged_by || 'Andi') + (f.created_at ? ' · ' + esc(fmtTime(f.created_at)) : '') + (f.due_date ? ' · due ' + esc(f.due_date) : '');
+  var meta = 'Flagged by ' + esc(f.flagged_by || 'Andi') + (f.assigned_name ? ' · for ' + esc(f.assigned_name) : '') + (f.created_at ? ' · ' + esc(fmtTime(f.created_at)) : '') + (f.due_date ? ' · due ' + esc(f.due_date) : '');
   var check = done ? '<div class="followup-check checked"></div>' : '<div class="followup-check" onclick="doResolveFollowup(' + f.id + ')"></div>';
   var rnote = (done && f.resolved_by) ? '<div class="followup-resolved-note">Resolved by ' + esc(f.resolved_by) + (f.resolved_at ? ' · ' + esc(fmtTime(f.resolved_at)) : '') + '</div>' : '';
   return '<div class="followup-row' + (done?' done':'') + '">' + check +
@@ -3212,29 +3272,173 @@ function followupRowHtml(f, done) {
 async function doResolveFollowup(id) {
   try { var res = await rwFetch('/api/follow-ups/' + id + '/resolve', { method:'POST' }); if (res.ok) await loadFollowups(); } catch (e) {}
 }
-function openAddFollowup() {
-  ['fu-client','fu-note','fu-due'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
-  document.getElementById('fu-type').value = 'tech';
-  document.getElementById('fu-err').textContent = '';
-  document.getElementById('fu-overlay').classList.add('show');
+// ── UNIFIED CREATE: ticket / follow up / both ────────────────────────────────
+var _cr = { mode:'ticket', locked:false, phone:null, name:null, sel:null, isNew:false };
+var _crTeam = null;
+var _crPeople = [];
+
+async function ensureCrTeam() {
+  if (_crTeam) return;
+  try { var r = await rwFetch('/api/team'); _crTeam = r.ok ? await r.json() : []; }
+  catch (e) { _crTeam = []; }
+  var sel = document.getElementById('cr-assignee');
+  if (sel) {
+    sel.innerHTML = '<option value="">No one yet</option>' + _crTeam.map(function(u){
+      return '<option value="' + u.id + '">' + esc((u.first_name||'') + ' ' + (u.last_name||'')) + '</option>';
+    }).join('');
+  }
 }
-function closeAddFollowup() { document.getElementById('fu-overlay').classList.remove('show'); }
-async function submitAddFollowup() {
-  var btn = document.getElementById('fu-save-btn');
-  var err = document.getElementById('fu-err');
-  err.textContent = '';
-  var note = hhVal('fu-note');
-  if (!note) { err.textContent = 'A note is required.'; return; }
-  btn.disabled = true; btn.textContent = 'Adding...';
+async function ensureCrPeople() {
   try {
-    var res = await rwFetch('/api/follow-ups', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ client_name: hhVal('fu-client'), note: note, type: document.getElementById('fu-type').value, due_date: hhVal('fu-due') }) });
+    if (!_households.length) { var r = await rwFetch('/api/households'); if (r.ok) _households = await r.json(); }
+  } catch (e) {}
+  _crPeople = [];
+  (_households || []).forEach(function(h){
+    (h.people || []).forEach(function(p){
+      _crPeople.push({ household_id:h.id, household:h.name, phone:p.phone, name:((p.first_name||'')+' '+(p.last_name||'')).trim() || h.name });
+    });
+  });
+}
+
+function crSetMode(m) {
+  _cr.mode = m;
+  ['ticket','followup','both'].forEach(function(x){ document.getElementById('cr-mode-'+x).classList.toggle('sel', x===m); });
+  document.getElementById('cr-issue-block').style.display = (m==='ticket'||m==='both') ? '' : 'none';
+  document.getElementById('cr-followup-block').style.display = (m==='followup'||m==='both') ? '' : 'none';
+  document.getElementById('cr-title').textContent = m==='ticket' ? 'New ticket' : (m==='followup' ? 'New follow up' : 'Ticket and follow up');
+}
+
+function crResetClient() {
+  _cr.sel = null; _cr.isNew = false;
+  var s = document.getElementById('cr-search'); if (s) s.value = '';
+  document.getElementById('cr-results').innerHTML = '';
+  document.getElementById('cr-selected').style.display = 'none';
+  document.getElementById('cr-search-wrap').style.display = '';
+  document.getElementById('cr-new-fields').style.display = 'none';
+  ['cr-new-name','cr-new-phone','cr-new-email'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
+}
+
+async function openCreate(mode) {
+  _cr = { mode: mode||'ticket', locked:false, phone:null, name:null, sel:null, isNew:false };
+  document.getElementById('cr-sub').textContent = 'Open a ticket, a follow up, or both.';
+  document.getElementById('cr-modes').style.display = '';
+  document.getElementById('cr-client-block').style.display = '';
+  document.getElementById('cr-about').style.display = 'none';
+  ['cr-issue','cr-note','cr-due'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
+  document.getElementById('cr-type').value = 'tech';
+  document.getElementById('cr-draft-note').style.display = 'none';
+  document.getElementById('cr-err').textContent = '';
+  crResetClient();
+  crSetMode(mode||'ticket');
+  document.getElementById('cr-overlay').classList.add('show');
+  ensureCrTeam();
+  ensureCrPeople();
+}
+
+// Launched from inside a thread: client is known and locked, issue auto-drafts.
+async function openThreadCreate() {
+  if (!window._currentPhone) return;
+  _cr = { mode:'ticket', locked:true, phone: window._currentPhone, name: window._currentName || 'this client', sel:null, isNew:false };
+  document.getElementById('cr-sub').textContent = 'For the client you are messaging.';
+  document.getElementById('cr-modes').style.display = '';
+  document.getElementById('cr-client-block').style.display = 'none';
+  var about = document.getElementById('cr-about');
+  about.textContent = 'About: ' + (window._currentName || 'this client');
+  about.style.display = '';
+  ['cr-issue','cr-note','cr-due'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
+  document.getElementById('cr-type').value = 'tech';
+  document.getElementById('cr-err').textContent = '';
+  crSetMode('ticket');
+  document.getElementById('cr-overlay').classList.add('show');
+  ensureCrTeam();
+  // auto-draft the issue from the conversation
+  var note = document.getElementById('cr-draft-note');
+  note.style.display = ''; note.textContent = 'Drafting from the conversation...';
+  try {
+    var res = await rwFetch('/api/draft-issue', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone: window._currentPhone }) });
     var data = await res.json();
-    if (!res.ok) { err.textContent = data.error || 'Could not add.'; btn.disabled=false; btn.textContent='Add follow up'; return; }
-    closeAddFollowup();
-    await loadFollowups();
+    if (data && data.issue) { document.getElementById('cr-issue').value = data.issue; document.getElementById('cr-note').value = data.issue; }
+    note.style.display = 'none';
+  } catch (e) { note.style.display = 'none'; }
+}
+
+function closeCreate() { document.getElementById('cr-overlay').classList.remove('show'); }
+function openAddFollowup() { openCreate('followup'); }
+
+function crSearch(q) {
+  var box = document.getElementById('cr-results');
+  q = (q||'').toLowerCase().trim();
+  if (!q) { box.innerHTML = ''; return; }
+  var matches = _crPeople.filter(function(p){ return (p.name + ' ' + p.household + ' ' + (p.phone||'')).toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+  if (!matches.length) { box.innerHTML = '<div class="cr-result" style="cursor:default;color:var(--ink-soft);">No match. Use the new client link below.</div>'; return; }
+  box.innerHTML = matches.map(function(p, i){
+    return '<div class="cr-result" onclick="crPick(' + i + ')">' + esc(p.name) +
+      '<div class="cr-r-sub">' + esc(p.household) + (p.phone ? ' · ' + fmtPhone(p.phone) : '') + '</div></div>';
+  }).join('');
+  _cr._matches = matches;
+}
+function crPick(i) {
+  var p = _cr._matches[i]; if (!p) return;
+  _cr.sel = p; _cr.isNew = false;
+  document.getElementById('cr-search-wrap').style.display = 'none';
+  var s = document.getElementById('cr-selected');
+  s.textContent = p.name + ' · ' + p.household;
+  s.style.display = '';
+}
+function crShowNew() {
+  _cr.isNew = true;
+  document.getElementById('cr-search-wrap').style.display = 'none';
+  document.getElementById('cr-new-fields').style.display = '';
+  var typed = document.getElementById('cr-search').value.trim();
+  if (typed) document.getElementById('cr-new-name').value = typed;
+}
+function crHideNew() { crResetClient(); }
+
+function crClientPayload() {
+  // Returns {client_name, household_id, phone_number, contact_email} or an {error}.
+  if (_cr.locked) return { phone_number: decodeURIComponent(_cr.phone), client_name: _cr.name };
+  if (_cr.sel) return { household_id: _cr.sel.household_id, phone_number: _cr.sel.phone || '', client_name: _cr.sel.name };
+  if (_cr.isNew) {
+    var name = hhVal('cr-new-name'), ph = hhVal('cr-new-phone'), em = hhVal('cr-new-email');
+    if (!name) return { error: 'Enter the client name.' };
+    if (!ph && !em) return { error: 'Add a phone or email so they can be reached.' };
+    return { client_name: name, phone_number: ph, contact_email: em };
+  }
+  return { error: 'Pick a client or add a new one.' };
+}
+
+async function submitCreate() {
+  var btn = document.getElementById('cr-save-btn');
+  var err = document.getElementById('cr-err');
+  err.textContent = '';
+  var mode = _cr.mode;
+  var client = crClientPayload();
+  if (client.error) { err.textContent = client.error; return; }
+  var assignee = document.getElementById('cr-assignee').value || '';
+  var issue = hhVal('cr-issue'), note = hhVal('cr-note');
+  if ((mode==='ticket'||mode==='both') && !issue) { err.textContent = 'Describe the issue.'; return; }
+  if ((mode==='followup'||mode==='both') && !note) { err.textContent = 'Add a follow up note.'; return; }
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    if (mode==='ticket' || mode==='both') {
+      var tb = Object.assign({}, client, { summary: issue, assigned_to: assignee });
+      var tr = await rwFetch('/api/tickets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(tb) });
+      var td = await tr.json();
+      if (!tr.ok) { err.textContent = td.error || 'Could not create ticket.'; btn.disabled=false; btn.textContent='Create'; return; }
+    }
+    if (mode==='followup' || mode==='both') {
+      var fb = Object.assign({}, client, { note: note, type: document.getElementById('cr-type').value, due_date: hhVal('cr-due'), assigned_to: assignee });
+      var fr = await rwFetch('/api/follow-ups', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(fb) });
+      var fd = await fr.json();
+      if (!fr.ok) { err.textContent = fd.error || 'Could not create follow up.'; btn.disabled=false; btn.textContent='Create'; return; }
+    }
+    closeCreate();
+    loadCounts();
+    var active = document.querySelector('.panel.active');
+    if (active && active.id === 'panel-tickets') loadTickets();
+    if (active && active.id === 'panel-followups') loadFollowups();
   } catch (e) { err.textContent = 'Connection error.'; }
-  btn.disabled = false; btn.textContent = 'Add follow up';
+  btn.disabled = false; btn.textContent = 'Create';
 }
 
 // ── ANALYTICS + COUNTS ───────────────────────────────────────────────────────
