@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.5.1 — 2026-06-08_0315 CT — Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.6.1 — 2026-06-08_1957 CT — Team-consistent unread + shared Seen by + Create button move + high-res width pass. Unread is now derived from the data and identical for every user: client spoke last is an action item (clears only on a reply), Andi spoke last is a review item (clears once anyone opens the thread), team spoke last is read. Browser localStorage read-tracking removed. The thread now shows a centered Seen by line at the bottom in the Handed back to Andi format, with a small colored initial dot per teammate in their own bubble color; hover a dot for the name and the time they read it; it updates live over SSE as people open the thread. The Create button moved to the right of Send, labeled + Create, filled with the ticket-rail orange. Right info and ticket rails widened for high-resolution screens. Needs portal v1.14.1. — Prior (v1.6.0): household data foundation + capture-now layer. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -189,6 +189,44 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .ticket-detail-section:last-child { border-bottom:none; }
 .ticket-detail-label { font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:0.5rem; }
 .ticket-detail-value { font-size:0.875rem;color:var(--ink-mid);line-height:1.6; }
+/* v1.6.0 household data foundation styles */
+.hd-read { margin-top:0.4rem;padding:0.45rem 0.55rem;background:var(--canvas-warm,#faf8f5);border:1px solid var(--border);border-radius:7px;display:flex;flex-direction:column;gap:0.2rem; }
+.hd-read-tag { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--brand,#2D7DD2); }
+.hd-read-scores { font-size:0.78rem;color:var(--ink-mid);font-weight:600; }
+.hd-read-voice { font-size:0.78rem;color:var(--ink-mid);font-style:italic; }
+.hd-read-notes { font-size:0.75rem;color:var(--ink-soft); }
+.hd-hist-sub { font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);margin:0.3rem 0 0.4rem; }
+.hd-hist-row { display:flex;align-items:center;justify-content:space-between;gap:0.6rem;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.4rem;cursor:pointer;transition:background 0.12s; }
+.hd-hist-row:hover { background:var(--canvas-warm,#faf8f5); }
+.hd-hist-row.static { cursor:default; }
+.hd-hist-row.static:hover { background:transparent; }
+.hd-hist-main { min-width:0; }
+.hd-hist-title { font-size:0.83rem;color:var(--ink);font-weight:500;line-height:1.35; }
+.hd-hist-meta { font-size:0.72rem;color:var(--ink-soft);margin-top:0.15rem; }
+.hp-read-head { font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--brand,#2D7DD2);margin:0.9rem 0 0.5rem;border-top:1px solid var(--border);padding-top:0.8rem; }
+.hp-read-note { font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);font-size:0.7rem;margin-left:0.4rem; }
+.tk-house-link { font-size:0.8rem;color:var(--brand,#2D7DD2);cursor:pointer;font-weight:600; }
+.tk-house-link:hover { text-decoration:underline; }
+.tk-house-inline { cursor:pointer; }
+.tk-house-inline:hover { text-decoration:underline; }
+.conv-read-scores { font-size:0.78rem;color:var(--ink-mid);font-weight:600; }
+.conv-read-voice { font-size:0.78rem;color:var(--ink-mid);font-style:italic;margin-top:0.15rem; }
+.conv-ow { padding:0.45rem 0.55rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.4rem;cursor:pointer;transition:background 0.12s; }
+.conv-ow:hover { background:var(--canvas-warm,#faf8f5); }
+.conv-ow.static { cursor:default; }
+.conv-ow.static:hover { background:transparent; }
+.ow-pill { display:inline-block;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:0.1rem 0.4rem;border-radius:4px;vertical-align:middle; }
+.ow-ticket { background:#fef3c7;color:#92400e; }
+.ow-followup { background:#dbeafe;color:#1e40af; }
+.ow-type { display:inline-block;font-size:0.65rem;color:var(--ink-soft);margin-left:0.35rem;vertical-align:middle; }
+.ow-title { font-size:0.8rem;color:var(--ink);margin-top:0.2rem;line-height:1.35; }
+.ow-sub { font-size:0.7rem;color:var(--ink-soft);margin-top:0.1rem; }
+/* v1.6.1 seen-by line + orange create button */
+.seen-by { display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap; }
+.seen-label { font-size:0.7rem;color:var(--ink-soft); }
+.seen-dot { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;color:#fff;font-size:0.58rem;font-weight:700;letter-spacing:0.02em;cursor:default;flex-shrink:0;box-shadow:0 0 0 1px rgba(255,255,255,0.6); }
+.reply-create { background:#b45309;color:#fff;border:none;border-radius:8px;padding:0 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;margin-left:0.5rem;flex-shrink:0; }
+.reply-create:hover { background:#92400e; }
 .status-select { display:flex;gap:0.5rem;margin-top:0.5rem; }
 .status-opt { padding:0.35rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:2px solid var(--border);color:var(--ink-soft);transition:all 0.15s;background:var(--white);font-family:'DM Sans',sans-serif; }
 .status-opt:hover { border-color:var(--ink-soft); }
@@ -230,7 +268,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .thread-shell { display:flex;gap:0;height:calc(100vh - var(--topbar-h) - 5.5rem);min-height:0; }
 .thread-main { flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white); }
 .thread-main .sms-thread { overflow-x:hidden; }
-.equipment-panel { width:252px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
+.equipment-panel { width:320px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
 .equipment-panel-header { padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:0.85rem;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box; }
 .equipment-panel-body { flex:1;overflow-y:auto;padding:0.75rem 1rem; }
 .eq-section { margin-bottom:1rem; }
@@ -936,6 +974,15 @@ select.fld-input { appearance:auto;cursor:pointer; }
       </div>
       <div class="fld"><div class="fld-label">Phone (optional)</div><input class="fld-input" type="tel" id="hp-phone" placeholder="Phone" /></div>
       <div class="fld"><div class="fld-label">Relationship (optional)</div><input class="fld-input" type="text" id="hp-rel" placeholder="e.g. Spouse, Property manager" /></div>
+      <div class="hp-read-head">Andi's read <span class="hp-read-note">capture only, correct it anytime</span></div>
+      <div class="fld fld-row">
+        <div><div class="fld-label">Capability (1 to 5)</div>
+          <select class="fld-input" id="hp-suff"><option value="">Not set</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+        <div><div class="fld-label">Difficulty (1 to 5)</div>
+          <select class="fld-input" id="hp-diff"><option value="">Not set</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+      </div>
+      <div class="fld"><div class="fld-label">Voice (how they talk and how Andi answers)</div><input class="fld-input" type="text" id="hp-voice" placeholder="e.g. brief and technical, skip the hand holding" /></div>
+      <div class="fld"><div class="fld-label">Notes</div><textarea class="fld-input" id="hp-pnotes" rows="2" placeholder="Anything worth remembering"></textarea></div>
       <div class="wiz-err" id="hp-err"></div>
     </div>
     <div class="wiz-foot">
@@ -1159,19 +1206,26 @@ function rwFetch(path, opts) {
   return fetch(PORTAL_URL + path, opts);
 }
 
-// ── UNREAD TRACKING ──────────────────────────────────────────────────────────
-function getReadTimes() {
-  try { return JSON.parse(localStorage.getItem('rw-read-times') || '{}'); } catch(e) { return {}; }
+// ── UNREAD (team-consistent, data-derived) ───────────────────────────────────
+// One rule, identical for every user, no browser state:
+//   client spoke last  -> unread (action): a client is waiting on a human. Clears only when a
+//                         reply lands (the preview role flips to human), never on just viewing.
+//   Andi spoke last     -> unread (review) until anyone on the team has opened it since that
+//                         message (server gives last_viewed_any, shared team-wide).
+//   team spoke last     -> read.
+function threadUnread(t) {
+  var role = t.preview_role;
+  if (role === 'user') return true;
+  if (role === 'assistant') {
+    if (!t.last_viewed_any) return true;
+    return new Date(t.last_message_at) > new Date(t.last_viewed_any);
+  }
+  return false; // human spoke last, or nothing to show
 }
-function markRead(phone) {
-  var rt = getReadTimes();
-  rt[phone] = new Date().toISOString();
-  localStorage.setItem('rw-read-times', JSON.stringify(rt));
-}
-function isUnread(phone, lastMessageAt) {
-  var rt = getReadTimes();
-  if (!rt[phone]) return true;
-  return new Date(lastMessageAt) > new Date(rt[phone]);
+// Record that this user opened the thread (shared, team-wide). Returns the promise so callers can
+// await it before reading viewers, so the opener appears in their own Seen by line immediately.
+function recordView(phone) {
+  try { return rwFetch('/api/conversations/' + encodeURIComponent(phone) + '/view', { method: 'POST' }); } catch (e) { return Promise.resolve(); }
 }
 
 // ── BADGE HELPERS ────────────────────────────────────────────────────────────
@@ -2171,6 +2225,10 @@ function renderHouseholdDetail() {
     '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>' +
     '</div>';
 
+  // History (item 5): system issues stay with the home, so the house keeps its full log even
+  // after it changes hands. Tickets are clickable for a one-click round trip to the ticket.
+  html += renderHouseholdHistory(h);
+
   // Photos
   html += '<div class="hd-block"><div class="hd-block-title">Photos</div>' +
     '<div id="hd-photo-container"><div class="hd-person-sub">Loading photos...</div></div>' +
@@ -2210,8 +2268,85 @@ function personRowHtml(p, removed) {
     '<div class="hd-person-main">' +
       '<div class="hd-person-name">' + esc(name) + rel + '</div>' +
       '<div class="hd-person-sub">' + esc(phone) + '</div>' +
+      personReadHtml(p) +
     '</div>' +
     '<div class="hd-person-actions">' + actions + '</div></div>';
+}
+
+// Andi's behavioral read, shown lightly. It is his read, not gospel, until you trust it. Nothing
+// shows if he has not formed one yet. Capability and difficulty are 1 to 5.
+function personReadHtml(p) {
+  var bits = [];
+  if (p.self_sufficiency) bits.push('capability ' + p.self_sufficiency + '/5');
+  if (p.difficulty) bits.push('difficulty ' + p.difficulty + '/5');
+  var line = bits.join(' · ');
+  var voice = p.comm_voice ? '"' + p.comm_voice + '"' : '';
+  if (!line && !voice && !p.profile_notes) return '';
+  var who = p.profile_updated_by && p.profile_updated_by !== 'Andi' ? p.profile_updated_by + "'s read" : "Andi's read";
+  var inner = '';
+  if (line) inner += '<span class="hd-read-scores">' + esc(line) + '</span>';
+  if (voice) inner += '<span class="hd-read-voice">' + esc(voice) + '</span>';
+  if (p.profile_notes) inner += '<span class="hd-read-notes">' + esc(p.profile_notes) + '</span>';
+  return '<div class="hd-read"><span class="hd-read-tag">' + esc(who) + '</span>' + inner + '</div>';
+}
+
+// Item 5: the home's full ticket + follow up history. Newest first. Tickets jump to the ticket.
+function renderHouseholdHistory(h) {
+  var tickets = h.tickets || [];
+  var fus = h.follow_ups || [];
+  var out = '<div class="hd-block"><div class="hd-block-title">History</div>';
+  if (!tickets.length && !fus.length) {
+    out += '<div class="hd-person-sub" style="padding:0.4rem 0;">No tickets or follow ups on this home yet.</div></div>';
+    return out;
+  }
+  if (tickets.length) {
+    out += '<div class="hd-hist-sub">Tickets</div>';
+    tickets.forEach(function(t) {
+      var st = t.status || 'open';
+      var pill = '<span class="t-pill ' + (st==='resolved'?'t-resolved':(st==='scheduled'?'t-scheduled':'t-open')) + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>';
+      var meta = [];
+      if (t.ticket_type) meta.push(esc(t.ticket_type));
+      if (t.scheduled_at) meta.push('scheduled ' + esc(fmtTime(t.scheduled_at)));
+      meta.push(esc(fmtTime(t.opened_at)));
+      if (t.assignee_name) meta.push(esc(t.assignee_name));
+      out += '<div class="hd-hist-row" onclick="goToTicket(' + t.id + ')">' +
+        '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(t.summary || 'Open issue') + '</div>' +
+        '<div class="hd-hist-meta">' + meta.join(' · ') + '</div></div>' + pill + '</div>';
+    });
+  }
+  if (fus.length) {
+    out += '<div class="hd-hist-sub" style="margin-top:0.7rem;">Follow ups</div>';
+    fus.forEach(function(f) {
+      var st = f.status || 'pending';
+      var pill = '<span class="t-pill ' + (st==='resolved'?'t-resolved':'t-open') + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>';
+      var meta = [];
+      if (f.type) meta.push(esc(f.type));
+      if (f.due_date) meta.push('due ' + esc(f.due_date));
+      meta.push(esc(fmtTime(f.created_at)));
+      if (f.assignee_name) meta.push(esc(f.assignee_name));
+      out += '<div class="hd-hist-row static">' +
+        '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(f.note || 'Follow up') + '</div>' +
+        '<div class="hd-hist-meta">' + meta.join(' · ') + '</div></div>' + pill + '</div>';
+    });
+  }
+  out += '</div>';
+  return out;
+}
+
+// One-click round trip (item 7). From a ticket or the conversation rail, jump to the household;
+// from the household history, jump to the ticket. Each loads its data before showing.
+function goToHousehold(id) {
+  if (!id) return;
+  var navEl = document.querySelector('.nav-item[onclick*="households"]');
+  nav('households', navEl);
+  openHouseholdDetail(id);
+}
+async function goToTicket(id) {
+  if (!id) return;
+  var navEl = document.querySelector('.nav-item[onclick*="tickets"]');
+  nav('tickets', navEl);
+  await loadTickets();
+  openTicket(id);
 }
 
 async function saveHouseholdFields() {
@@ -2252,6 +2387,10 @@ function openHpAdd() {
   document.getElementById('hp-last').value = '';
   document.getElementById('hp-phone').value = '';
   document.getElementById('hp-rel').value = '';
+  document.getElementById('hp-suff').value = '';
+  document.getElementById('hp-diff').value = '';
+  document.getElementById('hp-voice').value = '';
+  document.getElementById('hp-pnotes').value = '';
   document.getElementById('hp-err').textContent = '';
   document.getElementById('hp-overlay').classList.add('show');
   setTimeout(function() { document.getElementById('hp-first').focus(); }, 50);
@@ -2266,6 +2405,10 @@ function openHpEdit(clientId) {
   document.getElementById('hp-last').value = p.last_name || '';
   document.getElementById('hp-phone').value = fmtPhone(p.phone_number || '');
   document.getElementById('hp-rel').value = p.relationship || '';
+  document.getElementById('hp-suff').value = p.self_sufficiency || '';
+  document.getElementById('hp-diff').value = p.difficulty || '';
+  document.getElementById('hp-voice').value = p.comm_voice || '';
+  document.getElementById('hp-pnotes').value = p.profile_notes || '';
   document.getElementById('hp-err').textContent = '';
   document.getElementById('hp-overlay').classList.add('show');
 }
@@ -2277,7 +2420,8 @@ async function submitHpModal() {
   err.textContent = '';
   var first = hhVal('hp-first');
   if (!first) { err.textContent = 'First name is required.'; return; }
-  var body = { first_name: first, last_name: hhVal('hp-last'), phone: hhVal('hp-phone'), relationship: hhVal('hp-rel') };
+  var body = { first_name: first, last_name: hhVal('hp-last'), phone: hhVal('hp-phone'), relationship: hhVal('hp-rel'),
+    self_sufficiency: hhVal('hp-suff'), difficulty: hhVal('hp-diff'), comm_voice: hhVal('hp-voice'), profile_notes: hhVal('hp-pnotes') };
   btn.disabled = true; btn.textContent = 'Saving...';
   try {
     var url = '/api/households/' + _hd.id + '/clients' + (_hpClientId ? '/' + _hpClientId : '');
@@ -2609,6 +2753,14 @@ function startSSE() {
     // the handback came from a client wake or the resume sweep.
     loadRealConversations();
   });
+  _sseSource.addEventListener('viewed', function(e) {
+    try {
+      var data = JSON.parse(e.data);
+      applyViewedEvent(data);
+      // A teammate opening a thread can clear a review-type unread, so keep the list honest.
+      loadRealConversations();
+    } catch (err) {}
+  });
   _sseSource.onerror = function() {
     _sseSource.close(); _sseSource = null;
     setTimeout(startSSE, 5000);
@@ -2618,6 +2770,11 @@ function startSSE() {
 function appendLiveMessage(data) {
   var thread = document.getElementById('live-thread');
   if (!thread) return;
+  // A new message arrives, so the prior "seen by" no longer applies to the newest line. Drop it and
+  // reset; it repopulates when someone opens the thread again (via the 'viewed' event).
+  var oldSeen = document.getElementById('seen-by-line');
+  if (oldSeen && oldSeen.parentNode) oldSeen.parentNode.removeChild(oldSeen);
+  window._seenViewers = [];
   var isClient = data.role === 'user';
   var isHuman = data.role === 'human';
   var cls = isClient ? 'sms-client' : isHuman ? 'sms-human' : 'sms-andi';
@@ -2627,7 +2784,8 @@ function appendLiveMessage(data) {
   var time = new Date(data.created_at || Date.now()).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   var sender = isHuman && data.sender_name ? '<div class="sms-sender">' + data.sender_name + '</div>' : '';
   thread.innerHTML += '<div class="sms-msg ' + cls + '"' + inlineStyle + '>' + data.message + '</div>' + sender +
-                      '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
+                      '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>' +
+                      '<div id="seen-by-line"></div>';
   thread.scrollTop = thread.scrollHeight;
 }
 
@@ -2688,8 +2846,8 @@ function renderConvList(threads) {
     // preview_role is always the role of the message actually shown, so the
     // label can never describe a different row than the text (Bug B fix).
     var previewRole = t.preview_role;
-    // Do not mark unread when the team sent the last message.
-    var unread = isUnread(t.phone_number, t.last_message_at) && previewRole !== 'human';
+    // Team-consistent unread, derived from the data so every user sees the same.
+    var unread = threadUnread(t);
     var fullPreview = t.last_message ? t.last_message : '';
     var rawPreview = fullPreview.length > 70 ? fullPreview.slice(0, 70).trim() + '...' : fullPreview;
     var senderPrefix = '';
@@ -2718,7 +2876,6 @@ function renderConvList(threads) {
         '</div>' +
       '</div>';
     card.addEventListener('click', function() {
-      markRead(decodeURIComponent(ep));
       card.classList.remove('unread');
       openRealConv(ep, name);
     });
@@ -2766,7 +2923,7 @@ function andiStatusHtml() {
 }
 
 function updateConvBadge(threads) {
-  var unreadCount = threads.filter(function(t) { return isUnread(t.phone_number, t.last_message_at); }).length;
+  var unreadCount = threads.filter(threadUnread).length;
   setBadge('conversations', unreadCount);
   setBadge('tickets', window._openTickets || 0);
   setBadge('followups', window._openFollowups || 0);
@@ -2790,8 +2947,10 @@ async function openRealConv(encodedPhone, name) {
   document.getElementById('conv-detail-content').innerHTML = '<div class="loading-row">Loading thread...</div>';
   window._currentPhone = encodedPhone;
   window._currentName = name;
-  markRead(decodeURIComponent(encodedPhone));
-  updateConvBadge(_allThreads);
+  // Stamp my view first (await) so I show in my own Seen by line, then refresh the list so the
+  // team-consistent badge clears for a review item the moment anyone looks.
+  try { await recordView(decodeURIComponent(encodedPhone)); } catch (e) {}
+  loadRealConversations();
   try {
     var res = await rwFetch('/api/thread?phone=' + encodedPhone);
     if (!res.ok) throw new Error('Status ' + res.status);
@@ -2799,7 +2958,8 @@ async function openRealConv(encodedPhone, name) {
     var messages = Array.isArray(data) ? data : (data.messages || []);
     var displayName = data.clientName || name;
     var householdName = data.householdName || null;
-    var html = buildThreadHTML(messages, displayName);
+    window._seenViewers = data.viewers || [];
+    var html = buildThreadHTML(messages, displayName) + seenByHtml(data.viewers || []);
     var hasHuman = messages.some(function(m) { return m.role === 'human'; });
     var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
     var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
@@ -2814,7 +2974,6 @@ async function openRealConv(encodedPhone, name) {
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
-            '<button class="hd-mini" onclick="openThreadCreate()">+ Create</button>' +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
@@ -2822,6 +2981,7 @@ async function openRealConv(encodedPhone, name) {
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
+          '<button class="reply-create" onclick="openThreadCreate()">+ Create</button>' +
         '</div>' +
       '</div>' +
       '<div class="equipment-panel" id="equipment-panel">' +
@@ -2904,6 +3064,33 @@ function buildThreadHTML(messages, clientName) {
             '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
   }
   return html;
+}
+
+// Centered "Seen by" line at the bottom of the thread, same quiet treatment as "Handed back to
+// Andi". Shows a small colored initial dot per teammate in their own bubble color. Hover a dot for
+// the name and the time they read it. Renders nothing if no one has opened it since the last message.
+function seenByHtml(viewers) {
+  if (!viewers || !viewers.length) return '<div id="seen-by-line"></div>';
+  return '<div id="seen-by-line" class="sms-system seen-by">' + seenByInner(viewers) + '</div>';
+}
+function seenByInner(viewers) {
+  var dots = viewers.map(function(v) {
+    var t = '';
+    try { t = new Date(v.viewed_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}); } catch(e) {}
+    var title = (v.name || 'Teammate') + (t ? ' · read ' + t : '');
+    return '<span class="seen-dot" style="background:' + (v.bubble_color || '#2D7DD2') + ';" title="' + esc(title) + '">' + esc(v.initials || '?') + '</span>';
+  }).join('');
+  return '<span class="seen-label">Seen by</span>' + dots;
+}
+// Live update from the 'viewed' SSE event: add or move the viewer's dot on the open thread.
+function applyViewedEvent(d) {
+  if (!window._currentPhone || decodeURIComponent(window._currentPhone) !== d.phone_number) return;
+  var line = document.getElementById('seen-by-line');
+  if (!line) return;
+  window._seenViewers = (window._seenViewers || []).filter(function(v){ return v.user_id !== d.user_id; });
+  window._seenViewers.push({ user_id: d.user_id, name: d.name, initials: d.initials, bubble_color: d.bubble_color, viewed_at: d.viewed_at });
+  line.className = 'sms-system seen-by';
+  line.innerHTML = seenByInner(window._seenViewers);
 }
 
 async function sendReply() {
@@ -2992,7 +3179,19 @@ async function loadEquipmentPanel(phone) {
       addrRow.innerHTML = '<span class="eq-label">Address</span><span class="eq-value" style="font-size:0.72rem;">' + h.address + '</span>';
       clientSection.appendChild(addrRow);
     }
+    if (h.id) {
+      var linkRow = document.createElement('div');
+      linkRow.style.marginTop = '0.4rem';
+      linkRow.innerHTML = '<a class="tk-house-link" onclick="goToHousehold(' + h.id + ')">View household</a>';
+      clientSection.appendChild(linkRow);
+    }
     body.appendChild(clientSection);
+
+    // Open work + Andi's read (item 6). Filled from the conversation context route.
+    var ctxSection = document.createElement('div');
+    ctxSection.id = 'conv-context';
+    body.appendChild(ctxSection);
+    loadConvContext(phone, ctxSection);
 
     // System fields
     if (sysFields.length) {
@@ -3037,6 +3236,57 @@ async function loadEquipmentPanel(phone) {
   } catch (err) {
     body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.78rem;">Could not load system info.</div>';
   }
+}
+
+// Conversation rail context (item 6): Andi's read of who you are talking to, plus this client's
+// open tickets and pending follow ups. Tickets jump to the ticket. Capture-only data, shown lightly.
+async function loadConvContext(phone, container) {
+  if (!container) return;
+  try {
+    var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone) + '/context');
+    if (!res.ok) return;
+    var ctx = await res.json();
+    var c = ctx.client || null;
+    var tickets = ctx.tickets || [];
+    var fus = ctx.follow_ups || [];
+    var html = '';
+
+    if (c && (c.self_sufficiency || c.difficulty || c.comm_voice || c.profile_notes)) {
+      var bits = [];
+      if (c.self_sufficiency) bits.push('capability ' + c.self_sufficiency + '/5');
+      if (c.difficulty) bits.push('difficulty ' + c.difficulty + '/5');
+      var who = c.profile_updated_by && c.profile_updated_by !== 'Andi' ? esc(c.profile_updated_by) + "'s read" : "Andi's read";
+      html += '<div class="eq-section"><div class="eq-section-title">' + who + '</div>';
+      if (bits.length) html += '<div class="conv-read-scores">' + bits.join(' · ') + '</div>';
+      if (c.comm_voice) html += '<div class="conv-read-voice">"' + esc(c.comm_voice) + '"</div>';
+      if (c.profile_notes) html += '<div class="eq-notes">' + esc(c.profile_notes) + '</div>';
+      html += '</div>';
+    }
+
+    html += '<div class="eq-section"><div class="eq-section-title">Open work</div>';
+    if (!tickets.length && !fus.length) {
+      html += '<div class="eq-notes" style="font-style:italic;">No open tickets or follow ups.</div>';
+    } else {
+      tickets.forEach(function(t) {
+        html += '<div class="conv-ow" onclick="goToTicket(' + t.id + ')">' +
+          '<span class="ow-pill ow-ticket">Ticket</span>' +
+          (t.ticket_type ? '<span class="ow-type">' + esc(t.ticket_type) + '</span>' : '') +
+          '<div class="ow-title">' + esc(t.summary || 'Open issue') + '</div>' +
+          (t.scheduled_at ? '<div class="ow-sub">Scheduled ' + esc(fmtTime(t.scheduled_at)) + '</div>' : '') +
+          '</div>';
+      });
+      fus.forEach(function(f) {
+        html += '<div class="conv-ow static">' +
+          '<span class="ow-pill ow-followup">Follow up</span>' +
+          (f.type ? '<span class="ow-type">' + esc(f.type) + '</span>' : '') +
+          '<div class="ow-title">' + esc(f.note || 'Follow up') + '</div>' +
+          (f.due_date ? '<div class="ow-sub">Due ' + esc(f.due_date) + '</div>' : '') +
+          '</div>';
+      });
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (e) {}
 }
 
 async function loadPhotos(phone) {
@@ -3338,7 +3588,14 @@ function openTicket(id) {
       '<div class="eq-section"><div class="eq-section-title">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
       (t.issue_category ? '<div class="eq-section"><div class="eq-section-title">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
       (contactBits.length ? '<div class="eq-section"><div class="eq-section-title">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
+      '<div class="eq-section"><div class="eq-section-title">Type</div>' +
+        '<input class="fld-input" id="tk-type" type="text" placeholder="e.g. truck roll, remote, firmware" value="' + esc(t.ticket_type || '') + '" onchange="saveTicketField(' + t.id + ',\'ticket_type\',this.value)" />' +
+        '<div class="detail-meta" style="margin-top:0.3rem;">Andi\'s read. Edit if it is off.</div></div>' +
+      '<div class="eq-section"><div class="eq-section-title">Scheduled</div>' +
+        '<input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" onchange="saveTicketField(' + t.id + ',\'scheduled_at\',this.value)" />' +
+        '<div class="detail-meta" style="margin-top:0.3rem;">Optional. Set it when a visit or remote session is booked.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
+      (t.household_id ? '<div class="eq-section"><a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a></div>' : '') +
       '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
       statusBlock;
 
@@ -3354,7 +3611,7 @@ function openTicket(id) {
       '<div class="thread-shell">' +
         '<div class="thread-main">' +
           '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
-            '<div class="detail-name">' + esc(ticketClientName(t)) + (t.household_name ? ' <span class="detail-meta" style="font-weight:400;">· ' + esc(t.household_name) + '</span>' : '') + '</div>' +
+            '<div class="detail-name">' + esc(ticketClientName(t)) + (t.household_name ? (t.household_id ? ' <a class="detail-meta tk-house-inline" style="font-weight:400;" onclick="goToHousehold(' + t.household_id + ')">· ' + esc(t.household_name) + '</a>' : ' <span class="detail-meta" style="font-weight:400;">· ' + esc(t.household_name) + '</span>') : '') + '</div>' +
             '<span class="t-pill ' + pillCls + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>' +
           '</div>' +
           centerMain +
@@ -3404,6 +3661,29 @@ async function sendTicketReply(id, encPhone) {
   } catch (e) { alert('Connection error. Please try again.'); }
   input.disabled = false; if (btn) btn.disabled = false;
   input.focus();
+}
+
+// Format a timestamp into the value a datetime-local input expects (YYYY-MM-DDTHH:MM), in local time.
+function toLocalInput(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return '';
+  var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+// Save a single ticket field inline (type or scheduled_at). Capture only, no requirement: an empty
+// value clears it. Keeps the local cache and the list row in sync so nothing goes stale on screen.
+async function saveTicketField(id, field, value) {
+  var body = {}; body[field] = value || '';
+  try {
+    var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (!res.ok) return;
+    var d = await res.json();
+    _tickets[id] = Object.assign(_tickets[id] || {}, d);
+    var i = _ticketRows.findIndex(function(r){ return r.id === id; });
+    if (i !== -1) _ticketRows[i] = _tickets[id];
+  } catch (e) {}
 }
 async function setTicketStatus(id, status, btn) {
   if (btn) { document.querySelectorAll('#ticket-detail-content .status-opt').forEach(function(b){ b.className='status-opt'; }); btn.classList.add('sel-'+status); }
