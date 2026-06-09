@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.6.1 — 2026-06-08_1957 CT — Team-consistent unread + shared Seen by + Create button move + high-res width pass. Unread is now derived from the data and identical for every user: client spoke last is an action item (clears only on a reply), Andi spoke last is a review item (clears once anyone opens the thread), team spoke last is read. Browser localStorage read-tracking removed. The thread now shows a centered Seen by line at the bottom in the Handed back to Andi format, with a small colored initial dot per teammate in their own bubble color; hover a dot for the name and the time they read it; it updates live over SSE as people open the thread. The Create button moved to the right of Send, labeled + Create, filled with the ticket-rail orange. Right info and ticket rails widened for high-resolution screens. Needs portal v1.14.1. — Prior (v1.6.0): household data foundation + capture-now layer. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.6.2 — 2026-06-08_2126 CT — Testing-feedback batch. Universal Back: one "← Back" in the same outside-the-window spot on every detail (conversations, tickets, households), returning to wherever you came from via a back stack, replacing the old per-section labels. Conversation rail now lists the home's full ticket history as compact clickable lines (type or summary plus date, click to open the ticket) instead of a View household link. Create button resized to sit as a peer of Send. Scheduled date no longer auto-saves: a Save button next to the field commits it, and setting a date flips the ticket to Scheduled automatically. High-res width pass: the right rail is now responsive (grows on wide screens) and chat bubbles are width-capped so messages stay readable instead of spanning the whole column. Needs portal v1.14.2. — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,7 +155,7 @@ body.dark ::-webkit-scrollbar-corner { background:#1a1a18; }
 .sms-thread { padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem;background:#f8f8f8;flex:1;overflow-y:auto;min-height:0; }
 body.dark .sms-thread { background:#0d0d0c; }
 .thread-main .sms-thread { max-height:none; }
-.sms-msg { max-width:75%;padding:0.55rem 0.85rem;border-radius:16px;font-size:0.85rem;line-height:1.5; }
+.sms-msg { max-width:min(75%, 620px);padding:0.55rem 0.85rem;border-radius:16px;font-size:0.85rem;line-height:1.5; }
 .sms-client { background:#e0e0e0;color:#1a1a18;align-self:flex-end;border-bottom-right-radius:4px; }
 body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .sms-andi { background:var(--green);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
@@ -225,8 +225,22 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .seen-by { display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap; }
 .seen-label { font-size:0.7rem;color:var(--ink-soft); }
 .seen-dot { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;color:#fff;font-size:0.58rem;font-weight:700;letter-spacing:0.02em;cursor:default;flex-shrink:0;box-shadow:0 0 0 1px rgba(255,255,255,0.6); }
-.reply-create { background:#b45309;color:#fff;border:none;border-radius:8px;padding:0 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;margin-left:0.5rem;flex-shrink:0; }
+.reply-create { background:#b45309;color:#fff;border:none;border-radius:10px;padding:0.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap;margin-left:0.5rem;flex-shrink:0; }
 .reply-create:hover { background:#92400e; }
+/* v1.6.2 conversation rail ticket history + scheduled save */
+.conv-ticket-line { display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.5rem;border-radius:7px;cursor:pointer;transition:background 0.12s; }
+.conv-ticket-line:hover { background:var(--canvas-warm,#faf8f5); }
+.ctl-status { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.ctl-status.ow-open { background:#b45309; }
+.ctl-status.ow-scheduled { background:#2D7DD2; }
+.ctl-status.ow-resolved { background:#1D9E75; }
+.ctl-label { flex:1;font-size:0.8rem;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.ctl-date { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
+.tk-sched-row { display:flex;gap:0.4rem;align-items:center; }
+.tk-sched-row .fld-input { flex:1;min-width:0; }
+.tk-sched-save { background:#b45309;color:#fff;border:none;border-radius:8px;padding:0.45rem 0.7rem;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0; }
+.tk-sched-save:hover { background:#92400e; }
+.tk-sched-save:disabled { opacity:0.6;cursor:default; }
 .status-select { display:flex;gap:0.5rem;margin-top:0.5rem; }
 .status-opt { padding:0.35rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:2px solid var(--border);color:var(--ink-soft);transition:all 0.15s;background:var(--white);font-family:'DM Sans',sans-serif; }
 .status-opt:hover { border-color:var(--ink-soft); }
@@ -268,7 +282,7 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .thread-shell { display:flex;gap:0;height:calc(100vh - var(--topbar-h) - 5.5rem);min-height:0; }
 .thread-main { flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white); }
 .thread-main .sms-thread { overflow-x:hidden; }
-.equipment-panel { width:320px;flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
+.equipment-panel { width:clamp(300px, 26%, 480px);flex-shrink:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--white);margin-left:0.875rem; }
 .equipment-panel-header { padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:0.85rem;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box; }
 .equipment-panel-body { flex:1;overflow-y:auto;padding:0.75rem 1rem; }
 .eq-section { margin-bottom:1rem; }
@@ -750,7 +764,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
           </div>
         </div>
         <div id="conv-detail-view" style="display:none;">
-          <div class="back-btn" onclick="closeConv()">&#8592; Back to conversations</div>
+          <div class="back-btn" onclick="goBack()">&#8592; Back</div>
           <div id="conv-detail-content"></div>
         </div>
       </div>
@@ -770,7 +784,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
           </div>
         </div>
         <div id="ticket-detail-view" style="display:none;">
-          <div class="back-btn" onclick="closeTicket()">← Back to tickets</div>
+          <div class="back-btn" onclick="goBack()">← Back</div>
           <div id="ticket-detail-content"></div>
         </div>
       </div>
@@ -793,9 +807,9 @@ select.fld-input { appearance:auto;cursor:pointer; }
           </div>
         </div>
         <div id="hh-detail-view" style="display:none;">
+          <div class="back-btn" onclick="goBack()">← Back</div>
           <div class="panel-chrome">
             <div class="hd-head">
-              <button class="hd-back" onclick="backToHouseholds()">‹ Households</button>
               <div class="hd-title" id="hd-title">Household</div>
               <span class="hd-removed-tag" id="hd-removed-tag" style="display:none;">Removed</span>
             </div>
@@ -2050,7 +2064,7 @@ var _hhShowRemoved = false;
 
 function householdRowHtml(h, removed) {
   var proj = h.project_name ? ' <span class="hh-project">' + esc(h.project_name) + '</span>' : '';
-  return '<div class="hh-row clickable' + (removed ? ' removed' : '') + '" onclick="openHouseholdDetail(' + h.id + ')">' +
+  return '<div class="hh-row clickable' + (removed ? ' removed' : '') + '" onclick="enterHousehold(' + h.id + ')">' +
     '<div class="hh-dot" style="background:' + (removed ? 'var(--ink-soft)' : 'var(--green)') + ';"></div>' +
     '<div class="hh-main">' +
       '<div class="hh-name">' + esc(h.name || '') + proj + '</div>' +
@@ -2333,21 +2347,10 @@ function renderHouseholdHistory(h) {
   return out;
 }
 
-// One-click round trip (item 7). From a ticket or the conversation rail, jump to the household;
-// from the household history, jump to the ticket. Each loads its data before showing.
-function goToHousehold(id) {
-  if (!id) return;
-  var navEl = document.querySelector('.nav-item[onclick*="households"]');
-  nav('households', navEl);
-  openHouseholdDetail(id);
-}
-async function goToTicket(id) {
-  if (!id) return;
-  var navEl = document.querySelector('.nav-item[onclick*="tickets"]');
-  nav('tickets', navEl);
-  await loadTickets();
-  openTicket(id);
-}
+// One-click round trip. From a ticket or the conversation rail, jump to the household; from the
+// household history or conversation rail, jump to the ticket. These record the origin for Back.
+function goToHousehold(id) { if (!id) return; enterHousehold(id); }
+function goToTicket(id) { if (!id) return; enterTicket(id); }
 
 async function saveHouseholdFields() {
   var btn = document.getElementById('hd-save-btn');
@@ -2877,7 +2880,7 @@ function renderConvList(threads) {
       '</div>';
     card.addEventListener('click', function() {
       card.classList.remove('unread');
-      openRealConv(ep, name);
+      enterConversation(ep, name);
     });
     body.appendChild(card);
   });
@@ -3179,12 +3182,6 @@ async function loadEquipmentPanel(phone) {
       addrRow.innerHTML = '<span class="eq-label">Address</span><span class="eq-value" style="font-size:0.72rem;">' + h.address + '</span>';
       clientSection.appendChild(addrRow);
     }
-    if (h.id) {
-      var linkRow = document.createElement('div');
-      linkRow.style.marginTop = '0.4rem';
-      linkRow.innerHTML = '<a class="tk-house-link" onclick="goToHousehold(' + h.id + ')">View household</a>';
-      clientSection.appendChild(linkRow);
-    }
     body.appendChild(clientSection);
 
     // Open work + Andi's read (item 6). Filled from the conversation context route.
@@ -3263,18 +3260,28 @@ async function loadConvContext(phone, container) {
       html += '</div>';
     }
 
-    html += '<div class="eq-section"><div class="eq-section-title">Open work</div>';
-    if (!tickets.length && !fus.length) {
-      html += '<div class="eq-notes" style="font-style:italic;">No open tickets or follow ups.</div>';
+    html += '<div class="eq-section"><div class="eq-section-title">Tickets</div>';
+    if (!tickets.length) {
+      html += '<div class="eq-notes" style="font-style:italic;">No tickets on this home yet.</div>';
     } else {
       tickets.forEach(function(t) {
-        html += '<div class="conv-ow" onclick="goToTicket(' + t.id + ')">' +
-          '<span class="ow-pill ow-ticket">Ticket</span>' +
-          (t.ticket_type ? '<span class="ow-type">' + esc(t.ticket_type) + '</span>' : '') +
-          '<div class="ow-title">' + esc(t.summary || 'Open issue') + '</div>' +
-          (t.scheduled_at ? '<div class="ow-sub">Scheduled ' + esc(fmtTime(t.scheduled_at)) + '</div>' : '') +
+        var label = (t.ticket_type && t.ticket_type.trim()) ? t.ticket_type : (t.summary || 'Ticket');
+        if (label.length > 38) label = label.slice(0, 38).trim() + '...';
+        var date = '';
+        try { date = new Date(t.opened_at).toLocaleDateString('en-US', {month:'short', day:'numeric'}); } catch(e) {}
+        var st = t.status || 'open';
+        var dot = st === 'resolved' ? 'ow-resolved' : (st === 'scheduled' ? 'ow-scheduled' : 'ow-open');
+        html += '<div class="conv-ticket-line" onclick="goToTicket(' + t.id + ')">' +
+          '<span class="ctl-status ' + dot + '"></span>' +
+          '<span class="ctl-label">' + esc(label) + '</span>' +
+          (date ? '<span class="ctl-date">' + esc(date) + '</span>' : '') +
           '</div>';
       });
+    }
+    html += '</div>';
+
+    if (fus.length) {
+      html += '<div class="eq-section"><div class="eq-section-title">Open follow ups</div>';
       fus.forEach(function(f) {
         html += '<div class="conv-ow static">' +
           '<span class="ow-pill ow-followup">Follow up</span>' +
@@ -3283,8 +3290,8 @@ async function loadConvContext(phone, container) {
           (f.due_date ? '<div class="ow-sub">Due ' + esc(f.due_date) + '</div>' : '') +
           '</div>';
       });
+      html += '</div>';
     }
-    html += '</div>';
     container.innerHTML = html;
   } catch (e) {}
 }
@@ -3357,6 +3364,42 @@ function openLightbox(url) {
 // ── NAV ──────────────────────────────────────────────────────────────────────
 var panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',proactive:'Proactive Outreach',analytics:'Analytics',settings:'Settings' };
 function navItem(name) { return document.querySelector('[onclick="nav(\'' + name + '\',this)"]'); }
+// ── UNIVERSAL BACK ───────────────────────────────────────────────────────────
+// One back stack for the whole app. Entering any detail (from a list or via a cross jump) records
+// where you were; goBack returns there. Back is only ever shown inside a detail view, so the stack
+// always has the origin that opened it. Empty stack falls back to the active panel's list.
+var _backStack = [];
+function isShown(id) { var e = document.getElementById(id); return e && e.style.display !== 'none'; }
+function currentViewOrList() {
+  if (window._currentPhone && isShown('conv-detail-view')) return { kind:'conversation', phone: window._currentPhone, name: window._currentName };
+  if (window._openTicketId != null && isShown('ticket-detail-view')) return { kind:'ticket', id: window._openTicketId };
+  if (typeof _hd !== 'undefined' && _hd && _hd.id && isShown('hh-detail-view')) return { kind:'household', id: _hd.id };
+  var active = document.querySelector('.panel.active');
+  var panel = active ? active.id.replace('panel-', '') : 'conversations';
+  return { kind:'list', panel: panel };
+}
+function pushBack(d) { if (d) _backStack.push(d); }
+// Entry wrappers: record origin, then open. Used by list rows and cross jumps.
+function enterConversation(ep, name) { pushBack(currentViewOrList()); openRealConv(ep, name); }
+function enterTicket(id) { pushBack(currentViewOrList()); navToTicket(id); }
+function enterHousehold(id) { pushBack(currentViewOrList()); navToHousehold(id); }
+function navToTicket(id) {
+  var el = document.querySelector('.nav-item[onclick*="tickets"]'); nav('tickets', el);
+  loadTickets().then(function() { openTicket(id); });
+}
+function navToHousehold(id) {
+  var el = document.querySelector('.nav-item[onclick*="households"]'); nav('households', el);
+  openHouseholdDetail(id);
+}
+function goBack() {
+  var d = _backStack.pop();
+  if (!d) { closeConv(); closeTicket(); backToHouseholds(); return; }
+  if (d.kind === 'list') { var el = document.querySelector('.nav-item[onclick*="' + d.panel + '"]'); nav(d.panel, el); }
+  else if (d.kind === 'conversation') { var ce = document.querySelector('.nav-item[onclick*="conversations"]'); nav('conversations', ce); openRealConv(d.phone, d.name); }
+  else if (d.kind === 'ticket') { navToTicket(d.id); }
+  else if (d.kind === 'household') { navToHousehold(d.id); }
+}
+
 function nav(name, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
@@ -3482,7 +3525,7 @@ async function loadResolved() {
 }
 function openResolved(enc) {
   var phone = decodeURIComponent(enc);
-  openRealConv(enc, _resolvedByPhone[phone] || phone);
+  enterConversation(enc, _resolvedByPhone[phone] || phone);
 }
 
 // ── TICKETS ──────────────────────────────────────────────────────────────────
@@ -3529,7 +3572,7 @@ function listToolbar(f, statuses, prefix) {
 function ticketRowHtml(t) {
   var st = t.status || 'open';
   var pill = st === 'resolved' ? 't-resolved' : (st === 'scheduled' ? 't-scheduled' : 't-open');
-  return '<div class="ticket-row" onclick="openTicket(' + t.id + ')">' +
+  return '<div class="ticket-row" onclick="enterTicket(' + t.id + ')">' +
     '<div class="ticket-icon t-red">🎫</div>' +
     '<div class="ticket-body"><div class="ticket-client">' + esc(ticketClientName(t)) + '</div>' +
     '<div class="ticket-issue">' + esc(t.summary || t.issue_category || 'No detail') + '</div>' +
@@ -3561,6 +3604,7 @@ function renderTickets() {
 function openTicket(id) {
   var t = _tickets[id];
   var el = document.getElementById('ticket-detail-content');
+  window._openTicketId = id;
   document.getElementById('ticket-list-view').style.display = 'none';
   document.getElementById('ticket-detail-view').style.display = 'block';
   if (!t) { el.innerHTML = '<div class="hh-empty">Ticket not found. Go back and refresh.</div>'; return; }
@@ -3592,8 +3636,9 @@ function openTicket(id) {
         '<input class="fld-input" id="tk-type" type="text" placeholder="e.g. truck roll, remote, firmware" value="' + esc(t.ticket_type || '') + '" onchange="saveTicketField(' + t.id + ',\'ticket_type\',this.value)" />' +
         '<div class="detail-meta" style="margin-top:0.3rem;">Andi\'s read. Edit if it is off.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Scheduled</div>' +
-        '<input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" onchange="saveTicketField(' + t.id + ',\'scheduled_at\',this.value)" />' +
-        '<div class="detail-meta" style="margin-top:0.3rem;">Optional. Set it when a visit or remote session is booked.</div></div>' +
+        '<div class="tk-sched-row"><input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" />' +
+        '<button class="tk-sched-save" id="tk-sched-save" onclick="saveSchedule(' + t.id + ')">Save</button></div>' +
+        '<div class="detail-meta" style="margin-top:0.3rem;">Optional. Setting a date moves the ticket to Scheduled.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
       (t.household_id ? '<div class="eq-section"><a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a></div>' : '') +
       '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
@@ -3672,8 +3717,31 @@ function toLocalInput(ts) {
   return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
-// Save a single ticket field inline (type or scheduled_at). Capture only, no requirement: an empty
-// value clears it. Keeps the local cache and the list row in sync so nothing goes stale on screen.
+// Save the scheduled date on demand (no auto-save). Setting a date flips an unresolved ticket to
+// Scheduled automatically; clearing it just clears the date and leaves status alone.
+async function saveSchedule(id) {
+  var inp = document.getElementById('tk-sched'); if (!inp) return;
+  var val = inp.value || '';
+  var body = { scheduled_at: val };
+  var cur = (_tickets[id] || {}).status;
+  if (val && cur !== 'resolved') body.status = 'scheduled';
+  var btn = document.getElementById('tk-sched-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+  try {
+    var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      var d = await res.json();
+      _tickets[id] = Object.assign(_tickets[id] || {}, d);
+      var i = _ticketRows.findIndex(function(r){ return r.id === id; });
+      if (i !== -1) _ticketRows[i] = _tickets[id];
+      openTicket(id);
+      if (typeof renderTickets === 'function') renderTickets();
+      if (typeof loadCounts === 'function') loadCounts();
+    } else if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+  } catch (e) { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } }
+}
+
+// Save a single ticket field inline (used by the Type field). An empty value clears it.
 async function saveTicketField(id, field, value) {
   var body = {}; body[field] = value || '';
   try {
@@ -3757,6 +3825,7 @@ async function submitResolveTicket() {
 }
 function closeTicket() {
   window._openTicketPhone = null;
+  window._openTicketId = null;
   var lv = document.getElementById('ticket-list-view'); var dv = document.getElementById('ticket-detail-view');
   if (lv) lv.style.display = 'block';
   if (dv) dv.style.display = 'none';
