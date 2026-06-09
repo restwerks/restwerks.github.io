@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.6.2 — 2026-06-08_2126 CT — Testing-feedback batch. Universal Back: one "← Back" in the same outside-the-window spot on every detail (conversations, tickets, households), returning to wherever you came from via a back stack, replacing the old per-section labels. Conversation rail now lists the home's full ticket history as compact clickable lines (type or summary plus date, click to open the ticket) instead of a View household link. Create button resized to sit as a peer of Send. Scheduled date no longer auto-saves: a Save button next to the field commits it, and setting a date flips the ticket to Scheduled automatically. High-res width pass: the right rail is now responsive (grows on wide screens) and chat bubbles are width-capped so messages stay readable instead of spanning the whole column. Needs portal v1.14.2. — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.6.3 — 2026-06-08_2210 CT — Schedule fix. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,6 +241,9 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .tk-sched-save { background:#b45309;color:#fff;border:none;border-radius:8px;padding:0.45rem 0.7rem;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0; }
 .tk-sched-save:hover { background:#92400e; }
 .tk-sched-save:disabled { opacity:0.6;cursor:default; }
+.tk-sched-clear { background:transparent;color:var(--ink-soft);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.7rem;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0; }
+.tk-sched-clear:hover { background:var(--canvas-warm,#faf8f5);color:var(--ink); }
+.tk-sched-clear:disabled { opacity:0.6;cursor:default; }
 .status-select { display:flex;gap:0.5rem;margin-top:0.5rem; }
 .status-opt { padding:0.35rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:2px solid var(--border);color:var(--ink-soft);transition:all 0.15s;background:var(--white);font-family:'DM Sans',sans-serif; }
 .status-opt:hover { border-color:var(--ink-soft); }
@@ -3637,8 +3640,10 @@ function openTicket(id) {
         '<div class="detail-meta" style="margin-top:0.3rem;">Andi\'s read. Edit if it is off.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Scheduled</div>' +
         '<div class="tk-sched-row"><input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" />' +
-        '<button class="tk-sched-save" id="tk-sched-save" onclick="saveSchedule(' + t.id + ')">Save</button></div>' +
-        '<div class="detail-meta" style="margin-top:0.3rem;">Optional. Setting a date moves the ticket to Scheduled.</div></div>' +
+        '<button class="tk-sched-save" id="tk-sched-save" onclick="saveSchedule(' + t.id + ')">Save</button>' +
+        '<button class="tk-sched-clear" id="tk-sched-clear" onclick="clearSchedule(' + t.id + ')">Clear</button></div>' +
+        '<div class="detail-meta" id="tk-sched-err" style="margin-top:0.3rem;color:#c0392b;"></div>' +
+        '<div class="detail-meta" style="margin-top:0.15rem;">Optional. Setting a date moves the ticket to Scheduled.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
       (t.household_id ? '<div class="eq-section"><a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a></div>' : '') +
       '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
@@ -3718,14 +3723,31 @@ function toLocalInput(ts) {
 }
 
 // Save the scheduled date on demand (no auto-save). Setting a date flips an unresolved ticket to
-// Scheduled automatically; clearing it just clears the date and leaves status alone.
+// Scheduled automatically; clearing it drops it back to Open. The picker hands us a local value like
+// "2026-06-18T11:00"; Postgres wants "2026-06-18 11:00:00", so normalize before sending.
+function normalizeSched(val) {
+  if (!val) return '';
+  var v = val.replace('T', ' ');
+  if (v.length === 16) v += ':00'; // add seconds when the picker omits them
+  return v;
+}
+function schedErr(msg) { var e = document.getElementById('tk-sched-err'); if (e) e.textContent = msg || ''; }
 async function saveSchedule(id) {
   var inp = document.getElementById('tk-sched'); if (!inp) return;
-  var val = inp.value || '';
+  var val = normalizeSched(inp.value || '');
+  if (!val) { schedErr('Pick a date and time first, or use Clear.'); return; }
   var body = { scheduled_at: val };
-  var cur = (_tickets[id] || {}).status;
-  if (val && cur !== 'resolved') body.status = 'scheduled';
-  var btn = document.getElementById('tk-sched-save');
+  if ((_tickets[id] || {}).status !== 'resolved') body.status = 'scheduled';
+  await putSchedule(id, body, 'tk-sched-save', 'Save');
+}
+async function clearSchedule(id) {
+  var body = { scheduled_at: '' };
+  if ((_tickets[id] || {}).status === 'scheduled') body.status = 'open';
+  await putSchedule(id, body, 'tk-sched-clear', 'Clear');
+}
+async function putSchedule(id, body, btnId, label) {
+  schedErr('');
+  var btn = document.getElementById(btnId);
   if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
   try {
     var res = await rwFetch('/api/tickets/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -3737,8 +3759,14 @@ async function saveSchedule(id) {
       openTicket(id);
       if (typeof renderTickets === 'function') renderTickets();
       if (typeof loadCounts === 'function') loadCounts();
-    } else if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
-  } catch (e) { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } }
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+      schedErr('Could not save. Try again.');
+    }
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = label; }
+    schedErr('Could not save. Try again.');
+  }
 }
 
 // Save a single ticket field inline (used by the Type field). An empty value clears it.
