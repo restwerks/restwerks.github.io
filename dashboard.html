@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.7.0 — 2026-06-09_2330 CT — Pass 3 (3a + 3b). 3a: #13 WiFi network/password + garage code fields in the household edit form. 3b: #5 the manual Open/Scheduled status buttons are removed from the ticket workspace; status is now read-only and driven entirely by the scheduled date (set a date = Scheduled, clear it = Open), matching portal v1.15.0. #11 household list cards drop phone numbers (names from the label, project, address only; numbers stay in detail). #22 the Resolved tab moved into the Reports group below Analytics and is renamed Resolved by Andi. Still dashboard-only, no new portal/webhook dependency beyond v1.15.0 / v9.7. NEXT (3c): #6 date-display consistency, #7 tabbed household layout, #8 count badges (needs a portal count), #10 logo-or-name rule, #14/#15/#16/#17 per-number action row (+ a portal opt-in-text endpoint for #16), #24 SSE hardening. — Prior (v1.6.3): Schedule fix. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.8.0 — 2026-06-09_2110 CT — Pass 3c (part 1). Per-number action row in household detail: #14 the number is a tel link with a copy control; #15 a Text button that jumps into that number's thread, greyed until the number is opted in; #16 a Send opt-in button on any not-yet-opted-in number that fires POST /api/households/:id/optin-text (portal v1.16.0) and reloads the panel; an opt-in state badge (Textable / Invite sent / Opted out / Not invited) reads from opt_in_status. #8 household list rows now show UniFi-style count badges for open tickets (red) and open follow ups (blue) from the portal counts, replacing the old static green dot. #10 confirmed: sidebar shows logo + name when a logo is set, name only otherwise (automatic, no toggle). Needs portal v1.16.0. NEXT (3c part 2): #7 tabbed household layout, #6 date-display consistency, #17 household action surface (add ticket/follow-up/note pre-scoped), #24 SSE hardening. — Prior (v1.7.0): 3a #13 WiFi/garage fields; 3b #5 status buttons removed, #11 list trim, #22 Reports group. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -449,6 +449,20 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .hd-person-sub { font-size:0.76rem;color:var(--ink-soft);margin-top:1px; }
 .hd-person-rel { font-size:0.66rem;font-weight:600;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 8px;margin-left:0.4rem; }
 .hd-person-actions { display:flex;gap:0.4rem;flex-shrink:0; }
+.hd-tel { color:var(--ink-mid);text-decoration:none;border-bottom:1px dotted var(--border); }
+.hd-tel:hover { color:var(--brand);border-bottom-color:var(--brand); }
+.hd-copy { background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:0.8rem;padding:0 0.3rem;line-height:1; }
+.hd-copy:hover { color:var(--ink); }
+.hd-mini[disabled] { opacity:0.4;cursor:default; }
+.optin-badge { font-size:0.62rem;font-weight:600;border-radius:100px;padding:1px 7px;margin-left:0.45rem;vertical-align:middle; }
+.optin-badge.ok { color:#0f6e50;background:var(--green-bg);border:1px solid var(--green); }
+.optin-badge.wait { color:#b45309;background:#fef3e2;border:1px solid #f0c98a; }
+.optin-badge.off { color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border); }
+.optin-badge.none { color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border); }
+.hh-counts { display:flex;gap:0.35rem;align-items:center;flex-shrink:0; }
+.hh-count { min-width:20px;height:20px;border-radius:100px;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;padding:0 6px; }
+.hh-count.tickets { color:#fff;background:var(--red,#c0392b); }
+.hh-count.followups { color:#fff;background:var(--blue,#2D7DD2); }
 .hd-mini { background:none;border:1px solid var(--border);color:var(--ink-mid);border-radius:7px;padding:0.32rem 0.6rem;font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif; }
 .hd-mini:hover { background:var(--canvas-warm); }
 .hd-mini.danger { color:#c0392b;border-color:#e6b3ab; }
@@ -665,7 +679,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.7.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.8.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2064,12 +2078,17 @@ var _hhShowRemoved = false;
 
 function householdRowHtml(h, removed) {
   var proj = h.project_name ? ' <span class="hh-project">' + esc(h.project_name) + '</span>' : '';
+  var tc = parseInt(h.open_ticket_count || 0, 10);
+  var fc = parseInt(h.open_followup_count || 0, 10);
+  var badges = '';
+  if (!removed && tc > 0) badges += '<span class="hh-count tickets" title="Open tickets">' + tc + '</span>';
+  if (!removed && fc > 0) badges += '<span class="hh-count followups" title="Open follow ups">' + fc + '</span>';
   return '<div class="hh-row clickable' + (removed ? ' removed' : '') + '" onclick="enterHousehold(' + h.id + ')">' +
-    '<div class="hh-dot" style="background:' + (removed ? 'var(--ink-soft)' : 'var(--green)') + ';"></div>' +
     '<div class="hh-main">' +
       '<div class="hh-name">' + esc(h.name || '') + proj + '</div>' +
       '<div class="hh-sub">' + esc(householdSub(h)) + '</div>' +
     '</div>' +
+    (badges ? '<div class="hh-counts">' + badges + '</div>' : '') +
     '<div class="hh-chev">›</div></div>';
 }
 
@@ -2270,24 +2289,72 @@ function renderHouseholdDetail() {
   loadDetailPhotos();
 }
 
+function optInBadge(s) {
+  if (s === 'opted_in') return '<span class="optin-badge ok">Textable</span>';
+  if (s === 'invited') return '<span class="optin-badge wait">Invite sent</span>';
+  if (s === 'opted_out') return '<span class="optin-badge off">Opted out</span>';
+  return '<span class="optin-badge none">Not invited</span>';
+}
+
 function personRowHtml(p, removed) {
   var name = ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
   var rel = p.relationship ? '<span class="hd-person-rel">' + esc(p.relationship) + '</span>' : '';
-  var phone = p.phone_number ? fmtPhone(p.phone_number) : 'No phone on file';
+  var hasPhone = !!p.phone_number;
+  var phoneFmt = hasPhone ? fmtPhone(p.phone_number) : 'No phone on file';
+  var status = p.opt_in_status || 'pending';
+
+  // #14: the number is a tel link with a copy control; opt-in state shows as a small badge.
+  var phoneLine = hasPhone
+    ? '<a class="hd-tel" href="tel:' + esc(p.phone_number) + '">' + esc(phoneFmt) + '</a>' +
+      '<button class="hd-copy" title="Copy number" onclick="copyToClip(\'' + phoneFmt + '\',this)">&#10697;</button>' +
+      optInBadge(status)
+    : esc(phoneFmt);
+
   var actions = '';
   if (removed) {
     actions = '<button class="hd-mini" onclick="reactivatePerson(' + p.client_id + ')">Restore</button>';
   } else {
-    actions = '<button class="hd-mini" onclick="openHpEdit(' + p.client_id + ')">Edit</button>' +
+    if (hasPhone) {
+      if (status === 'opted_in') {
+        // #15: jump straight into this number's conversation thread.
+        actions += '<button class="hd-mini" onclick="textPerson(\'' + encodeURIComponent(p.phone_number) + '\',\'' + phoneFmt + '\')">Text</button>';
+      } else {
+        // Greyed text button (self-explaining: not textable yet) + #16 send-contact-text.
+        actions += '<button class="hd-mini" disabled title="This number has not opted in yet">Text</button>';
+        actions += '<button class="hd-mini" onclick="sendOptInText(\'' + p.phone_number + '\',this)">' +
+          (status === 'invited' ? 'Resend opt-in' : 'Send opt-in') + '</button>';
+      }
+    }
+    actions += '<button class="hd-mini" onclick="openHpEdit(' + p.client_id + ')">Edit</button>' +
       '<button class="hd-mini danger" onclick="removePerson(' + p.client_id + ')">Remove</button>';
   }
   return '<div class="hd-person' + (removed ? ' removed' : '') + '">' +
     '<div class="hd-person-main">' +
       '<div class="hd-person-name">' + esc(name) + rel + '</div>' +
-      '<div class="hd-person-sub">' + esc(phone) + '</div>' +
+      '<div class="hd-person-sub">' + phoneLine + '</div>' +
       personReadHtml(p) +
     '</div>' +
     '<div class="hd-person-actions">' + actions + '</div></div>';
+}
+
+function textPerson(enc, fallbackName) { enterConversation(enc, fallbackName || decodeURIComponent(enc)); }
+
+function copyToClip(text, btn) {
+  function done() { var o = btn.innerHTML; btn.innerHTML = '&#10003;'; setTimeout(function(){ btn.innerHTML = o; }, 900); }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done);
+}
+
+// #16: send the opt-in text to this number, then reload the household so the badge + buttons update.
+async function sendOptInText(phone, btn) {
+  var old = btn.textContent; btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/optin-text', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: phone })
+    });
+    var d = await res.json();
+    if (!res.ok) { btn.disabled = false; btn.textContent = old; alert(d.error || 'Could not send the opt-in text.'); return; }
+    enterHousehold(_hd.id);
+  } catch (e) { btn.disabled = false; btn.textContent = old; alert('Connection error.'); }
 }
 
 // Andi's behavioral read, shown lightly. It is his read, not gospel, until you trust it. Nothing
