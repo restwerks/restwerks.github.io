@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.13.0 — 2026-06-10_0140 CT — Phase C household detail reorg. #7: the household detail is now a tabbed panel (Activity / People / System / Photos), data-driven so the tab set is a one-line change; switching tabs preserves unsaved System edits. #17: a household action surface (+ Add ticket, + Add follow up, + Add note) pinned above the tabs, pre-scoped to this home (Add ticket/follow up open the existing create overlay with the household preselected; Add note jumps to System and focuses Notes). #6: tickets and follow ups in Activity now share one row builder where the opened/created date leads and is fixed, then type, then the status date, then assignee. System tab also holds the remove/restore zone. Dashboard only, reuses existing create + household endpoints. NOTE: "Add note" is wired to the existing household Notes field (no new timestamped-note entity); cross-surface shared preview component (tickets/follow-ups LISTS) not done here. Then prior — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.14.0 — 2026-06-10_0230 CT — Phase C2 (needs portal v1.19.0). Create popup: modes are now three independent toggles (Ticket / Follow up / Note), click to select, click again to unselect, any combo, popup grows per selection; follow up field relabeled Follow up, new Note field; Tickets and Follow Ups pages open it single-mode with no toggles (dedicated spots); the conversation + Create shows all three (Note when the thread resolves to a household); notes POST to /api/households/:id/notes. Household header: mirrors the list preview (name + project tag + address line), pencil opens inline edit for project and address (removed from System, and removed from the System save payload so saving System can no longer clobber them), orange + Create button (same as conversation) on the right pre-scoped to the home. Tabs: strip is sticky-anchored at the top of the scroll; remove/restore zone moved from System to People. System tab regrouped: Equipment / Andi remembers / Household settings (system notes stays). Activity tab: tickets, follow ups, and notes interleaved newest-first in one stream with All / Tickets / Follow ups / Notes filter chips. Photos: per-photo delete with confirm (portal DELETE). Conversation rail: now tabbed (Activity / System / Photos, slim variant) with household identity and Andi read pinned above. Then prior — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -423,22 +423,37 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .hh-show-removed:hover { text-decoration:underline; }
 .hh-row.removed .hh-name, .hh-row.removed .hh-sub { opacity:0.55; }
 /* detail panel */
-.hd-head { display:flex;align-items:center;gap:0.7rem;padding:0.85rem 1rem;border-bottom:1px solid var(--border); }
+.hd-head { display:flex;align-items:flex-start;gap:0.7rem;padding:0.85rem 1rem;border-bottom:1px solid var(--border); }
+.hd-head-main { flex:1;min-width:0; }
+.hd-title-row { display:flex;align-items:center;gap:0.55rem;min-width:0; }
+.hd-title-row .hd-title { flex:0 1 auto; }
+.hd-pencil { background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:0.85rem;padding:0 0.1rem; }
+.hd-pencil:hover { color:var(--brand,#1D9E75); }
+.hd-head .hh-sub { margin-top:0.15rem; }
+.hd-head-edit { margin-top:0.5rem;display:flex;flex-direction:column;gap:0.45rem;max-width:480px; }
+.hd-head-edit-row { display:flex;align-items:center;gap:0.5rem; }
+.hd-head-edit-row .btn-primary, .hd-head-edit-row .btn-ghost { padding:0.4rem 0.9rem;font-size:0.8rem; }
 .hd-back { background:none;border:1px solid var(--border);color:var(--ink-mid);border-radius:8px;padding:0.4rem 0.7rem;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap; }
 .hd-back:hover { background:var(--canvas-warm); }
 .hd-title { font-size:1rem;font-weight:700;color:var(--ink);min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .hd-removed-tag { font-size:0.66rem;font-weight:700;color:#9a6a00;background:#fdf0d8;border:1px solid #f0d9a8;border-radius:100px;padding:1px 9px; }
 .hd-body { padding:1rem;max-height:calc(100vh - 220px);overflow-y:auto; }
 .hd-block { margin-bottom:1.4rem; }
-.hd-actions { display:flex;gap:0.5rem;flex-wrap:wrap;margin:0 0 0.9rem; }
-.hd-action { background:var(--canvas-warm);border:1px solid var(--border);color:var(--ink);border-radius:8px;padding:0.45rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer; }
-.hd-action:hover { border-color:var(--brand,#1D9E75);color:var(--brand,#1D9E75); }
-.hd-tabs { display:flex;gap:0.15rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem;flex-wrap:wrap; }
+.hd-tabs { display:flex;gap:0.15rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem;flex-wrap:wrap;position:sticky;top:-1rem;background:var(--white);z-index:5;padding-top:0.25rem; }
 .hd-tab { background:none;border:none;padding:0.55rem 0.95rem;cursor:pointer;color:var(--ink-soft);font-weight:600;font-size:0.85rem;border-bottom:2px solid transparent;margin-bottom:-1px; }
 .hd-tab:hover { color:var(--ink); }
 .hd-tab.active { color:var(--ink);border-bottom-color:var(--brand,#1D9E75); }
 .hd-tabpanel { display:none; }
 .hd-tabpanel.active { display:block; }
+.hd-chiprow { display:flex;gap:0.4rem;margin-bottom:0.8rem;flex-wrap:wrap; }
+.hd-chip { background:var(--canvas-warm);border:1px solid var(--border);color:var(--ink-soft);border-radius:100px;padding:0.25rem 0.75rem;font-size:0.76rem;font-weight:600;cursor:pointer; }
+.hd-chip.on { background:var(--brand-light);border-color:var(--brand);color:var(--brand-dark); }
+.cv-tabs { position:static;margin-bottom:0.8rem;padding-top:0; }
+.cv-tabs .hd-tab { padding:0.4rem 0.6rem;font-size:0.78rem; }
+.photo-thumb { position:relative; }
+.photo-del { position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:6px;width:24px;height:24px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s; }
+.photo-thumb:hover .photo-del { opacity:1; }
+.photo-del:hover { background:#cc4400; }
 .hd-block-title { font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between; }
 .hd-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.7rem; }
 .hd-fld { display:flex;flex-direction:column; }
@@ -700,7 +715,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.13.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.14.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -848,8 +863,21 @@ select.fld-input { appearance:auto;cursor:pointer; }
           <div class="back-btn" onclick="goBack()">← Back</div>
           <div class="panel-chrome">
             <div class="hd-head">
-              <div class="hd-title" id="hd-title">Household</div>
-              <span class="hd-removed-tag" id="hd-removed-tag" style="display:none;">Removed</span>
+              <div class="hd-head-main">
+                <div class="hd-title-row">
+                  <div class="hd-title" id="hd-title">Household</div>
+                  <span class="hh-project" id="hd-project-tag" style="display:none;"></span>
+                  <span class="hd-removed-tag" id="hd-removed-tag" style="display:none;">Removed</span>
+                  <button class="hd-pencil" id="hd-pencil" title="Edit project and address" onclick="hdEditHead()" style="display:none;">&#9998;</button>
+                </div>
+                <div class="hh-sub" id="hd-address-line" style="display:none;"></div>
+                <div class="hd-head-edit" id="hd-head-edit" style="display:none;">
+                  <input class="fld-input" type="text" id="hd-edit-project" placeholder="Project name" />
+                  <input class="fld-input" type="text" id="hd-edit-address" placeholder="Street, city, state" />
+                  <div class="hd-head-edit-row"><button class="btn-primary" onclick="hdSaveHead()">Save</button><button class="btn-ghost" onclick="hdCancelHead()">Cancel</button><span class="hd-err" id="hd-head-err"></span></div>
+                </div>
+              </div>
+              <button class="reply-create" id="hd-create-btn" onclick="openHouseholdCreate()" style="display:none;">+ Create</button>
             </div>
             <div class="hd-body" id="hd-body"><div class="hh-empty">Loading...</div></div>
           </div>
@@ -1071,9 +1099,9 @@ select.fld-input { appearance:auto;cursor:pointer; }
     </div>
     <div class="wiz-body">
       <div class="cr-modes" id="cr-modes">
-        <button class="cr-mode" id="cr-mode-ticket" onclick="crSetMode('ticket')">Ticket</button>
-        <button class="cr-mode" id="cr-mode-followup" onclick="crSetMode('followup')">Follow up</button>
-        <button class="cr-mode" id="cr-mode-both" onclick="crSetMode('both')">Ticket + follow up</button>
+        <button class="cr-mode" id="cr-mode-ticket" onclick="crToggleMode('ticket')">Ticket</button>
+        <button class="cr-mode" id="cr-mode-followup" onclick="crToggleMode('followup')">Follow up</button>
+        <button class="cr-mode" id="cr-mode-note" onclick="crToggleMode('note')">Note</button>
       </div>
 
       <!-- client section (hidden when launched from a thread) -->
@@ -1107,7 +1135,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       </div>
 
       <div id="cr-followup-block">
-        <div class="fld"><div class="fld-label">Note</div><textarea class="fld-input" id="cr-note" style="min-height:120px;resize:vertical;" placeholder="What needs to happen"></textarea></div>
+        <div class="fld"><div class="fld-label">Follow up</div><textarea class="fld-input" id="cr-note" style="min-height:120px;resize:vertical;" placeholder="What needs to happen"></textarea></div>
         <div class="fld fld-row">
           <div><div class="fld-label">Follow up type</div><select class="fld-input" id="cr-type"><option value="tech">Schedule a tech</option><option value="sales">Sales reach out</option><option value="other">Other</option></select></div>
           <div><div class="fld-label">Due date (optional)</div><input class="fld-input" type="date" id="cr-due" /></div>
@@ -1115,6 +1143,10 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div class="fld"><div class="fld-label">Assign follow up to (optional)</div>
           <select class="fld-input cr-assignee" id="cr-assignee-followup"><option value="">No one yet</option></select>
         </div>
+      </div>
+
+      <div id="cr-note-block">
+        <div class="fld"><div class="fld-label">Note</div><textarea class="fld-input" id="cr-hhnote" style="min-height:100px;resize:vertical;" placeholder="A note that stays on this household"></textarea></div>
       </div>
 
       <div class="wiz-err" id="cr-err"></div>
@@ -2250,11 +2282,23 @@ function renderHouseholdDetail() {
   document.getElementById('hd-title').textContent = h.name || 'Household';
   document.getElementById('hd-removed-tag').style.display = removed ? '' : 'none';
 
+  // Header mirrors the list preview: project tag next to the name, address as the sub line,
+  // pencil opens the inline edit. + Create (orange, same as the conversation one) on the right.
+  var projTag = document.getElementById('hd-project-tag');
+  projTag.textContent = h.project_name || '';
+  projTag.style.display = h.project_name ? '' : 'none';
+  var addr = document.getElementById('hd-address-line');
+  addr.textContent = h.address || 'No address on file';
+  addr.style.display = '';
+  document.getElementById('hd-pencil').style.display = removed ? 'none' : '';
+  document.getElementById('hd-head-edit').style.display = 'none';
+  document.getElementById('hd-create-btn').style.display = removed ? 'none' : '';
+
   var people = h.people || [];
   var activePeople = people.filter(function(p) { return p.active !== false; });
   var removedPeople = people.filter(function(p) { return p.active === false; });
 
-  // ── People panel ──
+  // ── People panel (remove/restore zone lives here now) ──
   var peopleHtml = '';
   if (!activePeople.length) peopleHtml += '<div class="hd-person-sub" style="padding:0.4rem 0;">No active contacts.</div>';
   activePeople.forEach(function(p) { peopleHtml += personRowHtml(p, false); });
@@ -2264,40 +2308,44 @@ function renderHouseholdDetail() {
     removedPeople.forEach(function(p) { peopleHtml += personRowHtml(p, true); });
     peopleHtml += '</div>';
   }
-
-  // ── System panel (fields + remote reboot + save + remove/restore) ──
-  var systemHtml = '<div class="hd-grid">' +
-    hdField('Control system', 'hd-control', h.control_system_type) +
-    hdField('Internet provider', 'hd-isp', h.isp_name) +
-    hdField('Network', 'hd-network', h.network_tier) +
-    hdField('Priority tier', 'hd-priority', h.priority_tier) +
-    hdField('Lighting', 'hd-lighting', h.lighting_system_type) +
-    hdField('Cameras', 'hd-cameras', h.camera_system_type) +
-    hdField('Locks', 'hd-locks', h.lock_system_type) +
-    hdField('Security manager', 'hd-security', h.security_manager_name) +
-    hdField('WiFi network', 'hd-wifi-net', h.wifi_network) +
-    hdField('WiFi password', 'hd-wifi-pw', h.wifi_password) +
-    hdField('Garage code', 'hd-garage', h.garage_code) +
-    '<div class="hd-fld"><label>Project name</label><input class="hd-input" id="hd-project" type="text" value="' + esc(h.project_name || '') + '" /></div>' +
-    '<div class="hd-fld full"><label>Address</label><input class="hd-input" id="hd-address" type="text" value="' + esc(h.address || '') + '" /></div>' +
-    '<div class="hd-fld full"><label>Notes</label><textarea class="hd-input" id="hd-notes">' + esc(h.household_notes || '') + '</textarea></div>' +
-    '</div>' +
-    '<div class="hd-toggle-row"><input type="checkbox" id="hd-reboot"' + (h.remote_reboot_enabled ? ' checked' : '') + ' /> <label for="hd-reboot" style="cursor:pointer;">Remote reboot enabled for this household</label></div>' +
-    '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>';
   if (removed) {
-    systemHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;border-color:var(--border);background:var(--canvas-warm);">' +
+    peopleHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;border-color:var(--border);background:var(--canvas-warm);">' +
       '<div class="dz-text">This household is removed. Bring it back with its history and reserved numbers intact.</div>' +
       '<button class="hd-restore-btn" onclick="reactivateHousehold()">Restore household</button></div>';
   } else {
-    systemHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;">' +
+    peopleHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;">' +
       '<div class="dz-text">Remove this household. It moves to Removed and can be brought back later. Nothing is deleted.</div>' +
       '<button class="hd-danger-btn" onclick="openRemoveHousehold()">Remove household</button></div>';
   }
 
-  // ── Activity panel (#6 date-consistent ticket + follow up history) ──
+  // ── System panel, grouped: Equipment (what's installed) / Andi remembers (what he serves) /
+  //    household settings. Project name + address moved to the header. System notes stays.
+  var systemHtml =
+    '<div class="hd-block-title">Equipment</div><div class="hd-grid">' +
+    hdField('Control system', 'hd-control', h.control_system_type) +
+    hdField('Internet provider', 'hd-isp', h.isp_name) +
+    hdField('Network', 'hd-network', h.network_tier) +
+    hdField('Lighting', 'hd-lighting', h.lighting_system_type) +
+    hdField('Cameras', 'hd-cameras', h.camera_system_type) +
+    hdField('Locks', 'hd-locks', h.lock_system_type) +
+    '</div>' +
+    '<div class="hd-block-title" style="margin-top:1.1rem;">Andi remembers</div><div class="hd-grid">' +
+    hdField('WiFi network', 'hd-wifi-net', h.wifi_network) +
+    hdField('WiFi password', 'hd-wifi-pw', h.wifi_password) +
+    hdField('Garage code', 'hd-garage', h.garage_code) +
+    hdField('Security manager', 'hd-security', h.security_manager_name) +
+    '</div>' +
+    '<div class="hd-block-title" style="margin-top:1.1rem;">Household settings</div><div class="hd-grid">' +
+    hdField('Priority tier', 'hd-priority', h.priority_tier) +
+    '<div class="hd-fld full"><label>System notes</label><textarea class="hd-input" id="hd-notes">' + esc(h.household_notes || '') + '</textarea></div>' +
+    '</div>' +
+    '<div class="hd-toggle-row"><input type="checkbox" id="hd-reboot"' + (h.remote_reboot_enabled ? ' checked' : '') + ' /> <label for="hd-reboot" style="cursor:pointer;">Remote reboot enabled for this household</label></div>' +
+    '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>';
+
+  // ── Activity panel (#6, chronological stream with filters) ──
   var activityHtml = householdActivityHtml(h);
 
-  // ── Photos panel ──
+  // ── Photos panel (with delete) ──
   var photosHtml = '<div id="hd-photo-container"><div class="hd-person-sub">Loading photos...</div></div>' +
     '<button class="hd-photo-add" id="hd-photo-add" onclick="document.getElementById(\'hd-photo-input\').click()">+ Add photo</button>' +
     '<input type="file" id="hd-photo-input" accept="image/*" style="display:none;" onchange="uploadDetailPhoto(this)" />';
@@ -2311,23 +2359,39 @@ function renderHouseholdDetail() {
   ];
   var active = tabs.some(function(t){ return t.id === _hdTab; }) ? _hdTab : 'activity';
 
-  // #17 household action surface, pre-scoped to this home.
-  var actions = removed ? '' : '<div class="hd-actions">' +
-    '<button class="hd-action" onclick="openHouseholdCreate(\'ticket\')">+ Add ticket</button>' +
-    '<button class="hd-action" onclick="openHouseholdCreate(\'followup\')">+ Add follow up</button>' +
-    '<button class="hd-action" onclick="hdAddNote()">+ Add note</button>' +
-    '</div>';
-
   var strip = '<div class="hd-tabs">' + tabs.map(function(t){
     return '<button class="hd-tab' + (t.id === active ? ' active' : '') + '" data-tab="' + t.id + '" onclick="hdTab(\'' + t.id + '\')">' + t.label + '</button>';
   }).join('') + '</div>';
-  var panels = tabs.map(function(t){
+  var panels = '<div class="hd-tabbody">' + tabs.map(function(t){
     return '<div class="hd-tabpanel' + (t.id === active ? ' active' : '') + '" id="hdtab-' + t.id + '">' + t.html + '</div>';
-  }).join('');
+  }).join('') + '</div>';
 
-  document.getElementById('hd-body').innerHTML = actions + strip + panels;
+  document.getElementById('hd-body').innerHTML = strip + panels;
   _hdTab = active;
   loadDetailPhotos();
+}
+
+// Header inline edit (pencil): project name + address together, saved through the existing PUT.
+function hdEditHead() {
+  if (!_hd) return;
+  document.getElementById('hd-edit-project').value = _hd.project_name || '';
+  document.getElementById('hd-edit-address').value = _hd.address || '';
+  document.getElementById('hd-head-err').textContent = '';
+  document.getElementById('hd-head-edit').style.display = '';
+}
+function hdCancelHead() { document.getElementById('hd-head-edit').style.display = 'none'; }
+async function hdSaveHead() {
+  var err = document.getElementById('hd-head-err');
+  err.textContent = '';
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_name: hhVal('hd-edit-project'), address: hhVal('hd-edit-address') })
+    });
+    var d = await res.json();
+    if (!res.ok) { err.textContent = d.error || 'Could not save.'; return; }
+    enterHousehold(_hd.id);
+  } catch (e) { err.textContent = 'Connection error.'; }
 }
 
 // #7 switch tabs without re-rendering the whole panel (keeps unsaved field edits in System).
@@ -2337,24 +2401,24 @@ function hdTab(id) {
   document.querySelectorAll('#hd-body .hd-tabpanel').forEach(function(p){ p.classList.toggle('active', p.id === 'hdtab-' + id); });
 }
 
-// #17 open the create overlay pre-scoped to this household (person optional).
+// #17 the household + Create: same popup as the conversation one, pre-scoped to this home,
+// all three toggles live (Note included, household known).
 function openHouseholdCreate(mode) {
   if (!_hd) return;
-  openCreate(mode);
+  openCreate(mode || 'ticket');
+  _cr.modes = new Set([mode || 'ticket']);
+  _cr.noteAllowed = true;
+  _cr.noteHouseholdId = _hd.id;
   _cr.sel = { household_id: _hd.id, name: _hd.name, phone: '' };
   _cr.isNew = false;
   document.getElementById('cr-sub').textContent = 'For this household. Pick a person if it is about someone specific.';
+  document.getElementById('cr-modes').style.display = '';
+  document.getElementById('cr-mode-note').style.display = '';
   document.getElementById('cr-search-wrap').style.display = 'none';
   var s = document.getElementById('cr-selected');
   s.textContent = _hd.name;
   s.style.display = '';
-}
-
-// #17 "+ Add note" jumps to the System tab and focuses the household notes field.
-function hdAddNote() {
-  hdTab('system');
-  var n = document.getElementById('hd-notes');
-  if (n) { n.focus(); n.scrollIntoView({ block: 'center' }); }
+  crApplyModes();
 }
 
 function optInBadge(s) {
@@ -2452,41 +2516,56 @@ function pillFor(st) {
   return '<span class="t-pill ' + cls + '">' + (st.charAt(0).toUpperCase() + st.slice(1)) + '</span>';
 }
 
-// Activity (item 5): system issues stay with the home, so the house keeps its full log even after
-// it changes hands. Tickets are clickable for a one-click round trip. Newest first.
+// Activity (Phase C2): tickets, follow ups, and notes interleaved in one chronological stream,
+// newest first, with filter chips. System issues stay with the home (item 5).
+var _hdActFilter = 'all';
+function hdActFilter(f) { _hdActFilter = f; var p = document.getElementById('hdtab-activity'); if (p && _hd) p.innerHTML = householdActivityHtml(_hd); }
 function householdActivityHtml(h) {
-  var tickets = h.tickets || [];
-  var fus = h.follow_ups || [];
-  if (!tickets.length && !fus.length) {
-    return '<div class="hd-person-sub" style="padding:0.4rem 0;">No tickets or follow ups on this home yet.</div>';
+  var items = [];
+  (h.tickets || []).forEach(function(t) { items.push({ kind: 'ticket', at: t.opened_at, d: t }); });
+  (h.follow_ups || []).forEach(function(f) { items.push({ kind: 'followup', at: f.created_at, d: f }); });
+  (h.notes || []).forEach(function(n) { items.push({ kind: 'note', at: n.created_at, d: n }); });
+  items.sort(function(a, b) { return new Date(b.at || 0) - new Date(a.at || 0); });
+
+  var f = _hdActFilter;
+  var chips = [['all','All'],['ticket','Tickets'],['followup','Follow ups'],['note','Notes']].map(function(c){
+    return '<button class="hd-chip' + (f === c[0] ? ' on' : '') + '" onclick="hdActFilter(\'' + c[0] + '\')">' + c[1] + '</button>';
+  }).join('');
+  var out = '<div class="hd-chiprow">' + chips + '</div>';
+
+  var shown = items.filter(function(it){ return f === 'all' || it.kind === f; });
+  if (!shown.length) {
+    out += '<div class="hd-person-sub" style="padding:0.4rem 0;">Nothing here yet.</div>';
+    return out;
   }
-  var out = '';
-  if (tickets.length) {
-    out += '<div class="hd-hist-sub">Tickets</div>';
-    tickets.forEach(function(t) {
-      var st = t.status || 'open';
-      var meta = ['Opened ' + fmtTime(t.opened_at)];
+  shown.forEach(function(it) {
+    if (it.kind === 'ticket') {
+      var t = it.d, st = t.status || 'open';
+      var meta = ['Ticket', 'Opened ' + fmtTime(t.opened_at)];
       if (t.ticket_type) meta.push(t.ticket_type);
       if (t.scheduled_at) meta.push('scheduled ' + fmtTime(t.scheduled_at));
       if (t.assignee_name) meta.push(t.assignee_name);
       out += '<div class="hd-hist-row" onclick="goToTicket(' + t.id + ')">' +
         '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(t.summary || 'Open issue') + '</div>' +
         histMetaLine(meta) + '</div>' + pillFor(st) + '</div>';
-    });
-  }
-  if (fus.length) {
-    out += '<div class="hd-hist-sub" style="margin-top:0.7rem;">Follow ups</div>';
-    fus.forEach(function(f) {
-      var st = f.status || 'pending';
-      var meta = ['Created ' + fmtTime(f.created_at)];
-      if (f.type) meta.push(f.type);
-      if (f.due_date) meta.push('due ' + f.due_date);
-      if (f.assignee_name) meta.push(f.assignee_name);
+    } else if (it.kind === 'followup') {
+      var fu = it.d, fst = fu.status || 'pending';
+      var fmeta = ['Follow up', 'Created ' + fmtTime(fu.created_at)];
+      if (fu.type) fmeta.push(fu.type);
+      if (fu.due_date) fmeta.push('due ' + fu.due_date);
+      if (fu.assignee_name) fmeta.push(fu.assignee_name);
       out += '<div class="hd-hist-row static">' +
-        '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(f.note || 'Follow up') + '</div>' +
-        histMetaLine(meta) + '</div>' + pillFor(st === 'resolved' ? 'resolved' : 'open') + '</div>';
-    });
-  }
+        '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(fu.note || 'Follow up') + '</div>' +
+        histMetaLine(fmeta) + '</div>' + pillFor(fst === 'resolved' ? 'resolved' : 'open') + '</div>';
+    } else {
+      var n = it.d;
+      var nmeta = ['Note', 'Created ' + fmtTime(n.created_at)];
+      if (n.created_by) nmeta.push(n.created_by);
+      out += '<div class="hd-hist-row static">' +
+        '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(n.note || '') + '</div>' +
+        histMetaLine(nmeta) + '</div></div>';
+    }
+  });
   return out;
 }
 
@@ -2506,7 +2585,6 @@ async function saveHouseholdFields() {
     lighting_system_type: hhVal('hd-lighting'), camera_system_type: hhVal('hd-cameras'),
     lock_system_type: hhVal('hd-locks'), security_manager_name: hhVal('hd-security'),
     wifi_network: hhVal('hd-wifi-net'), wifi_password: hhVal('hd-wifi-pw'), garage_code: hhVal('hd-garage'),
-    project_name: hhVal('hd-project'), address: hhVal('hd-address'),
     household_notes: hhVal('hd-notes'),
     remote_reboot_enabled: document.getElementById('hd-reboot').checked
   };
@@ -2655,10 +2733,30 @@ async function loadDetailPhotos() {
       img.src = p.url; img.alt = p.filename || ''; img.loading = 'lazy';
       thumb.appendChild(img);
       thumb.addEventListener('click', function() { openLightbox(p.url); });
+      // Phase C2: delete with a confirm step so a misclick cannot nuke a rack photo.
+      var del = document.createElement('button');
+      del.className = 'photo-del'; del.title = 'Delete photo'; del.innerHTML = '&#10005;';
+      del.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        if (!confirm('Delete this photo? This cannot be undone.')) return;
+        deleteDetailPhoto(p.id, thumb);
+      });
+      thumb.appendChild(del);
       grid.appendChild(thumb);
     });
     c.appendChild(grid);
   } catch (e) { c.innerHTML = '<div class="hd-person-sub">Could not load photos.</div>'; }
+}
+
+// Phase C2: delete a photo (R2 + record on the portal), then drop the thumb in place.
+async function deleteDetailPhoto(photoId, thumbEl) {
+  if (!_hd) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/photos/' + photoId, { method: 'DELETE' });
+    var d = await res.json();
+    if (!res.ok) { alert(d.error || 'Could not delete the photo.'); return; }
+    if (thumbEl && thumbEl.parentNode) thumbEl.parentNode.removeChild(thumbEl);
+  } catch (e) { alert('Connection error.'); }
 }
 
 async function uploadDetailPhoto(input) {
@@ -3322,6 +3420,14 @@ async function doHandback(phone) {
 }
 
 // ── EQUIPMENT PANEL ──────────────────────────────────────────────────────────
+// Phase C2: the rail is tabbed like the household detail, slimmer for the narrow column.
+// Household name/address and Andi's read stay pinned above the tabs; Activity / System / Photos.
+var _cvTab = 'activity';
+function cvTab(id) {
+  _cvTab = id;
+  document.querySelectorAll('#equipment-panel-body .hd-tab').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab') === id); });
+  document.querySelectorAll('#equipment-panel-body .hd-tabpanel').forEach(function(p){ p.classList.toggle('active', p.id === 'cvtab-' + id); });
+}
 async function loadEquipmentPanel(phone) {
   var body = document.getElementById('equipment-panel-body');
   if (!body) return;
@@ -3342,7 +3448,7 @@ async function loadEquipmentPanel(phone) {
 
     body.innerHTML = '';
 
-    // Household info
+    // Pinned: household identity.
     var clientSection = document.createElement('div');
     clientSection.className = 'eq-section';
     clientSection.innerHTML = '<div class="eq-section-title">Household</div>';
@@ -3360,40 +3466,41 @@ async function loadEquipmentPanel(phone) {
     }
     body.appendChild(clientSection);
 
-    // Open work + Andi's read (item 6). Filled from the conversation context route.
-    var ctxSection = document.createElement('div');
-    ctxSection.id = 'conv-context';
-    body.appendChild(ctxSection);
-    loadConvContext(phone, ctxSection);
+    // Pinned: Andi's read (filled async by loadConvContext).
+    var readSection = document.createElement('div');
+    readSection.id = 'conv-read';
+    body.appendChild(readSection);
 
-    // System fields
+    // System tab content, built now.
+    var sysHtml = '';
     if (sysFields.length) {
-      var sysSection = document.createElement('div');
-      sysSection.className = 'eq-section';
-      sysSection.innerHTML = '<div class="eq-section-title">System</div>';
-      sysFields.forEach(function(f) {
-        var row = document.createElement('div');
-        row.className = 'eq-row';
-        row.innerHTML = '<span class="eq-label">' + f.label + '</span><span class="eq-value">' + f.value + '</span>';
-        sysSection.appendChild(row);
-      });
-      body.appendChild(sysSection);
+      sysHtml += '<div class="eq-section"><div class="eq-section-title">System</div>' + sysFields.map(function(f) {
+        return '<div class="eq-row"><span class="eq-label">' + f.label + '</span><span class="eq-value">' + f.value + '</span></div>';
+      }).join('') + '</div>';
     }
-
-    // Notes
     if (h.household_notes && h.household_notes !== 'None') {
-      var notesSection = document.createElement('div');
-      notesSection.className = 'eq-section';
-      notesSection.innerHTML = '<div class="eq-section-title">Notes</div><div class="eq-notes">' + h.household_notes + '</div>';
-      body.appendChild(notesSection);
+      sysHtml += '<div class="eq-section"><div class="eq-section-title">Notes</div><div class="eq-notes">' + h.household_notes + '</div></div>';
     }
+    if (!sysHtml) sysHtml = '<div class="eq-notes" style="font-style:italic;">No system info on file yet.</div>';
 
-    // Photos section
-    var photoSection = document.createElement('div');
-    photoSection.className = 'eq-section';
-    photoSection.innerHTML = '<div class="eq-section-title">Photos</div><div id="photo-grid-container"><div style="color:var(--ink-soft);font-size:0.75rem;">Loading photos...</div></div>';
-    body.appendChild(photoSection);
+    var photosHtml = '<div class="eq-section"><div class="eq-section-title">Photos</div><div id="photo-grid-container"><div style="color:var(--ink-soft);font-size:0.75rem;">Loading photos...</div></div></div>';
 
+    var active = ['activity','system','photos'].indexOf(_cvTab) !== -1 ? _cvTab : 'activity';
+    var tabsEl = document.createElement('div');
+    tabsEl.innerHTML =
+      '<div class="hd-tabs cv-tabs">' +
+        '<button class="hd-tab' + (active==='activity'?' active':'') + '" data-tab="activity" onclick="cvTab(\'activity\')">Activity</button>' +
+        '<button class="hd-tab' + (active==='system'?' active':'') + '" data-tab="system" onclick="cvTab(\'system\')">System</button>' +
+        '<button class="hd-tab' + (active==='photos'?' active':'') + '" data-tab="photos" onclick="cvTab(\'photos\')">Photos</button>' +
+      '</div>' +
+      '<div class="hd-tabpanel' + (active==='activity'?' active':'') + '" id="cvtab-activity"><div class="eq-notes" style="font-style:italic;">Loading...</div></div>' +
+      '<div class="hd-tabpanel' + (active==='system'?' active':'') + '" id="cvtab-system">' + sysHtml + '</div>' +
+      '<div class="hd-tabpanel' + (active==='photos'?' active':'') + '" id="cvtab-photos">' + photosHtml + '</div>';
+    while (tabsEl.firstChild) body.appendChild(tabsEl.firstChild);
+    _cvTab = active;
+
+    // Photo upload control inside the Photos tab.
+    var photoSection = document.querySelector('#cvtab-photos .eq-section');
     var uploadLabel = document.createElement('label');
     uploadLabel.className = 'photo-upload-btn';
     uploadLabel.textContent = '+ Add Photo';
@@ -3405,38 +3512,46 @@ async function loadEquipmentPanel(phone) {
     uploadLabel.insertBefore(uploadInput, uploadLabel.firstChild);
     photoSection.appendChild(uploadLabel);
 
+    loadConvContext(phone, document.getElementById('cvtab-activity'));
     loadPhotos(phone);
   } catch (err) {
     body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.78rem;">Could not load system info.</div>';
   }
 }
 
-// Conversation rail context (item 6): Andi's read of who you are talking to, plus this client's
-// open tickets and pending follow ups. Tickets jump to the ticket. Capture-only data, shown lightly.
+// Conversation rail context (item 6): Andi's read pins above the tabs; tickets and follow ups
+// fill the Activity tab. Tickets jump to the ticket. Capture-only data, shown lightly.
 async function loadConvContext(phone, container) {
   if (!container) return;
   try {
     var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone) + '/context');
-    if (!res.ok) return;
+    if (!res.ok) { container.innerHTML = ''; return; }
     var ctx = await res.json();
+    window._ctxHouseholdId = ctx.household_id || null;
     var c = ctx.client || null;
     var tickets = ctx.tickets || [];
     var fus = ctx.follow_ups || [];
-    var html = '';
 
-    if (c && (c.self_sufficiency || c.difficulty || c.comm_voice || c.profile_notes)) {
-      var bits = [];
-      if (c.self_sufficiency) bits.push('capability ' + c.self_sufficiency + '/5');
-      if (c.difficulty) bits.push('difficulty ' + c.difficulty + '/5');
-      var who = c.profile_updated_by && c.profile_updated_by !== 'Andi' ? esc(c.profile_updated_by) + "'s read" : "Andi's read";
-      html += '<div class="eq-section"><div class="eq-section-title">' + who + '</div>';
-      if (bits.length) html += '<div class="conv-read-scores">' + bits.join(' · ') + '</div>';
-      if (c.comm_voice) html += '<div class="conv-read-voice">"' + esc(c.comm_voice) + '"</div>';
-      if (c.profile_notes) html += '<div class="eq-notes">' + esc(c.profile_notes) + '</div>';
-      html += '</div>';
+    // Pinned read.
+    var readEl = document.getElementById('conv-read');
+    if (readEl) {
+      var readHtml = '';
+      if (c && (c.self_sufficiency || c.difficulty || c.comm_voice || c.profile_notes)) {
+        var bits = [];
+        if (c.self_sufficiency) bits.push('capability ' + c.self_sufficiency + '/5');
+        if (c.difficulty) bits.push('difficulty ' + c.difficulty + '/5');
+        var who = c.profile_updated_by && c.profile_updated_by !== 'Andi' ? esc(c.profile_updated_by) + "'s read" : "Andi's read";
+        readHtml += '<div class="eq-section"><div class="eq-section-title">' + who + '</div>';
+        if (bits.length) readHtml += '<div class="conv-read-scores">' + bits.join(' · ') + '</div>';
+        if (c.comm_voice) readHtml += '<div class="conv-read-voice">"' + esc(c.comm_voice) + '"</div>';
+        if (c.profile_notes) readHtml += '<div class="eq-notes">' + esc(c.profile_notes) + '</div>';
+        readHtml += '</div>';
+      }
+      readEl.innerHTML = readHtml;
     }
 
-    html += '<div class="eq-section"><div class="eq-section-title">Tickets</div>';
+    // Activity tab.
+    var html = '<div class="eq-section"><div class="eq-section-title">Tickets</div>';
     if (!tickets.length) {
       html += '<div class="eq-notes" style="font-style:italic;">No tickets on this home yet.</div>';
     } else {
@@ -4182,12 +4297,34 @@ async function ensureCrPeople() {
   });
 }
 
+// Phase C2: modes are independent toggles (any combo of ticket / followup / note). _cr.modes is a
+// Set. crSetMode keeps old single-mode callers working by selecting exactly that one.
+function crApplyModes() {
+  var m = _cr.modes;
+  ['ticket','followup','note'].forEach(function(x){
+    var b = document.getElementById('cr-mode-'+x);
+    if (b) b.classList.toggle('sel', m.has(x));
+  });
+  document.getElementById('cr-issue-block').style.display = m.has('ticket') ? '' : 'none';
+  document.getElementById('cr-followup-block').style.display = m.has('followup') ? '' : 'none';
+  var nb = document.getElementById('cr-note-block');
+  if (nb) nb.style.display = (m.has('note') && _cr.noteAllowed) ? '' : 'none';
+  var names = [];
+  if (m.has('ticket')) names.push('ticket');
+  if (m.has('followup')) names.push('follow up');
+  if (m.has('note') && _cr.noteAllowed) names.push('note');
+  document.getElementById('cr-title').textContent = names.length
+    ? 'New ' + names.join(' + ')
+    : 'Create';
+}
+function crToggleMode(x) {
+  if (x === 'note' && !_cr.noteAllowed) return;
+  if (_cr.modes.has(x)) _cr.modes.delete(x); else _cr.modes.add(x);
+  crApplyModes();
+}
 function crSetMode(m) {
-  _cr.mode = m;
-  ['ticket','followup','both'].forEach(function(x){ document.getElementById('cr-mode-'+x).classList.toggle('sel', x===m); });
-  document.getElementById('cr-issue-block').style.display = (m==='ticket'||m==='both') ? '' : 'none';
-  document.getElementById('cr-followup-block').style.display = (m==='followup'||m==='both') ? '' : 'none';
-  document.getElementById('cr-title').textContent = m==='ticket' ? 'New ticket' : (m==='followup' ? 'New follow up' : 'Ticket and follow up');
+  _cr.modes = new Set(m === 'both' ? ['ticket','followup'] : [m]);
+  crApplyModes();
 }
 
 function crResetClient() {
@@ -4200,37 +4337,40 @@ function crResetClient() {
   ['cr-new-name','cr-new-phone','cr-new-email'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
 }
 
+// Dedicated-page create (Tickets page, Follow Ups page): single fixed mode, no toggles, no Note.
 async function openCreate(mode) {
-  _cr = { mode: mode||'ticket', locked:false, phone:null, name:null, sel:null, isNew:false };
-  document.getElementById('cr-sub').textContent = 'Open a ticket, a follow up, or both.';
-  document.getElementById('cr-modes').style.display = '';
+  _cr = { modes: new Set([mode||'ticket']), noteAllowed:false, noteHouseholdId:null, locked:false, phone:null, name:null, sel:null, isNew:false };
+  document.getElementById('cr-sub').textContent = mode==='followup' ? 'Add a follow up.' : 'Open a ticket.';
+  document.getElementById('cr-modes').style.display = 'none';
   document.getElementById('cr-client-block').style.display = '';
   document.getElementById('cr-about').style.display = 'none';
-  ['cr-issue','cr-note','cr-due'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
+  ['cr-issue','cr-note','cr-due','cr-hhnote'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
   document.getElementById('cr-type').value = 'tech';
   document.getElementById('cr-draft-note').style.display = 'none';
   document.getElementById('cr-err').textContent = '';
   crResetClient();
-  crSetMode(mode||'ticket');
+  crApplyModes();
   document.getElementById('cr-overlay').classList.add('show');
   ensureCrTeam();
   ensureCrPeople();
 }
 
-// Launched from inside a thread: client is known and locked, issue auto-drafts.
+// Launched from inside a thread: client is known and locked, issue auto-drafts. All three
+// toggles; Note is allowed when the thread resolves to a household.
 async function openThreadCreate() {
   if (!window._currentPhone) return;
-  _cr = { mode:'ticket', locked:true, phone: window._currentPhone, name: window._currentName || 'this client', sel:null, isNew:false };
+  _cr = { modes: new Set(['ticket']), noteAllowed: !!window._ctxHouseholdId, noteHouseholdId: window._ctxHouseholdId || null, locked:true, phone: window._currentPhone, name: window._currentName || 'this client', sel:null, isNew:false };
   document.getElementById('cr-sub').textContent = 'For the client you are messaging.';
   document.getElementById('cr-modes').style.display = '';
+  document.getElementById('cr-mode-note').style.display = _cr.noteAllowed ? '' : 'none';
   document.getElementById('cr-client-block').style.display = 'none';
   var about = document.getElementById('cr-about');
   about.textContent = 'About: ' + (window._currentName || 'this client');
   about.style.display = '';
-  ['cr-issue','cr-note','cr-due'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
+  ['cr-issue','cr-note','cr-due','cr-hhnote'].forEach(function(i){ var e=document.getElementById(i); if(e) e.value=''; });
   document.getElementById('cr-type').value = 'tech';
   document.getElementById('cr-err').textContent = '';
-  crSetMode('ticket');
+  crApplyModes();
   document.getElementById('cr-overlay').classList.add('show');
   ensureCrTeam();
   // auto-draft the issue from the conversation
@@ -4293,33 +4433,45 @@ async function submitCreate() {
   var btn = document.getElementById('cr-save-btn');
   var err = document.getElementById('cr-err');
   err.textContent = '';
-  var mode = _cr.mode;
-  var client = crClientPayload();
+  var m = _cr.modes;
+  var wantNote = m.has('note') && _cr.noteAllowed;
+  if (!m.has('ticket') && !m.has('followup') && !wantNote) { err.textContent = 'Pick what to create.'; return; }
+  var client = (m.has('ticket') || m.has('followup')) ? crClientPayload() : {};
   if (client.error) { err.textContent = client.error; return; }
   var assigneeTicket = document.getElementById('cr-assignee-ticket').value || '';
   var assigneeFollowup = document.getElementById('cr-assignee-followup').value || '';
-  var issue = hhVal('cr-issue'), note = hhVal('cr-note');
-  if ((mode==='ticket'||mode==='both') && !issue) { err.textContent = 'Describe the issue.'; return; }
-  if ((mode==='followup'||mode==='both') && !note) { err.textContent = 'Add a follow up note.'; return; }
+  var issue = hhVal('cr-issue'), note = hhVal('cr-note'), hhnote = hhVal('cr-hhnote');
+  if (m.has('ticket') && !issue) { err.textContent = 'Describe the issue.'; return; }
+  if (m.has('followup') && !note) { err.textContent = 'Add the follow up.'; return; }
+  if (wantNote && !hhnote) { err.textContent = 'Write the note.'; return; }
+  var noteHousehold = _cr.noteHouseholdId || (_cr.sel && _cr.sel.household_id) || null;
+  if (wantNote && !noteHousehold) { err.textContent = 'A note needs a household.'; return; }
   btn.disabled = true; btn.textContent = 'Creating...';
   try {
-    if (mode==='ticket' || mode==='both') {
+    if (m.has('ticket')) {
       var tb = Object.assign({}, client, { summary: issue, assigned_to: assigneeTicket });
       var tr = await rwFetch('/api/tickets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(tb) });
       var td = await tr.json();
       if (!tr.ok) { err.textContent = td.error || 'Could not create ticket.'; btn.disabled=false; btn.textContent='Create'; return; }
     }
-    if (mode==='followup' || mode==='both') {
+    if (m.has('followup')) {
       var fb = Object.assign({}, client, { note: note, type: document.getElementById('cr-type').value, due_date: hhVal('cr-due'), assigned_to: assigneeFollowup });
       var fr = await rwFetch('/api/follow-ups', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(fb) });
       var fd = await fr.json();
       if (!fr.ok) { err.textContent = fd.error || 'Could not create follow up.'; btn.disabled=false; btn.textContent='Create'; return; }
+    }
+    if (wantNote) {
+      var nr = await rwFetch('/api/households/' + noteHousehold + '/notes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note: hhnote }) });
+      var nd = await nr.json();
+      if (!nr.ok) { err.textContent = nd.error || 'Could not save the note.'; btn.disabled=false; btn.textContent='Create'; return; }
     }
     closeCreate();
     loadCounts();
     var active = document.querySelector('.panel.active');
     if (active && active.id === 'panel-tickets') loadTickets();
     if (active && active.id === 'panel-followups') loadFollowups();
+    // Refresh an open household so the Activity stream shows the new entries.
+    if (typeof _hd !== 'undefined' && _hd && isShown('hh-detail-view')) enterHousehold(_hd.id);
   } catch (e) { err.textContent = 'Connection error.'; }
   btn.disabled = false; btn.textContent = 'Create';
 }
