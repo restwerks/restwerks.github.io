@@ -464,7 +464,7 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .hh-count-label { font-size:0.58rem;font-weight:700;color:var(--ink-soft);text-decoration:underline;text-transform:uppercase;letter-spacing:0.03em; }
 .hh-count { min-width:20px;height:20px;border-radius:100px;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;padding:0 6px; }
 .hh-count.tickets { color:#fff;background:var(--red,#c0392b); }
-.hh-count.scheduled { color:#fff;background:#b45309; }
+.hh-count.scheduled { color:#fff;background:#7c3aed; }
 .hh-count.followups { color:#fff;background:var(--blue,#2D7DD2); }
 .hd-mini { background:none;border:1px solid var(--border);color:var(--ink-mid);border-radius:7px;padding:0.32rem 0.6rem;font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif; }
 .hd-mini:hover { background:var(--canvas-warm); }
@@ -682,7 +682,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.9.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.9.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2085,8 +2085,8 @@ function householdRowHtml(h, removed) {
   var sc = parseInt(h.scheduled_ticket_count || 0, 10);
   var fc = parseInt(h.open_followup_count || 0, 10);
   var badges = '';
-  if (!removed && tc > 0) badges += '<div class="hh-count-col"><span class="hh-count-label">Tickets</span><span class="hh-count tickets" title="Open tickets">' + tc + '</span></div>';
-  if (!removed && sc > 0) badges += '<div class="hh-count-col"><span class="hh-count-label">Scheduled</span><span class="hh-count scheduled" title="Scheduled tickets">' + sc + '</span></div>';
+  if (!removed && tc > 0) badges += '<div class="hh-count-col"><span class="hh-count-label">Tickets Open</span><span class="hh-count tickets" title="Open tickets">' + tc + '</span></div>';
+  if (!removed && sc > 0) badges += '<div class="hh-count-col"><span class="hh-count-label">Tickets Scheduled</span><span class="hh-count scheduled" title="Scheduled tickets">' + sc + '</span></div>';
   if (!removed && fc > 0) badges += '<div class="hh-count-col"><span class="hh-count-label">Follow ups</span><span class="hh-count followups" title="Open follow ups">' + fc + '</span></div>';
   return '<div class="hh-row clickable' + (removed ? ' removed' : '') + '" onclick="enterHousehold(' + h.id + ')">' +
     '<div class="hh-main">' +
