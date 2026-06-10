@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.11.0 — 2026-06-09_2330 CT — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.11.1 — 2026-06-09_2350 CT — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -689,7 +689,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.11.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.11.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3763,34 +3763,50 @@ function openTicket(id) {
     if (t.phone_number) contactBits.push(fmtPhone(t.phone_number));
     if (t.contact_email) contactBits.push(t.contact_email);
 
-    var statusBlock = (st === 'resolved')
+    var resolved = st === 'resolved';
+
+    // Top of rail: status word (active) or resolution note (resolved). No tip, no button here.
+    var statusTop = resolved
       ? '<div class="eq-section"><div class="eq-section-title">Resolution</div>' +
         '<div class="ticket-detail-value" style="white-space:pre-wrap;">' + esc(t.resolution_note || 'No note recorded.') + '</div>' +
-        '<div class="detail-meta" style="margin-top:0.4rem;">' + (t.resolved_by ? 'Closed by ' + esc(t.resolved_by) : '') + (t.closed_at ? ' · ' + esc(fmtTime(t.closed_at)) : '') + '</div>' +
-        '<button class="btn-ghost" style="margin-top:0.6rem;" onclick="reopenTicket(' + t.id + ')">Reopen ticket</button></div>'
+        '<div class="detail-meta" style="margin-top:0.4rem;">' + (t.resolved_by ? 'Closed by ' + esc(t.resolved_by) : '') + (t.closed_at ? ' · ' + esc(fmtTime(t.closed_at)) : '') + '</div></div>'
       : '<div class="eq-section"><div class="eq-section-title">Status</div>' +
-          '<div class="ticket-detail-value">' + (st === 'scheduled' ? 'Scheduled' : 'Open') + '</div>' +
-          '<div class="detail-meta" style="margin-top:0.3rem;">Set a date below to schedule this ticket. Clear it to return to Open.</div>' +
-          '<button class="btn-primary" style="margin-top:0.85rem;width:100%;" onclick="openResolveTicket(' + t.id + ')">Resolve ticket</button>' +
-          '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>';
+        '<div class="ticket-detail-value">' + (st === 'scheduled' ? 'Scheduled' : 'Open') + '</div></div>';
+
+    // Bottom of rail: the action button.
+    var statusAction = resolved
+      ? '<div class="eq-section"><button class="btn-ghost" style="width:100%;" onclick="reopenTicket(' + t.id + ')">Reopen ticket</button></div>'
+      : '<div class="eq-section"><button class="btn-primary" style="width:100%;" onclick="openResolveTicket(' + t.id + ')">Resolve ticket</button>' +
+        '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>';
+
+    // Type / Scheduled / Assigned: editable on an active ticket, read-only once resolved.
+    var typeSection = resolved
+      ? '<div class="eq-section"><div class="eq-section-title">Type</div><div class="ticket-detail-value">' + esc(t.ticket_type || 'Not set') + '</div></div>'
+      : '<div class="eq-section"><div class="eq-section-title">Type</div>' +
+          '<input class="fld-input" id="tk-type" type="text" placeholder="e.g. truck roll, remote, firmware" value="' + esc(t.ticket_type || '') + '" onchange="saveTicketField(' + t.id + ',\'ticket_type\',this.value)" />' +
+          '<div class="detail-meta" style="margin-top:0.3rem;">Andi\'s read. Edit if it is off.</div></div>';
+    var schedSection = resolved
+      ? '<div class="eq-section"><div class="eq-section-title">Scheduled</div><div class="ticket-detail-value">' + (t.scheduled_at ? esc(fmtTime(t.scheduled_at)) : 'Not scheduled') + '</div></div>'
+      : '<div class="eq-section"><div class="eq-section-title">Scheduled</div>' +
+          '<div class="tk-sched-row"><input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" />' +
+          '<button class="tk-sched-save" id="tk-sched-save" onclick="saveSchedule(' + t.id + ')">Save</button>' +
+          '<button class="tk-sched-clear" id="tk-sched-clear" onclick="clearSchedule(' + t.id + ')">Clear</button></div>' +
+          '<div class="detail-meta" id="tk-sched-err" style="margin-top:0.3rem;color:#c0392b;"></div>' +
+          '<div class="detail-meta" style="margin-top:0.15rem;">Setting a date moves the ticket to Scheduled. Clear returns it to Open.</div></div>';
+    var assignSection = resolved
+      ? '<div class="eq-section"><div class="eq-section-title">Assigned to</div><div class="ticket-detail-value">' + esc(t.assigned_name || 'Unassigned') + '</div></div>'
+      : '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>';
 
     var railBody =
-      statusBlock +
+      statusTop +
       '<div class="eq-section"><div class="eq-section-title">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
       (t.issue_category ? '<div class="eq-section"><div class="eq-section-title">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
       (contactBits.length ? '<div class="eq-section"><div class="eq-section-title">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
-      '<div class="eq-section"><div class="eq-section-title">Type</div>' +
-        '<input class="fld-input" id="tk-type" type="text" placeholder="e.g. truck roll, remote, firmware" value="' + esc(t.ticket_type || '') + '" onchange="saveTicketField(' + t.id + ',\'ticket_type\',this.value)" />' +
-        '<div class="detail-meta" style="margin-top:0.3rem;">Andi\'s read. Edit if it is off.</div></div>' +
-      '<div class="eq-section"><div class="eq-section-title">Scheduled</div>' +
-        '<div class="tk-sched-row"><input class="fld-input" id="tk-sched" type="datetime-local" value="' + esc(toLocalInput(t.scheduled_at)) + '" />' +
-        '<button class="tk-sched-save" id="tk-sched-save" onclick="saveSchedule(' + t.id + ')">Save</button>' +
-        '<button class="tk-sched-clear" id="tk-sched-clear" onclick="clearSchedule(' + t.id + ')">Clear</button></div>' +
-        '<div class="detail-meta" id="tk-sched-err" style="margin-top:0.3rem;color:#c0392b;"></div>' +
-        '<div class="detail-meta" style="margin-top:0.15rem;">Optional. Setting a date moves the ticket to Scheduled.</div></div>' +
-      '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
-      (t.household_id ? '<div class="eq-section"><a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a></div>' : '') +
-      '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>';
+      typeSection +
+      schedSection +
+      assignSection +
+      '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
+      statusAction;
 
     var centerMain = t.phone_number
       ? '<div class="sms-thread" id="tk-thread"><div class="hh-empty">Loading...</div></div>' +
@@ -3805,12 +3821,11 @@ function openTicket(id) {
         '<div class="thread-main">' +
           '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
             '<div class="detail-name">' + esc(ticketClientName(t)) + (t.household_name ? (t.household_id ? ' <a class="detail-meta tk-house-inline" style="font-weight:400;" onclick="goToHousehold(' + t.household_id + ')">· ' + esc(t.household_name) + '</a>' : ' <span class="detail-meta" style="font-weight:400;">· ' + esc(t.household_name) + '</span>') : '') + '</div>' +
-            '<span class="t-pill ' + pillCls + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>' +
           '</div>' +
           centerMain +
         '</div>' +
         '<div class="equipment-panel ticket-rail">' +
-          '<div class="equipment-panel-header ticket-rail-header"><span>🎫 Ticket</span></div>' +
+          '<div class="equipment-panel-header ticket-rail-header"><span>Ticket</span>' + (t.household_id ? '<a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a>' : '') + '</div>' +
           '<div class="equipment-panel-body">' + railBody + '</div>' +
         '</div>' +
       '</div>';
