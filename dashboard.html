@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.10.0 — 2026-06-09_2300 CT — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.11.0 — 2026-06-09_2330 CT — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,7 +64,7 @@ body { font-family:'DM Sans',sans-serif;background:var(--canvas);color:var(--ink
 .nav-item.active { color:white;background:rgba(255,255,255,0.08);border-left-color:var(--i-brand,var(--brand)); }
 .nav-icon { font-size:0.9rem;width:16px;text-align:center;flex-shrink:0; }
 .nav-badge { margin-left:auto;background:var(--red);color:white;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:100px;min-width:16px;text-align:center; }
-.nav-badge.blue { background:var(--blue); } .nav-badge.green { background:var(--green); }
+.nav-badge.blue { background:var(--blue); } .nav-badge.green { background:var(--green); } .nav-badge.sched { background:#7c3aed;margin-left:3px; }
 .sidebar-user { padding:0.85rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06); }
 .user-row { display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem; }
 .user-avatar { width:26px;height:26px;border-radius:50%;background:var(--i-brand,var(--brand));display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;color:white;flex-shrink:0; }
@@ -186,8 +186,9 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .ticket-right { display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;flex-shrink:0; }
 .t-pill { font-size:0.67rem;font-weight:700;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.04em; }
 .t-open { background:var(--red-bg);color:var(--red); }
-.t-scheduled { background:#fef3e2;color:#b45309; }
+.t-scheduled { background:#ede9fe;color:#7c3aed; }
 .t-resolved { background:var(--green-bg);color:#0f6e50; }
+.ticket-person { color:var(--ink-soft);font-weight:400; }
 .clock-badge { font-size:0.65rem;color:var(--ink-soft);display:flex;align-items:center;gap:3px; }
 .ticket-detail-section { padding:1.1rem 1.25rem;border-bottom:1px solid var(--border); }
 .ticket-detail-section:last-child { border-bottom:none; }
@@ -668,7 +669,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
       <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badge green" id="badge-conversations" style="display:none;">0</span></div>
-      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge" id="badge-tickets" style="display:none;">0</span></div>
+      <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badge" id="badge-tickets" style="display:none;">0</span><span class="nav-badge sched" id="badge-tickets-sched" title="Scheduled" style="display:none;">0</span></div>
       <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badge blue" id="badge-followups" style="display:none;">0</span></div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Clients</div>
       <div class="nav-item" onclick="nav('households',this)"><span class="nav-icon">🏠</span> Households</div>
@@ -688,7 +689,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.10.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.11.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3672,7 +3673,9 @@ async function loadTickets() {
     _tickets = {};
     _ticketRows.forEach(function(t){ _tickets[t.id] = t; });
     window._openTickets = _ticketRows.filter(function(t){ return (t.status||'open') === 'open'; }).length;
+    window._schedTickets = _ticketRows.filter(function(t){ return t.status === 'scheduled'; }).length;
     setBadge('tickets', window._openTickets);
+    setBadge('tickets-sched', window._schedTickets);
     ensureCrTeam();
     renderTickets();
   } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
@@ -3690,9 +3693,10 @@ function listToolbar(f, statuses, prefix) {
 function ticketRowHtml(t) {
   var st = t.status || 'open';
   var pill = st === 'resolved' ? 't-resolved' : (st === 'scheduled' ? 't-scheduled' : 't-open');
+  var household = t.household_name || 'No household';
+  var person = (t.first_name || t.last_name) ? ((t.first_name||'')+' '+(t.last_name||'')).trim() : (t.client_name || fmtPhone(t.phone_number) || '');
   return '<div class="ticket-row" onclick="enterTicket(' + t.id + ')">' +
-    '<div class="ticket-icon t-red">🎫</div>' +
-    '<div class="ticket-body"><div class="ticket-client">' + esc(ticketClientName(t)) + '</div>' +
+    '<div class="ticket-body"><div class="ticket-client">' + esc(household) + (person ? ' <span class="ticket-person">· ' + esc(person) + '</span>' : '') + '</div>' +
     '<div class="ticket-issue">' + esc(t.summary || t.issue_category || 'No detail') + '</div>' +
     '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
     '<div class="ticket-right"><div class="t-pill ' + pill + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</div></div></div>';
@@ -3727,8 +3731,21 @@ function renderTickets() {
   var empty = f.status === 'resolved' ? 'No resolved tickets yet.'
     : f.status === 'all' ? 'No tickets yet.'
     : 'No active tickets. Nothing open or scheduled right now.';
-  var body = !rows.length ? '<div class="hh-empty">' + empty + '</div>'
-    : (f.group ? groupByAssignee(rows, ticketRowHtml) : rows.map(ticketRowHtml).join(''));
+  var body;
+  if (!rows.length) {
+    body = '<div class="hh-empty">' + empty + '</div>';
+  } else if (f.group) {
+    body = groupByAssignee(rows, ticketRowHtml);
+  } else if (f.status === 'active') {
+    // Default: split into Open and Scheduled sections.
+    var opens = rows.filter(function(r){ return (r.status||'open') === 'open'; });
+    var scheds = rows.filter(function(r){ return r.status === 'scheduled'; });
+    body = '';
+    if (opens.length) body += '<div class="group-head">Open <span class="group-count">' + opens.length + '</span></div>' + opens.map(ticketRowHtml).join('');
+    if (scheds.length) body += '<div class="group-head">Scheduled <span class="group-count">' + scheds.length + '</span></div>' + scheds.map(ticketRowHtml).join('');
+  } else {
+    body = rows.map(ticketRowHtml).join('');
+  }
   el.innerHTML = tb + body;
 }
 function openTicket(id) {
@@ -3758,6 +3775,7 @@ function openTicket(id) {
           '<div class="hd-err" id="ticket-err" style="margin-top:0.5rem;"></div></div>';
 
     var railBody =
+      statusBlock +
       '<div class="eq-section"><div class="eq-section-title">Issue</div><div class="ticket-detail-value">' + esc(t.summary || t.issue_category || 'No detail') + '</div></div>' +
       (t.issue_category ? '<div class="eq-section"><div class="eq-section-title">Category</div><div class="ticket-detail-value">' + esc(t.issue_category) + '</div></div>' : '') +
       (contactBits.length ? '<div class="eq-section"><div class="eq-section-title">Contact</div><div class="ticket-detail-value">' + esc(contactBits.join(' · ')) + '</div></div>' : '') +
@@ -3772,8 +3790,7 @@ function openTicket(id) {
         '<div class="detail-meta" style="margin-top:0.15rem;">Optional. Setting a date moves the ticket to Scheduled.</div></div>' +
       '<div class="eq-section"><div class="eq-section-title">Assigned to</div><select class="fld-input" onchange="reassignTicket(' + t.id + ',this.value)">' + teamOpts + '</select></div>' +
       (t.household_id ? '<div class="eq-section"><a class="tk-house-link" onclick="goToHousehold(' + t.household_id + ')">View household</a></div>' : '') +
-      '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
-      statusBlock;
+      '<div class="eq-section"><div class="eq-section-title">Opened</div><div class="ticket-detail-value">' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>';
 
     var centerMain = t.phone_number
       ? '<div class="sms-thread" id="tk-thread"><div class="hh-empty">Loading...</div></div>' +
@@ -4237,8 +4254,10 @@ async function loadCounts() {
     if (!res.ok) return;
     var s = await res.json();
     window._openTickets = s.open_tickets || 0;
+    window._schedTickets = s.scheduled_tickets || 0;
     window._openFollowups = s.follow_ups || 0;
     setBadge('tickets', window._openTickets);
+    setBadge('tickets-sched', window._schedTickets);
     setBadge('followups', window._openFollowups);
   } catch (e) {}
 }
