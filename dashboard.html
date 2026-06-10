@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.12.0 — 2026-06-10_0010 CT — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.13.0 — 2026-06-10_0140 CT — Phase C household detail reorg. #7: the household detail is now a tabbed panel (Activity / People / System / Photos), data-driven so the tab set is a one-line change; switching tabs preserves unsaved System edits. #17: a household action surface (+ Add ticket, + Add follow up, + Add note) pinned above the tabs, pre-scoped to this home (Add ticket/follow up open the existing create overlay with the household preselected; Add note jumps to System and focuses Notes). #6: tickets and follow ups in Activity now share one row builder where the opened/created date leads and is fixed, then type, then the status date, then assignee. System tab also holds the remove/restore zone. Dashboard only, reuses existing create + household endpoints. NOTE: "Add note" is wired to the existing household Notes field (no new timestamped-note entity); cross-surface shared preview component (tickets/follow-ups LISTS) not done here. Then prior — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -430,6 +430,15 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .hd-removed-tag { font-size:0.66rem;font-weight:700;color:#9a6a00;background:#fdf0d8;border:1px solid #f0d9a8;border-radius:100px;padding:1px 9px; }
 .hd-body { padding:1rem;max-height:calc(100vh - 220px);overflow-y:auto; }
 .hd-block { margin-bottom:1.4rem; }
+.hd-actions { display:flex;gap:0.5rem;flex-wrap:wrap;margin:0 0 0.9rem; }
+.hd-action { background:var(--canvas-warm);border:1px solid var(--border);color:var(--ink);border-radius:8px;padding:0.45rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer; }
+.hd-action:hover { border-color:var(--brand,#1D9E75);color:var(--brand,#1D9E75); }
+.hd-tabs { display:flex;gap:0.15rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem;flex-wrap:wrap; }
+.hd-tab { background:none;border:none;padding:0.55rem 0.95rem;cursor:pointer;color:var(--ink-soft);font-weight:600;font-size:0.85rem;border-bottom:2px solid transparent;margin-bottom:-1px; }
+.hd-tab:hover { color:var(--ink); }
+.hd-tab.active { color:var(--ink);border-bottom-color:var(--brand,#1D9E75); }
+.hd-tabpanel { display:none; }
+.hd-tabpanel.active { display:block; }
 .hd-block-title { font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between; }
 .hd-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.7rem; }
 .hd-fld { display:flex;flex-direction:column; }
@@ -691,7 +700,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.12.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.13.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2206,6 +2215,7 @@ async function submitAddHousehold() {
 
 // ── HOUSEHOLD DETAIL / EDIT (v1.9.0) ───────────────────────────────────────────
 var _hd = null;          // the loaded household record
+var _hdTab = 'activity'; // active household detail tab (#7)
 var _hpClientId = null;  // person being edited in the person modal, null = adding
 
 function backToHouseholds() {
@@ -2244,22 +2254,19 @@ function renderHouseholdDetail() {
   var activePeople = people.filter(function(p) { return p.active !== false; });
   var removedPeople = people.filter(function(p) { return p.active === false; });
 
-  var html = '';
-
-  // People
-  html += '<div class="hd-block"><div class="hd-block-title">People</div>';
-  if (!activePeople.length) html += '<div class="hd-person-sub" style="padding:0.4rem 0;">No active contacts.</div>';
-  activePeople.forEach(function(p) { html += personRowHtml(p, false); });
-  html += '<button class="hd-add-person" onclick="openHpAdd()">+ Add a person</button>';
+  // ── People panel ──
+  var peopleHtml = '';
+  if (!activePeople.length) peopleHtml += '<div class="hd-person-sub" style="padding:0.4rem 0;">No active contacts.</div>';
+  activePeople.forEach(function(p) { peopleHtml += personRowHtml(p, false); });
+  peopleHtml += '<button class="hd-add-person" onclick="openHpAdd()">+ Add a person</button>';
   if (removedPeople.length) {
-    html += '<div style="margin-top:0.6rem;">';
-    removedPeople.forEach(function(p) { html += personRowHtml(p, true); });
-    html += '</div>';
+    peopleHtml += '<div style="margin-top:0.6rem;">';
+    removedPeople.forEach(function(p) { peopleHtml += personRowHtml(p, true); });
+    peopleHtml += '</div>';
   }
-  html += '</div>';
 
-  // System fields
-  html += '<div class="hd-block"><div class="hd-block-title">System</div><div class="hd-grid">' +
+  // ── System panel (fields + remote reboot + save + remove/restore) ──
+  var systemHtml = '<div class="hd-grid">' +
     hdField('Control system', 'hd-control', h.control_system_type) +
     hdField('Internet provider', 'hd-isp', h.isp_name) +
     hdField('Network', 'hd-network', h.network_tier) +
@@ -2276,35 +2283,78 @@ function renderHouseholdDetail() {
     '<div class="hd-fld full"><label>Notes</label><textarea class="hd-input" id="hd-notes">' + esc(h.household_notes || '') + '</textarea></div>' +
     '</div>' +
     '<div class="hd-toggle-row"><input type="checkbox" id="hd-reboot"' + (h.remote_reboot_enabled ? ' checked' : '') + ' /> <label for="hd-reboot" style="cursor:pointer;">Remote reboot enabled for this household</label></div>' +
-    '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>' +
-    '</div>';
-
-  // History (item 5): system issues stay with the home, so the house keeps its full log even
-  // after it changes hands. Tickets are clickable for a one-click round trip to the ticket.
-  html += renderHouseholdHistory(h);
-
-  // Photos
-  html += '<div class="hd-block"><div class="hd-block-title">Photos</div>' +
-    '<div id="hd-photo-container"><div class="hd-person-sub">Loading photos...</div></div>' +
-    '<button class="hd-photo-add" id="hd-photo-add" onclick="document.getElementById(\'hd-photo-input\').click()">+ Add photo</button>' +
-    '<input type="file" id="hd-photo-input" accept="image/*" style="display:none;" onchange="uploadDetailPhoto(this)" />' +
-    '</div>';
-
-  // Danger / restore zone
-  html += '<div class="hd-block">';
+    '<div class="hd-save-bar" style="margin-top:0.9rem;"><button class="hd-save" id="hd-save-btn" onclick="saveHouseholdFields()">Save changes</button><span class="hd-saved-note" id="hd-saved-note">Saved</span><span class="hd-err" id="hd-fields-err"></span></div>';
   if (removed) {
-    html += '<div class="hd-danger-zone" style="border-color:var(--border);background:var(--canvas-warm);">' +
+    systemHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;border-color:var(--border);background:var(--canvas-warm);">' +
       '<div class="dz-text">This household is removed. Bring it back with its history and reserved numbers intact.</div>' +
       '<button class="hd-restore-btn" onclick="reactivateHousehold()">Restore household</button></div>';
   } else {
-    html += '<div class="hd-danger-zone">' +
+    systemHtml += '<div class="hd-danger-zone" style="margin-top:1.2rem;">' +
       '<div class="dz-text">Remove this household. It moves to Removed and can be brought back later. Nothing is deleted.</div>' +
       '<button class="hd-danger-btn" onclick="openRemoveHousehold()">Remove household</button></div>';
   }
-  html += '</div>';
 
-  document.getElementById('hd-body').innerHTML = html;
+  // ── Activity panel (#6 date-consistent ticket + follow up history) ──
+  var activityHtml = householdActivityHtml(h);
+
+  // ── Photos panel ──
+  var photosHtml = '<div id="hd-photo-container"><div class="hd-person-sub">Loading photos...</div></div>' +
+    '<button class="hd-photo-add" id="hd-photo-add" onclick="document.getElementById(\'hd-photo-input\').click()">+ Add photo</button>' +
+    '<input type="file" id="hd-photo-input" accept="image/*" style="display:none;" onchange="uploadDetailPhoto(this)" />';
+
+  // #7 tab set is data-driven, so reordering or renaming is a one-line change here.
+  var tabs = [
+    { id: 'activity', label: 'Activity', html: activityHtml },
+    { id: 'people',   label: 'People',   html: peopleHtml },
+    { id: 'system',   label: 'System',   html: systemHtml },
+    { id: 'photos',   label: 'Photos',   html: photosHtml }
+  ];
+  var active = tabs.some(function(t){ return t.id === _hdTab; }) ? _hdTab : 'activity';
+
+  // #17 household action surface, pre-scoped to this home.
+  var actions = removed ? '' : '<div class="hd-actions">' +
+    '<button class="hd-action" onclick="openHouseholdCreate(\'ticket\')">+ Add ticket</button>' +
+    '<button class="hd-action" onclick="openHouseholdCreate(\'followup\')">+ Add follow up</button>' +
+    '<button class="hd-action" onclick="hdAddNote()">+ Add note</button>' +
+    '</div>';
+
+  var strip = '<div class="hd-tabs">' + tabs.map(function(t){
+    return '<button class="hd-tab' + (t.id === active ? ' active' : '') + '" data-tab="' + t.id + '" onclick="hdTab(\'' + t.id + '\')">' + t.label + '</button>';
+  }).join('') + '</div>';
+  var panels = tabs.map(function(t){
+    return '<div class="hd-tabpanel' + (t.id === active ? ' active' : '') + '" id="hdtab-' + t.id + '">' + t.html + '</div>';
+  }).join('');
+
+  document.getElementById('hd-body').innerHTML = actions + strip + panels;
+  _hdTab = active;
   loadDetailPhotos();
+}
+
+// #7 switch tabs without re-rendering the whole panel (keeps unsaved field edits in System).
+function hdTab(id) {
+  _hdTab = id;
+  document.querySelectorAll('#hd-body .hd-tab').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab') === id); });
+  document.querySelectorAll('#hd-body .hd-tabpanel').forEach(function(p){ p.classList.toggle('active', p.id === 'hdtab-' + id); });
+}
+
+// #17 open the create overlay pre-scoped to this household (person optional).
+function openHouseholdCreate(mode) {
+  if (!_hd) return;
+  openCreate(mode);
+  _cr.sel = { household_id: _hd.id, name: _hd.name, phone: '' };
+  _cr.isNew = false;
+  document.getElementById('cr-sub').textContent = 'For this household. Pick a person if it is about someone specific.';
+  document.getElementById('cr-search-wrap').style.display = 'none';
+  var s = document.getElementById('cr-selected');
+  s.textContent = _hd.name;
+  s.style.display = '';
+}
+
+// #17 "+ Add note" jumps to the System tab and focuses the household notes field.
+function hdAddNote() {
+  hdTab('system');
+  var n = document.getElementById('hd-notes');
+  if (n) { n.focus(); n.scrollIntoView({ block: 'center' }); }
 }
 
 function optInBadge(s) {
@@ -2392,46 +2442,51 @@ function personReadHtml(p) {
   return '<div class="hd-read"><span class="hd-read-tag">' + esc(who) + '</span>' + inner + '</div>';
 }
 
-// Item 5: the home's full ticket + follow up history. Newest first. Tickets jump to the ticket.
-function renderHouseholdHistory(h) {
+// #6 one shared row builder so tickets and follow ups read consistently: the date leads and is
+// fixed in place, then type, then the status date (scheduled/due), then assignee.
+function histMetaLine(parts) {
+  return '<div class="hd-hist-meta">' + parts.filter(Boolean).map(esc).join(' · ') + '</div>';
+}
+function pillFor(st) {
+  var cls = st === 'resolved' ? 't-resolved' : (st === 'scheduled' ? 't-scheduled' : 't-open');
+  return '<span class="t-pill ' + cls + '">' + (st.charAt(0).toUpperCase() + st.slice(1)) + '</span>';
+}
+
+// Activity (item 5): system issues stay with the home, so the house keeps its full log even after
+// it changes hands. Tickets are clickable for a one-click round trip. Newest first.
+function householdActivityHtml(h) {
   var tickets = h.tickets || [];
   var fus = h.follow_ups || [];
-  var out = '<div class="hd-block"><div class="hd-block-title">History</div>';
   if (!tickets.length && !fus.length) {
-    out += '<div class="hd-person-sub" style="padding:0.4rem 0;">No tickets or follow ups on this home yet.</div></div>';
-    return out;
+    return '<div class="hd-person-sub" style="padding:0.4rem 0;">No tickets or follow ups on this home yet.</div>';
   }
+  var out = '';
   if (tickets.length) {
     out += '<div class="hd-hist-sub">Tickets</div>';
     tickets.forEach(function(t) {
       var st = t.status || 'open';
-      var pill = '<span class="t-pill ' + (st==='resolved'?'t-resolved':(st==='scheduled'?'t-scheduled':'t-open')) + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>';
-      var meta = [];
-      if (t.ticket_type) meta.push(esc(t.ticket_type));
-      if (t.scheduled_at) meta.push('scheduled ' + esc(fmtTime(t.scheduled_at)));
-      meta.push(esc(fmtTime(t.opened_at)));
-      if (t.assignee_name) meta.push(esc(t.assignee_name));
+      var meta = ['Opened ' + fmtTime(t.opened_at)];
+      if (t.ticket_type) meta.push(t.ticket_type);
+      if (t.scheduled_at) meta.push('scheduled ' + fmtTime(t.scheduled_at));
+      if (t.assignee_name) meta.push(t.assignee_name);
       out += '<div class="hd-hist-row" onclick="goToTicket(' + t.id + ')">' +
         '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(t.summary || 'Open issue') + '</div>' +
-        '<div class="hd-hist-meta">' + meta.join(' · ') + '</div></div>' + pill + '</div>';
+        histMetaLine(meta) + '</div>' + pillFor(st) + '</div>';
     });
   }
   if (fus.length) {
     out += '<div class="hd-hist-sub" style="margin-top:0.7rem;">Follow ups</div>';
     fus.forEach(function(f) {
       var st = f.status || 'pending';
-      var pill = '<span class="t-pill ' + (st==='resolved'?'t-resolved':'t-open') + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</span>';
-      var meta = [];
-      if (f.type) meta.push(esc(f.type));
-      if (f.due_date) meta.push('due ' + esc(f.due_date));
-      meta.push(esc(fmtTime(f.created_at)));
-      if (f.assignee_name) meta.push(esc(f.assignee_name));
+      var meta = ['Created ' + fmtTime(f.created_at)];
+      if (f.type) meta.push(f.type);
+      if (f.due_date) meta.push('due ' + f.due_date);
+      if (f.assignee_name) meta.push(f.assignee_name);
       out += '<div class="hd-hist-row static">' +
         '<div class="hd-hist-main"><div class="hd-hist-title">' + esc(f.note || 'Follow up') + '</div>' +
-        '<div class="hd-hist-meta">' + meta.join(' · ') + '</div></div>' + pill + '</div>';
+        histMetaLine(meta) + '</div>' + pillFor(st === 'resolved' ? 'resolved' : 'open') + '</div>';
     });
   }
-  out += '</div>';
   return out;
 }
 
