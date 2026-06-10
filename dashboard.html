@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.11.1 — 2026-06-09_2350 CT — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.12.0 — 2026-06-10_0010 CT — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -513,7 +513,9 @@ textarea.hd-input { resize:vertical;min-height:70px;line-height:1.5; }
 .toolbar-toggles { display:flex;align-items:center;gap:0.9rem; }
 .tg { display:inline-flex;align-items:center;gap:0.35rem;font-size:0.76rem;color:var(--ink-mid);cursor:pointer;user-select:none; }
 .group-head { padding:0.55rem 1.25rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-soft);background:var(--canvas-warm);border-bottom:1px solid var(--border); }
-.group-count { color:var(--ink-soft);font-weight:600;margin-left:0.3rem; }
+.group-head.gh-open { background:#f7dede;color:#7a1f1f;border-bottom-color:#e7b9b9; }
+.group-head.gh-scheduled { background:#e8defa;color:#492c79;border-bottom-color:#d0bff0; }
+.group-count { color:inherit;opacity:0.65;font-weight:600;margin-left:0.3rem; }
 /* Ticket detail mirrors the conversation view (chat center, info rail right). The amber accent
    on the rail makes a ticket read differently from a conversation at a glance. */
 .ticket-rail { border-color:#e3b778; }
@@ -689,7 +691,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.11.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.12.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3659,7 +3661,7 @@ var _ticketRows = [];
 var _tkFilter = null;
 function tkDefaultFilter() {
   var owner = window._rwUser && window._rwUser.role === 'owner';
-  return { status: 'active', mine: !owner, group: !!owner };
+  return { status: 'active', mine: !owner, group: false };
 }
 async function loadTickets() {
   closeTicket();
@@ -3701,11 +3703,34 @@ function ticketRowHtml(t) {
     '<div class="ticket-meta">Opened ' + esc(fmtTime(t.opened_at)) + (t.created_by ? ' · by ' + esc(t.created_by) : '') + '</div></div>' +
     '<div class="ticket-right"><div class="t-pill ' + pill + '">' + (st.charAt(0).toUpperCase()+st.slice(1)) + '</div></div></div>';
 }
+function hexToRgb(h) {
+  h = (h || '').replace('#', '');
+  if (h.length === 3) h = h.split('').map(function(x){ return x + x; }).join('');
+  if (h.length !== 6) return null;
+  return { r: parseInt(h.slice(0,2),16), g: parseInt(h.slice(2,4),16), b: parseInt(h.slice(4,6),16) };
+}
+function dimHex(hex, amt) { // amt 0..1 toward white (lighter)
+  var c = hexToRgb(hex); if (!c) return null;
+  return 'rgb(' + Math.round(c.r+(255-c.r)*amt) + ',' + Math.round(c.g+(255-c.g)*amt) + ',' + Math.round(c.b+(255-c.b)*amt) + ')';
+}
+function darkHex(hex, amt) { // amt 0..1 toward black (darker, for readable text)
+  var c = hexToRgb(hex); if (!c) return null;
+  return 'rgb(' + Math.round(c.r*(1-amt)) + ',' + Math.round(c.g*(1-amt)) + ',' + Math.round(c.b*(1-amt)) + ')';
+}
+function bubbleColorFor(row) {
+  if (!row || row.assigned_to == null || !_crTeam) return null;
+  var u = _crTeam.find(function(x){ return x.id === row.assigned_to; });
+  return u && u.bubble_color ? u.bubble_color : null;
+}
 function groupByAssignee(rows, rowFn) {
   var groups = {};
   rows.forEach(function(t){ var k = t.assigned_name || 'Unassigned'; (groups[k] = groups[k] || []).push(t); });
   return Object.keys(groups).sort(function(a,b){ if(a==='Unassigned')return 1; if(b==='Unassigned')return -1; return a.localeCompare(b); }).map(function(k){
-    return '<div class="group-head">' + esc(k) + ' <span class="group-count">' + groups[k].length + '</span></div>' + groups[k].map(rowFn).join('');
+    var g = groups[k];
+    var color = bubbleColorFor(g[0]);
+    // Dim, fully filled bar in the person's bubble color with a darkened-shade text for contrast.
+    var style = color ? ' style="background:' + dimHex(color,0.8) + ';color:' + darkHex(color,0.4) + ';border-bottom-color:' + dimHex(color,0.62) + ';"' : '';
+    return '<div class="group-head"' + style + '>' + esc(k) + ' <span class="group-count">' + g.length + '</span></div>' + g.map(rowFn).join('');
   }).join('');
 }
 function renderTickets() {
@@ -3741,8 +3766,8 @@ function renderTickets() {
     var opens = rows.filter(function(r){ return (r.status||'open') === 'open'; });
     var scheds = rows.filter(function(r){ return r.status === 'scheduled'; });
     body = '';
-    if (opens.length) body += '<div class="group-head">Open <span class="group-count">' + opens.length + '</span></div>' + opens.map(ticketRowHtml).join('');
-    if (scheds.length) body += '<div class="group-head">Scheduled <span class="group-count">' + scheds.length + '</span></div>' + scheds.map(ticketRowHtml).join('');
+    if (opens.length) body += '<div class="group-head gh-open">Open <span class="group-count">' + opens.length + '</span></div>' + opens.map(ticketRowHtml).join('');
+    if (scheds.length) body += '<div class="group-head gh-scheduled">Scheduled <span class="group-count">' + scheds.length + '</span></div>' + scheds.map(ticketRowHtml).join('');
   } else {
     body = rows.map(ticketRowHtml).join('');
   }
