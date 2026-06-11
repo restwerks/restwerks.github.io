@@ -1,4 +1,4 @@
-<!-- dashboard.html — Dashboard v1.16.0 — 2026-06-11_0030 CT — SSE reload debounce (pairs with portal v1.21.0, either half deploys safely alone). New scheduleListRefresh: SSE-driven conversations + counts reloads from new_message, handback, and viewed events now collapse into one trailing refresh per 300ms window instead of one immediate reload per event per open dashboard, so a rapid exchange or a teammate clicking through threads costs one round trip instead of a dozen. Direct user actions (Refresh button, tab switches, sends) still call the loaders directly and refresh immediately; panel-specific reloads (open tickets/follow ups tab) unchanged. Then prior v1.15.2 — 2026-06-10_2340 CT — Unified create picker: the create modal now shows Household + Client everywhere, only the populate differs per entry point. Chat create locks both (household line added above About). Household create locks the home and adds a Client select of that home's active people, defaulting to the first person with a number so schedule texts have someone to send to (the ticket-12 no-phone gap). Cold create searches households (name, nickname, people) then picks the person from the same select; Whole household stays available; the new-client path is unchanged. crClientPayload now built from household + person. Also fixed: loadConvContext read ctx.household_id which the context route never returns (it returns a household object), so the conversation Note toggle could never appear; now reads the object and also captures the household name for the chat create header. Then prior  Parked 15b due-date format: new fmtDueDate helper renders due dates as "Jun 10" instead of raw ISO, parsing the date part directly so timezone math can never shift the day; applied in the follow ups list row, the household Activity stream, and the conversation rail follow up card. Pairs with portal v1.20.1 which adds bubble_color to GET /api/team, fixing parked 14 (grouped-by-assignee banners had no color because the team payload never carried one; the dashboard bubbleColorFor code was already correct and is unchanged). Then prior v1.15.0 — #24 SSE hardening (needs portal v1.20.0). Reconnect now backs off 5s/10s/20s/30s-cap and resets when healthy. Every RE-connect runs a full state resync (replay-by-refresh: conversations, counts, the active Tickets/Follow Ups panel, the open ticket thread, and the open conversation re-pulls its thread), so anything missed while the pipe was down appears without a manual refresh. New ping watchdog: the portal pings every 25s as a real event; no beat for 65s means the pipe died without onerror (proxy drop, laptop sleep), so the dashboard kills it and reconnects, and the reconnect resyncs — this is the fix for auto-reclaim (and anything else) not flipping live on a silently dead connection. Waking a backgrounded tab with a stale beat forces a fresh pipe immediately. Then prior — Phase C2 (needs portal v1.19.0). Create popup: modes are now three independent toggles (Ticket / Follow up / Note), click to select, click again to unselect, any combo, popup grows per selection; follow up field relabeled Follow up, new Note field; Tickets and Follow Ups pages open it single-mode with no toggles (dedicated spots); the conversation + Create shows all three (Note when the thread resolves to a household); notes POST to /api/households/:id/notes. Household header: mirrors the list preview (name + project tag + address line), pencil opens inline edit for project and address (removed from System, and removed from the System save payload so saving System can no longer clobber them), orange + Create button (same as conversation) on the right pre-scoped to the home. Tabs: strip is sticky-anchored at the top of the scroll; remove/restore zone moved from System to People. System tab regrouped: Equipment / Andi remembers / Household settings (system notes stays). Activity tab: tickets, follow ups, and notes interleaved newest-first in one stream with All / Tickets / Follow ups / Notes filter chips. Photos: per-photo delete with confirm (portal DELETE). Conversation rail: now tabbed (Activity / System / Photos, slim variant) with household identity and Andi read pinned above. Then prior — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
+<!-- dashboard.html — Dashboard v1.17.0 — 2026-06-11_1700 CT — Client-texts-first attach (pairs with portal v1.22.0). Unknown chip: conversation rows for numbers no person owns (client-texts-first threads) now carry an amber Unknown badge so they read as a worklist; derived from the new attached flag, with a name-absence fallback so the dashboard renders fine before the portal half deploys. Attach flow: an unattached thread's header gets an + Add to household button (shown when the context route returns no client); the new modal offers Existing household (search, person fields, last name defaults to the home's primary) or New household (person + project + address, built around them), posts to /api/conversations/:phone/attach, and on success reopens the thread so the name, rail, and attach state all reflect the new person. When the orphan phone row already resolves to a household (a member texted before being entered), that household is preselected. Then prior v1.16.0 — 2026-06-11_0030 CT — SSE reload debounce (pairs with portal v1.21.0, either half deploys safely alone). New scheduleListRefresh: SSE-driven conversations + counts reloads from new_message, handback, and viewed events now collapse into one trailing refresh per 300ms window instead of one immediate reload per event per open dashboard, so a rapid exchange or a teammate clicking through threads costs one round trip instead of a dozen. Direct user actions (Refresh button, tab switches, sends) still call the loaders directly and refresh immediately; panel-specific reloads (open tickets/follow ups tab) unchanged. Then prior v1.15.2 — 2026-06-10_2340 CT — Unified create picker: the create modal now shows Household + Client everywhere, only the populate differs per entry point. Chat create locks both (household line added above About). Household create locks the home and adds a Client select of that home's active people, defaulting to the first person with a number so schedule texts have someone to send to (the ticket-12 no-phone gap). Cold create searches households (name, nickname, people) then picks the person from the same select; Whole household stays available; the new-client path is unchanged. crClientPayload now built from household + person. Also fixed: loadConvContext read ctx.household_id which the context route never returns (it returns a household object), so the conversation Note toggle could never appear; now reads the object and also captures the household name for the chat create header. Then prior  Parked 15b due-date format: new fmtDueDate helper renders due dates as "Jun 10" instead of raw ISO, parsing the date part directly so timezone math can never shift the day; applied in the follow ups list row, the household Activity stream, and the conversation rail follow up card. Pairs with portal v1.20.1 which adds bubble_color to GET /api/team, fixing parked 14 (grouped-by-assignee banners had no color because the team payload never carried one; the dashboard bubbleColorFor code was already correct and is unchanged). Then prior v1.15.0 — #24 SSE hardening (needs portal v1.20.0). Reconnect now backs off 5s/10s/20s/30s-cap and resets when healthy. Every RE-connect runs a full state resync (replay-by-refresh: conversations, counts, the active Tickets/Follow Ups panel, the open ticket thread, and the open conversation re-pulls its thread), so anything missed while the pipe was down appears without a manual refresh. New ping watchdog: the portal pings every 25s as a real event; no beat for 65s means the pipe died without onerror (proxy drop, laptop sleep), so the dashboard kills it and reconnects, and the reconnect resyncs — this is the fix for auto-reclaim (and anything else) not flipping live on a silently dead connection. Waking a backgrounded tab with a stale beat forces a fresh pipe immediately. Then prior — Phase C2 (needs portal v1.19.0). Create popup: modes are now three independent toggles (Ticket / Follow up / Note), click to select, click again to unselect, any combo, popup grows per selection; follow up field relabeled Follow up, new Note field; Tickets and Follow Ups pages open it single-mode with no toggles (dedicated spots); the conversation + Create shows all three (Note when the thread resolves to a household); notes POST to /api/households/:id/notes. Household header: mirrors the list preview (name + project tag + address line), pencil opens inline edit for project and address (removed from System, and removed from the System save payload so saving System can no longer clobber them), orange + Create button (same as conversation) on the right pre-scoped to the home. Tabs: strip is sticky-anchored at the top of the scroll; remove/restore zone moved from System to People. System tab regrouped: Equipment / Andi remembers / Household settings (system notes stays). Activity tab: tickets, follow ups, and notes interleaved newest-first in one stream with All / Tickets / Follow ups / Notes filter chips. Photos: per-photo delete with confirm (portal DELETE). Conversation rail: now tabbed (Activity / System / Photos, slim variant) with household identity and Andi read pinned above. Then prior — Ticket grouping color. Tickets default Group-by-assignee OFF, so the board lands on the Open/Scheduled split (checkbox still toggles assignee grouping; Follow Ups stays grouped by assignee by default since follow ups are about people). Section banners are now fully filled with a DIM color and dark readable text: Open dim red, Scheduled dim purple. In assignee grouping, each person banner is filled with a dim version of that person bubble color, text darkened from the same color for contrast. Dashboard only. Then prior — Ticket rail refinements: Resolve/Reopen button moved to the bottom of the rail; top Status shows just the word (tip removed); Scheduled helper now reads "Setting a date moves the ticket to Scheduled. Clear returns it to Open." (Optional removed); View household moved into the rail header (right side), removed from the body; status pill removed from the chat header (redundant with the rail Status); ticket icon removed from the rail header; resolved tickets use the SAME rail layout as open/scheduled with Type, Scheduled, and Assigned shown read-only and a Reopen button at the bottom. Dashboard only. Then prior — Phase A ticket UI: removed the ticket icon from list rows; Active view now splits into Open and Scheduled sections by default (Group-by-assignee checkbox still overrides to assignee grouping; Follow Ups unchanged); Scheduled pill recolored purple to match its dot; left-nav Tickets shows two counts, red open + purple scheduled; ticket row label is now Household first then client name (mirror of the conversation list); ticket detail rail leads with the Status block. Dashboard only, uses portal v1.17.0 counts. Then prior — Password UX (Kristin feedback): show/hide eye toggle on every password field (login, signup, set-password, Settings current/new/confirm); confirm-password with live match check added to signup and Settings change-password, each submit gated on match, matching the existing set-password flow; current-password field kept. Then prior — Active/Resolved/All tabs. Tickets tabs are now Active (open + scheduled), Resolved, All, defaulting to Active so the board is never blank when only scheduled tickets exist; within Active, open work sorts above scheduled, and each keeps its Open/Scheduled pill. Follow Ups match: Active (pending) / Resolved / All, default Active. Real empty-state copy per bucket instead of "No tickets match this view." Household rows now show open tickets (red) and scheduled tickets (amber) as separate labeled badges plus follow ups (blue), so the preview reads open vs booked at a glance. Nav Tickets badge counts active (open + scheduled) consistently. Needs portal v1.17.0. — Prior (v1.8.1): labeled count badges + per-number action row (#14/#15/#16), #8 badges, #10 confirmed. The Scheduled save was sending the raw picker value (2026-06-18T11:00), which Postgres rejected, so the whole update 500'd: the date never saved and the auto flip to Scheduled rode along and died with it. Now the date is normalized to a clean timestamp (2026-06-18 11:00:00) before sending, so it saves and the ticket flips to Scheduled on its own. Added a Clear button next to Save that wipes the date and drops the ticket from Scheduled back to Open. Save failures now show an inline error instead of silently re-enabling the button. Dashboard only, no portal or webhook change. — Prior (v1.6.2): testing-feedback batch (universal back, rail ticket history, Create resize, scheduled save button, high-res width pass). — Prior (v1.6.1): team-consistent unread + shared Seen by + Create move + width pass start. Ticket detail re-laid out to mirror the conversation view: chat in the center column, ticket info in a right rail where the household/system panel sits. The rail carries an amber accent so a ticket reads differently from a conversation at a glance. Ticket reply box now matches the chat: Enter sends (Shift+Enter newline) and the Send button disables while sending to stop duplicate sends. — Unified ticket thread (text side). The ticket detail now shows the same SMS conversation that lives in chat and lets you reply from inside the ticket; replying reuses /api/send so it texts the client and hands the thread to the team exactly like a chat reply, and the open ticket thread refreshes live on new messages. Email-only clients show a placeholder (email channel is a later build). — Ticket lifecycle + fixes. Bug fixes: ticket/follow-up badges now update live (loadCounts on every SSE message + open tab refreshes), and the ticket detail was rebuilt so clicking a ticket reliably opens it. Ticket workspace: issue, contact, reassign, quick status (open/scheduled), and a human-only Resolve flow that pulls an Andi-drafted context synopsis (/api/draft-synopsis) and requires a "what fixed it" note before closing; resolved tickets show the resolution and can be reopened. Tickets and Follow Ups gained a filter toolbar (status, Mine, Group by assignee) with role-based defaults (owner sees the whole board grouped by assignee, members default to their own open work). Needs portal v1.12.0 and webhook v9.4. v1.4.1: fixed blank ticket detail (closeTicket was wiping the ticket-detail-content container that openTicket writes into) and the badges disappearing on a Conversations click (updateConvBadge reset tickets/follow ups from window globals that were never populated; now set in loadCounts/loadTickets/renderFollowups). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -340,6 +340,10 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .conv-msg-count { font-size:0.68rem;color:var(--ink-soft);background:var(--canvas-warm);border:1px solid var(--border);border-radius:100px;padding:1px 7px; }
 .conv-andi-label { font-size:0.68rem;color:var(--green);font-weight:600; }
 .resume-countdown { font-size:0.68rem;color:#2D7DD2;font-weight:600;white-space:nowrap; }
+/* v1.17.0 unknown-number chip + attach button */
+.conv-unknown { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#b45309;background:#fef3e2;border:1px solid #f0c98a;border-radius:100px;padding:1px 8px;margin-left:0.5rem;vertical-align:middle; }
+.attach-btn { background:none;color:#b45309;border:1px solid #e3b778;border-radius:7px;padding:0.25rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+.attach-btn:hover { background:#b45309;color:white; }
 .resume-countdown.resume-urgent { color:#E08600; }
 .status-sep { color:var(--ink-soft);margin:0 2px; }
 .session-divider { display:flex;align-items:center;gap:0.75rem;padding:0.85rem 0.5rem 0.5rem;margin:0 0.85rem; }
@@ -715,7 +719,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.15.2</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.17.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1086,6 +1090,50 @@ select.fld-input { appearance:auto;cursor:pointer; }
     <div class="wiz-foot">
       <button class="btn-ghost" onclick="closeRemoveHousehold()">Cancel</button>
       <button class="hd-danger-btn" id="hd-del-btn" onclick="confirmRemoveHousehold()">Remove household</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ATTACH NUMBER TO HOUSEHOLD MODAL (v1.17.0) ── -->
+<div id="at-overlay" class="wiz-overlay" onclick="if(event.target===this)closeAttach()">
+  <div class="wiz-card">
+    <div class="wiz-head">
+      <div class="wiz-title">Add to a household</div>
+      <div class="wiz-sub" id="at-sub">This number texted in before being entered. Connect it to a person and their conversation and opt in come along.</div>
+    </div>
+    <div class="wiz-body">
+      <div class="hh-label-preview" id="at-phone-line"></div>
+      <div class="cr-modes">
+        <button class="cr-mode" id="at-mode-existing" onclick="atSetMode('existing')">Existing household</button>
+        <button class="cr-mode" id="at-mode-new" onclick="atSetMode('new')">New household</button>
+      </div>
+
+      <div id="at-existing-block">
+        <div class="fld-label" style="margin-bottom:0.3rem;">Household</div>
+        <div id="at-selected" style="display:none;" class="hh-label-preview"></div>
+        <div id="at-search-wrap">
+          <input class="fld-input" type="text" id="at-search" placeholder="Search households..." oninput="atSearch(this.value)" autocomplete="off" />
+          <div id="at-results"></div>
+        </div>
+        <div class="cr-newlink" id="at-clear-sel" style="display:none;" onclick="atClearSelection()">Pick a different household</div>
+      </div>
+
+      <div class="fld fld-row" style="margin-top:0.7rem;">
+        <div><div class="fld-label">First name</div><input class="fld-input" type="text" id="at-first" placeholder="First" /></div>
+        <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="at-last" placeholder="" /></div>
+      </div>
+      <div class="fld"><div class="fld-label">Relationship (optional)</div><input class="fld-input" type="text" id="at-rel" placeholder="e.g. Spouse, Property manager" /></div>
+
+      <div id="at-new-block" style="display:none;">
+        <div class="fld"><div class="fld-label">Project name (optional)</div><input class="fld-input" type="text" id="at-project" placeholder="Nickname, e.g. Black House" /></div>
+        <div class="fld"><div class="fld-label">Address (optional)</div><input class="fld-input" type="text" id="at-address" placeholder="Street, city, state" /></div>
+      </div>
+
+      <div class="wiz-err" id="at-err"></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn-ghost" onclick="closeAttach()">Cancel</button>
+      <button class="btn-primary" id="at-save-btn" onclick="submitAttach()">Add to household</button>
     </div>
   </div>
 </div>
@@ -3184,6 +3232,11 @@ function renderConvList(threads) {
     var name = fullName || t.phone_number;
     var household = t.household_name || null;
     var householdHtml = household ? '<span class="conv-household">' + household + '</span>' : '';
+    // v1.17.0: an unattached number (client-texts-first, no person on file yet) gets an Unknown
+    // chip so these threads read as a worklist. Falls back to name absence when the portal has
+    // not shipped the attached flag yet.
+    var unattached = (t.attached === false) || (t.attached === undefined && !t.first_name && !t.household_name);
+    if (unattached) householdHtml += '<span class="conv-unknown">Unknown</span>';
     var ep = encodeURIComponent(t.phone_number);
     var time = new Date(t.last_message_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
     // Handling state from the human and handback markers, same math the thread
@@ -3321,6 +3374,7 @@ async function openRealConv(encodedPhone, name) {
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
+            '<div id="attach-slot"></div>' +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
@@ -3600,6 +3654,14 @@ async function loadConvContext(phone, container) {
     window._ctxHouseholdId = ctx.household_id || (ctx.household && ctx.household.id) || null;
     window._ctxHouseholdName = (ctx.household && ctx.household.name) || null;
     var c = ctx.client || null;
+    // v1.17.0: no person owns this number yet (client-texts-first). Offer the one-shot attach.
+    // If the orphan phone row already points at a household, the modal preselects it.
+    var atSlot = document.getElementById('attach-slot');
+    if (atSlot) {
+      atSlot.innerHTML = c ? '' :
+        '<button class="attach-btn" onclick="openAttach()">+ Add to household</button>';
+      window._attachPreselect = (!c && ctx.household) ? ctx.household : null;
+    }
     var tickets = ctx.tickets || [];
     var fus = ctx.follow_ups || [];
 
@@ -4351,6 +4413,102 @@ function followupRowHtml(f, done) {
 async function doResolveFollowup(id) {
   try { var res = await rwFetch('/api/follow-ups/' + id + '/resolve', { method:'POST' }); if (res.ok) await loadFollowups(); } catch (e) {}
 }
+// ── ATTACH NUMBER TO HOUSEHOLD (v1.17.0) ────────────────────────────────────
+// Turns an unknown texting number into a person. Existing mode adds them to a home (last name
+// defaults to that home's primary); New mode builds a household around them. The portal adopts
+// the orphan phone row so opt in and the thread history come along.
+var _at = { mode: 'existing', hh: null, matches: [] };
+
+async function openAttach() {
+  if (!window._currentPhone) return;
+  _at = { mode: 'existing', hh: null, matches: [] };
+  // Preselect the household when the orphan phone row already resolves to one.
+  if (window._attachPreselect) _at.hh = { id: window._attachPreselect.id, name: window._attachPreselect.name };
+  ['at-search','at-first','at-last','at-rel','at-project','at-address'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('at-err').textContent = '';
+  document.getElementById('at-results').innerHTML = '';
+  document.getElementById('at-phone-line').textContent = 'Number: ' + fmtPhone(decodeURIComponent(window._currentPhone));
+  atSetMode('existing');
+  atRenderSelection();
+  document.getElementById('at-overlay').classList.add('show');
+  setTimeout(function(){ var n=document.getElementById(_at.hh ? 'at-first' : 'at-search'); if(n) n.focus(); }, 50);
+  // Households power the search; load them if this session has not yet.
+  if (!_households.length) { try { var r = await rwFetch('/api/households'); if (r.ok) _households = await r.json(); } catch (e) {} }
+}
+function closeAttach() { document.getElementById('at-overlay').classList.remove('show'); }
+
+function atSetMode(m) {
+  _at.mode = m;
+  document.getElementById('at-mode-existing').classList.toggle('sel', m === 'existing');
+  document.getElementById('at-mode-new').classList.toggle('sel', m === 'new');
+  document.getElementById('at-existing-block').style.display = m === 'existing' ? '' : 'none';
+  document.getElementById('at-new-block').style.display = m === 'new' ? '' : 'none';
+  document.getElementById('at-last').placeholder = m === 'existing' ? 'Same as household if blank' : 'Last';
+  document.getElementById('at-save-btn').textContent = m === 'existing' ? 'Add to household' : 'Create household';
+}
+
+function atSearch(q) {
+  var box = document.getElementById('at-results');
+  q = (q||'').toLowerCase().trim();
+  if (!q) { box.innerHTML = ''; return; }
+  var matches = (_households || []).filter(function(h){
+    if (h.active === false) return false;
+    var hay = (h.name||'') + ' ' + (h.project_name||'') + ' ' + (h.address||'') + ' ' +
+      (h.people || []).map(function(p){ return (p.first_name||'')+' '+(p.last_name||''); }).join(' ');
+    return hay.toLowerCase().indexOf(q) !== -1;
+  }).slice(0, 8);
+  _at.matches = matches;
+  if (!matches.length) { box.innerHTML = '<div class="cr-result" style="cursor:default;color:var(--ink-soft);">No match. Switch to New household above.</div>'; return; }
+  box.innerHTML = matches.map(function(h, i){
+    var who = (h.people || []).map(function(p){ return ((p.first_name||'')+' '+(p.last_name||'')).trim(); }).filter(Boolean).join(', ');
+    return '<div class="cr-result" onclick="atPick(' + i + ')">' + esc(h.name) +
+      '<div class="cr-r-sub">' + esc(who || 'No people on file') + (h.project_name ? ' · ' + esc(h.project_name) : '') + '</div></div>';
+  }).join('');
+}
+function atPick(i) {
+  var h = _at.matches[i]; if (!h) return;
+  _at.hh = { id: h.id, name: h.name };
+  atRenderSelection();
+}
+function atClearSelection() { _at.hh = null; atRenderSelection(); var s = document.getElementById('at-search'); if (s) { s.value = ''; s.focus(); } document.getElementById('at-results').innerHTML = ''; }
+function atRenderSelection() {
+  var sel = document.getElementById('at-selected');
+  var wrap = document.getElementById('at-search-wrap');
+  var clr = document.getElementById('at-clear-sel');
+  if (_at.hh) { sel.textContent = _at.hh.name; sel.style.display = ''; wrap.style.display = 'none'; clr.style.display = ''; }
+  else { sel.style.display = 'none'; wrap.style.display = ''; clr.style.display = 'none'; }
+}
+
+async function submitAttach() {
+  var btn = document.getElementById('at-save-btn');
+  var err = document.getElementById('at-err');
+  err.textContent = '';
+  var first = hhVal('at-first'), last = hhVal('at-last');
+  if (!first) { err.textContent = 'First name is required.'; return; }
+  var body = { first_name: first, last_name: last, relationship: hhVal('at-rel') };
+  if (_at.mode === 'existing') {
+    if (!_at.hh) { err.textContent = 'Pick a household first.'; return; }
+    body.household_id = _at.hh.id;
+  } else {
+    if (!last) { err.textContent = 'Last name is required for a new household.'; return; }
+    body.project_name = hhVal('at-project');
+    body.address = hhVal('at-address');
+  }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await rwFetch('/api/conversations/' + window._currentPhone + '/attach', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Could not add them.'; btn.disabled = false; atSetMode(_at.mode); return; }
+    closeAttach();
+    _households = []; // stale now; reload on next use
+    // Re-open the thread so the name, rail, and attach state all reflect the new person.
+    openRealConv(window._currentPhone, (first + ' ' + (last || '')).trim());
+    loadRealConversations();
+  } catch (e) { err.textContent = 'Connection error.'; btn.disabled = false; atSetMode(_at.mode); }
+}
+
 // ── UNIFIED CREATE: ticket / follow up / both ────────────────────────────────
 var _cr = { mode:'ticket', locked:false, phone:null, name:null, sel:null, isNew:false };
 var _crTeam = null;
