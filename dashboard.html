@@ -1826,23 +1826,65 @@ async function loadFlags() {
     var html = '';
     rows.forEach(function(f) {
       var snap = Array.isArray(f.snapshot) ? f.snapshot : [];
+      var cancelled = f.status === 'cancelled';
+      var resolvedF = f.status === 'resolved';
       var bubbles = snap.map(function(m) {
         var cls = m.role === 'user' ? 'sms-client' : 'sms-andi';
         var hl = m.flagged ? 'box-shadow:0 0 0 2px #cc7a00;' : 'opacity:0.75;';
         return '<div class="sms-msg ' + cls + '" style="' + hl + 'margin:0.3rem 0;">' + esc(m.message) + '</div>';
       }).join('');
       var enc = f.phone_number ? encodeURIComponent(f.phone_number) : null;
-      html += '<div style="border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;margin-bottom:0.9rem;">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">' +
+      var statusChip = resolvedF
+        ? '<span style="font-size:0.7rem;font-weight:700;color:#1D9E75;text-transform:uppercase;letter-spacing:0.05em;">Reviewed</span>'
+        : cancelled
+          ? '<span style="font-size:0.7rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;">Cancelled</span>'
+          : '<span style="font-size:0.7rem;font-weight:700;color:#cc7a00;text-transform:uppercase;letter-spacing:0.05em;">Sent</span>';
+      var actions = (!resolvedF && !cancelled)
+        ? '<div style="display:flex;gap:0.7rem;margin-top:0.5rem;">' +
+            '<a class="tk-house-link" onclick="editFlagNote(' + f.id + ')">Edit note</a>' +
+            '<a class="tk-house-link" style="color:#c0392b;" onclick="cancelFlag(' + f.id + ')">Cancel flag</a>' +
+          '</div>'
+        : (resolvedF && f.resolution_note ? '<div style="font-size:0.85rem;margin-top:0.5rem;color:#1D9E75;"><strong>Andy:</strong> ' + esc(f.resolution_note) + '</div>' : '');
+      html += '<div style="border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;margin-bottom:0.9rem;' + (cancelled ? 'opacity:0.55;' : '') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;gap:0.7rem;">' +
           '<div style="font-size:0.78rem;color:var(--ink-soft);">Flagged by ' + esc(f.flagged_by || 'Unknown') + ' · ' + esc(fmtTime(f.created_at)) + '</div>' +
-          (enc ? '<a class="tk-house-link" onclick="enterConversation(\'' + enc + '\', \'' + esc(f.phone_number) + '\')">Open conversation</a>' : '') +
+          '<div style="display:flex;gap:0.7rem;align-items:center;">' + statusChip +
+          (enc ? '<a class="tk-house-link" onclick="enterConversation(\'' + enc + '\', \'' + esc(f.phone_number) + '\')">Open conversation</a>' : '') + '</div>' +
         '</div>' +
-        (f.note ? '<div style="font-size:0.85rem;margin-bottom:0.5rem;"><strong>Why:</strong> ' + esc(f.note) + '</div>' : '') +
+        '<div id="flag-note-row-' + f.id + '">' + (f.note ? '<div style="font-size:0.85rem;margin-bottom:0.5rem;"><strong>Why:</strong> ' + esc(f.note) + '</div>' : '') + '</div>' +
         '<div style="max-width:560px;">' + bubbles + '</div>' +
+        actions +
       '</div>';
+      window._flagNotes = window._flagNotes || {}; window._flagNotes[f.id] = f.note || '';
     });
     el.innerHTML = html;
   } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+function editFlagNote(id) {
+  var row = document.getElementById('flag-note-row-' + id); if (!row) return;
+  var cur = (window._flagNotes || {})[id] || '';
+  row.innerHTML = '<div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">' +
+    '<input class="fld-input" id="flag-note-edit-' + id + '" type="text" value="' + esc(cur) + '" placeholder="Why? (optional)" style="flex:1;" />' +
+    '<button class="btn-primary" onclick="saveFlagNote(' + id + ')">Save</button></div>';
+  var inp = document.getElementById('flag-note-edit-' + id); if (inp) inp.focus();
+}
+async function saveFlagNote(id) {
+  var inp = document.getElementById('flag-note-edit-' + id); if (!inp) return;
+  try {
+    var res = await rwFetch('/api/flags/' + id, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note: inp.value }) });
+    var d = await res.json();
+    if (!res.ok) { alert(d.error || 'Could not save.'); return; }
+    loadFlags();
+  } catch (e) { alert('Connection error.'); }
+}
+async function cancelFlag(id) {
+  if (!confirm('Cancel this flag? It stays in the list as cancelled so RestWerks knows it was withdrawn.')) return;
+  try {
+    var res = await rwFetch('/api/flags/' + id, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cancel: true }) });
+    var d = await res.json();
+    if (!res.ok) { alert(d.error || 'Could not cancel.'); return; }
+    loadFlags();
+  } catch (e) { alert('Connection error.'); }
 }
 async function settingsSaveSummary() {
   var list = [];
