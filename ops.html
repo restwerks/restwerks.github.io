@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   RestWerks Ops Dash
-  Version: 0.1.0 — 2026-06-14_1845 CT
+  Version: 0.1.1 — 2026-06-14_2027 CT
   Internal RestWerks operator god view (read-only). restwerks.com/ops, NOT linked from the site.
   Pairs with portal v1.35.0 (/api/ops/* + requireSuperadmin). Disposable down-and-dirty slice 1.
 -->
@@ -119,13 +119,22 @@ const $ = id => document.getElementById(id);
 function token() { return localStorage.getItem('rw-token'); }
 
 async function api(path) {
-  const res = await fetch(PORTAL_URL + path, {
-    headers: { 'Authorization': 'Bearer ' + token() },
-    credentials: 'include'
-  });
-  if (res.status === 401) { localStorage.removeItem('rw-token'); showLogin(); throw new Error('unauth'); }
-  if (res.status === 403) { showLogin('That account is not a RestWerks operator.'); throw new Error('forbidden'); }
-  if (!res.ok) throw new Error('http ' + res.status);
+  let res;
+  try {
+    res = await fetch(PORTAL_URL + path, {
+      headers: { 'Authorization': 'Bearer ' + token() },
+      credentials: 'include'
+    });
+  } catch (netErr) {
+    throw new Error('Network error reaching the portal (' + netErr.message + ').');
+  }
+  if (res.status === 401) { localStorage.removeItem('rw-token'); showLogin('Session expired, sign in again.'); throw new Error('unauth'); }
+  if (res.status === 403) { showLogin('Signed in, but this account is not a RestWerks operator. Check SUPERADMIN_EMAILS matches your login email exactly, then redeploy the portal.'); throw new Error('forbidden'); }
+  if (!res.ok) {
+    let body = '';
+    try { body = (await res.json()).detail || (await res.text()); } catch (e) { try { body = await res.text(); } catch (e2) {} }
+    throw new Error('Portal returned ' + res.status + (body ? ': ' + body : ''));
+  }
   return res.json();
 }
 
@@ -196,7 +205,12 @@ function statusPill(s, isTest) {
 async function load() {
   $('tableWrap').innerHTML = '<div class="loading">Loading…</div>';
   let data;
-  try { data = await api('/api/ops/overview'); } catch (e) { return; }
+  try { data = await api('/api/ops/overview'); }
+  catch (e) {
+    if (e.message === 'unauth' || e.message === 'forbidden') return;
+    $('tableWrap').innerHTML = '<div class="section empty" style="color:var(--red)">' + esc(e.message) + '</div>';
+    return;
+  }
   $('genMeta').textContent = data.integrators.length + ' integrators · ' + new Date(data.generated_at).toLocaleTimeString();
   if (!data.integrators.length) { $('tableWrap').innerHTML = '<div class="empty">No integrators.</div>'; return; }
   let h = '<table><thead><tr>' +
