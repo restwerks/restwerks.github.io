@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   RestWerks Ops Dash
-  Version: 0.1.1 — 2026-06-14_2027 CT
+  Version: 0.1.2 — 2026-06-14_2032 CT
   Internal RestWerks operator god view (read-only). restwerks.com/ops, NOT linked from the site.
   Pairs with portal v1.35.0 (/api/ops/* + requireSuperadmin). Disposable down-and-dirty slice 1.
 -->
@@ -247,7 +247,12 @@ async function openDrawer(id, name) {
   $('overlay').classList.add('open');
   $('drawer').classList.add('open');
   let d;
-  try { d = await api('/api/ops/integrator/' + id); } catch (e) { $('drawerBody').innerHTML = '<div class="section empty">Failed to load.</div>'; return; }
+  try { d = await api('/api/ops/integrator/' + id); }
+  catch (e) {
+    if (e.message === 'unauth' || e.message === 'forbidden') { closeDrawer(); return; }
+    $('drawerBody').innerHTML = '<div class="section empty" style="color:var(--red)">' + esc(e.message) + '</div>';
+    return;
+  }
 
   let h = '';
   // info
@@ -282,8 +287,8 @@ async function openDrawer(id, name) {
   h += '<div class="section"><h3>Open tickets (' + d.open_tickets.length + ')</h3>';
   if (!d.open_tickets.length) h += '<div class="empty">None.</div>';
   for (const t of d.open_tickets) {
-    h += '<div class="row2"><span class="l">' + esc(t.ticket_type || 'Ticket #' + t.id) + '</span>' +
-      '<span class="r">' + (t.phone_number||'') + ' · ' + ago(t.created_at) + '</span></div>';
+    h += '<div class="row2"><span class="l">' + esc(t.summary || t.ticket_type || 'Ticket #' + t.id) + '</span>' +
+      '<span class="r">' + (t.phone_number||'') + ' · ' + ago(t.opened_at) + '</span></div>';
   }
   h += '</div>';
 
