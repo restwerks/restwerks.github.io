@@ -31,12 +31,16 @@
   .mark{ display:block; }
   .mark .bub{ fill:var(--green); }
   .mark .bolt{ fill:#fff; }
+  .rwmark{ display:block; }
+  .rwmark .r{ fill:#fff; }
+  .rwmark .w{ fill:var(--green); }
 
   /* NAV */
   nav{ position:sticky; top:0; z-index:100; background:rgba(8,15,22,0.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line-d); }
   .nav-in{ max-width:1080px; margin:0 auto; padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; }
   .brand{ display:flex; align-items:center; gap:10px; }
   .brand .mark{ width:30px; height:30px; }
+  .brand .rwmark{ width:30px; height:30px; }
   .brand-name{ color:#fff; font-weight:800; font-size:19px; letter-spacing:-0.02em; }
   .brand-name small{ display:block; font-weight:500; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mist); margin-top:-3px; }
   .nav-links{ display:flex; align-items:center; gap:30px; list-style:none; }
@@ -47,12 +51,12 @@
   @media(max-width:760px){ .nav-links li.lnk{ display:none; } }
 
   /* HERO */
-  .hero{ background:var(--navy); color:#fff; position:relative; overflow:hidden; }
+  .hero{ background:var(--navy); color:#fff; position:relative; overflow:hidden; min-height:calc(100vh - 64px); display:flex; align-items:center; }
   .hero::before{ content:''; position:absolute; top:-220px; right:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(12,157,118,0.18), transparent 68%); pointer-events:none; }
-  .hero-in{ max-width:1080px; margin:0 auto; padding:74px 24px 84px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; position:relative; }
-  @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:44px; padding:52px 24px 64px; } }
+  .hero-in{ width:100%; max-width:1080px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; position:relative; }
+  @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:40px; padding:40px 24px 56px; } }
   .eyebrow{ display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9FE6CF; background:rgba(12,157,118,0.14); border:1px solid rgba(12,157,118,0.3); padding:6px 13px; border-radius:30px; margin-bottom:22px; }
-  h1{ font-size:clamp(46px,7vw,82px); line-height:0.98; letter-spacing:-0.035em; font-weight:800; margin-bottom:22px; }
+  h1{ font-size:clamp(29px,4.6vw,51px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; margin-bottom:22px; white-space:nowrap; }
   h1 .g{ color:var(--green); }
   .hero-sub{ font-size:18px; line-height:1.6; color:#C5D1DC; max-width:480px; margin-bottom:30px; }
   .hero-actions{ display:flex; align-items:center; gap:22px; margin-bottom:44px; }
@@ -61,7 +65,7 @@
   .btn-text{ font-size:15px; font-weight:600; color:#fff; display:inline-flex; align-items:center; gap:7px; }
   .btn-text .arr{ transition:transform .15s; }
   .btn-text:hover .arr{ transform:translateX(3px); }
-  .hero-stats{ display:flex; gap:38px; padding-top:26px; border-top:1px solid var(--line-d); }
+  .hero-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding-top:26px; border-top:1px solid var(--line-d); max-width:520px; }
   .hs-num{ font-size:30px; font-weight:800; letter-spacing:-0.02em; line-height:1; margin-bottom:7px; }
   .hs-num .u{ color:var(--green); }
   .hs-lab{ font-size:12.5px; color:var(--mist); line-height:1.4; }
@@ -82,11 +86,12 @@
   .ph-sub{ font-size:11px; color:var(--mist); }
   .ph-status{ margin-left:auto; font-size:10.5px; color:#9FE6CF; font-weight:600; display:flex; align-items:center; gap:5px; white-space:nowrap; }
   .ph-status .dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(12,157,118,0.2); }
-  .ph-thread{ height:362px; overflow:hidden; display:flex; flex-direction:column; gap:3px; padding:2px 4px; }
+  .ph-thread{ height:370px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; gap:3px; padding:2px 4px; }
   .row{ display:flex; flex-direction:column; max-width:84%; }
   .row.left{ align-self:flex-start; align-items:flex-start; }
   .row.right{ align-self:flex-end; align-items:flex-end; }
-  .bub{ padding:8px 12px; border-radius:15px; font-size:12.7px; line-height:1.45; animation:pop .26s ease; }
+  .row.in{ animation:slidein .34s cubic-bezier(.22,.61,.36,1); }
+  .bub{ padding:8px 12px; border-radius:15px; font-size:12.7px; line-height:1.45; }
   .bub.green{ background:var(--green); color:#fff; border-bottom-left-radius:4px; }
   .row.right .bub.green{ border-bottom-left-radius:15px; border-bottom-right-radius:4px; }
   .bub.grey{ background:var(--bub-grey); color:var(--bub-grey-tx); }
@@ -94,22 +99,18 @@
   .row.right .bub.grey{ border-bottom-right-radius:4px; }
   .bub.blue{ background:var(--blue); color:#fff; border-bottom-left-radius:4px; }
   .time{ font-size:9.5px; color:#67737F; margin:3px 4px 5px; }
-  .typing{ align-self:flex-start; background:var(--bub-grey); border-radius:15px; border-bottom-left-radius:4px; padding:11px 13px; display:flex; gap:4px; animation:pop .2s ease; }
-  .typing i{ width:6px; height:6px; border-radius:50%; background:#6B7884; display:inline-block; animation:blink 1.2s infinite; }
-  .typing i:nth-child(2){ animation-delay:.2s; } .typing i:nth-child(3){ animation-delay:.4s; }
-  .ph-issue{ margin-top:auto; font-size:10.5px; color:var(--mist); border-top:1px solid var(--line-d); padding:9px 4px 2px; line-height:1.45; }
+  .ph-issue{ font-size:10.5px; color:var(--mist); border-top:1px solid var(--line-d); padding:9px 4px 2px; line-height:1.45; }
   .ph-issue b{ color:#C7D2DC; }
   .ph-compose{ display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line-d); }
   .ph-compose .fake-input{ flex:1; background:var(--navy-3); border:1px solid var(--line-d); border-radius:18px; height:32px; display:flex; align-items:center; padding:0 13px; font-size:11.5px; color:#5E6B77; }
   .ph-compose .fake-send{ background:var(--green); color:#fff; font-size:11px; font-weight:700; padding:7px 13px; border-radius:8px; }
-  @keyframes pop{ from{ opacity:0; transform:translateY(6px) scale(0.98); } to{ opacity:1; transform:none; } }
-  @keyframes blink{ 0%,60%,100%{ opacity:0.3; } 30%{ opacity:1; } }
+  @keyframes slidein{ from{ opacity:0; transform:translateY(9px); } to{ opacity:1; transform:none; } }
   .progress{ display:flex; gap:8px; margin-top:16px; }
   .progress button{ font-family:inherit; border:0; cursor:pointer; background:transparent; color:var(--mist); font-size:11px; font-weight:600; display:flex; align-items:center; gap:7px; padding:5px 2px; opacity:0.55; transition:opacity .2s; }
   .progress button .pd{ width:7px; height:7px; border-radius:50%; background:#3A4856; transition:background .2s; }
   .progress button.active{ opacity:1; color:#E7EDF3; }
   .progress button.active .pd{ background:var(--green); }
-  @media(prefers-reduced-motion:reduce){ .bub,.typing{ animation:none; } }
+  @media(prefers-reduced-motion:reduce){ .row.in{ animation:none; } }
 
   /* SECTIONS */
   section{ padding:88px 0; }
@@ -226,6 +227,7 @@
   .foot-in{ max-width:1080px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; }
   .foot-brand{ display:flex; align-items:center; gap:10px; }
   .foot-brand .mark{ width:26px; height:26px; }
+  .foot-brand .rwmark{ width:26px; height:26px; }
   .foot-brand b{ color:#fff; font-weight:800; font-size:16px; }
   .foot-brand small{ color:var(--mist); font-weight:500; font-size:11px; }
   .foot-links{ display:flex; gap:24px; list-style:none; flex-wrap:wrap; }
@@ -241,9 +243,9 @@
 <!-- NAV -->
 <nav>
   <div class="nav-in">
-    <a class="brand" href="#top" aria-label="Andi by RestWerks home">
-      <svg class="mark" viewBox="0 0 602 602" aria-hidden="true"><path class="bub" d="M396,187.7c-24.1-23.2-57.6-37.2-95.1-37.2c-37.6,0-71.8,14.2-96.3,37.5c-24,22.8-38.9,54.5-38.9,90.3c0,36.3,15,69.1,39.2,92.9c24.3,23.8,57.9,38.5,95.1,38.5c3.7,0,7.3-0.1,10.7-0.4c3.9-0.3,7.4-0.7,10.5-1.2l8.8,1.6l37.9,22l-2.5-38.4l6.9-4.3c19-11.9,34.8-28.3,45.7-47.8c10.5-18.7,16.4-40.2,16.4-63C434.3,242.3,419.7,210.5,396,187.7 M301,123.4c44.6,0,84.8,16.9,113.8,44.8c28.9,27.8,46.6,66.4,46.6,110.1c0,27.6-7.2,53.6-19.9,76.2c-11.8,21-28.3,39.2-48.1,53l4.8,73.1l-77.6-45.1c-2.7,0.4-5.3,0.6-7.8,0.8c-4.3,0.3-8.5,0.5-12.7,0.5c-44.5,0-84.8-17.7-114-46.4c-29.3-28.7-47.4-68.3-47.4-112.1c0-43.6,18.1-82.1,47.4-109.9C215.5,140.4,256.3,123.4,301,123.4z"/><path class="bolt" d="M304.8,209.5v56.1h36.6c0,0,7.5-1.5,2.3,7.7c-5.2,9.2-49,79.3-49,79.3s-4.7,8.4-4.9,0.1v-56.1h-36.6c0,0-7.5,1.5-2.3-7.7c5.2-9.2,49-79.3,49-79.3S304.6,201.2,304.8,209.5"/></svg>
-      <span class="brand-name">Andi<small>by RestWerks</small></span>
+    <a class="brand" href="#top" aria-label="RestWerks home">
+      <svg class="rwmark" viewBox="0 0 602 602" aria-hidden="true"><path class="r" d="M187.7,259.5l52,94H280l-35.5-62c27.8-5.7,48.9-30.4,48.9-59.7v0c0-33.5-27.4-61-61-61h-85.5h-33.3v121.9v60.7h33.3v-60.7v-33.2V204h82.2c15.3,0,27.7,12.5,27.7,27.7c0,15.3-12.5,27.7-27.7,27.7h-10.2H187.7z"/><polygon class="w" points="286.7,433.2 245.7,361.9 281.8,361.9 286.8,368.6 "/><path class="w" d="M293.7,271.6l15,35.3l36.9-91.3h23.2l33.6,87.9l49.8-132.6h34.2l-69.6,182.7h-27.7l-32.2-82.2l-35.5,82.2h-23.1l-28.2-59C279.6,288.7,287.7,280.9,293.7,271.6"/></svg>
+      <span class="brand-name">RestWerks</span>
     </a>
     <ul class="nav-links">
       <li class="lnk"><a href="#how">How it works</a></li>
@@ -260,7 +262,7 @@
   <div class="hero-in">
     <div>
       <span class="eyebrow">After hours text support for residential AV</span>
-      <h1>Text.<br><span class="g">Ask.</span> Solved.</h1>
+      <h1>Text. <span class="g">Ask.</span> Solved.</h1>
       <p class="hero-sub">Andi answers your clients' texts around the clock, solves the common issues without a truck roll, and follows up automatically so no relationship goes cold.</p>
       <div class="hero-actions">
         <a class="btn" href="#contact">Get started</a>
@@ -281,6 +283,7 @@
       <div class="phone">
         <div id="ph-head" class="ph-head"></div>
         <div id="ph-thread" class="ph-thread"></div>
+        <div id="ph-issue" class="ph-issue" style="display:none;"></div>
         <div class="ph-compose" aria-hidden="true">
           <div class="fake-input">Message</div>
           <div class="fake-send">Send</div>
@@ -463,8 +466,8 @@
 <footer>
   <div class="foot-in">
     <a class="foot-brand" href="#top">
-      <svg class="mark" viewBox="0 0 602 602" aria-hidden="true"><path class="bub" d="M396,187.7c-24.1-23.2-57.6-37.2-95.1-37.2c-37.6,0-71.8,14.2-96.3,37.5c-24,22.8-38.9,54.5-38.9,90.3c0,36.3,15,69.1,39.2,92.9c24.3,23.8,57.9,38.5,95.1,38.5c3.7,0,7.3-0.1,10.7-0.4c3.9-0.3,7.4-0.7,10.5-1.2l8.8,1.6l37.9,22l-2.5-38.4l6.9-4.3c19-11.9,34.8-28.3,45.7-47.8c10.5-18.7,16.4-40.2,16.4-63C434.3,242.3,419.7,210.5,396,187.7 M301,123.4c44.6,0,84.8,16.9,113.8,44.8c28.9,27.8,46.6,66.4,46.6,110.1c0,27.6-7.2,53.6-19.9,76.2c-11.8,21-28.3,39.2-48.1,53l4.8,73.1l-77.6-45.1c-2.7,0.4-5.3,0.6-7.8,0.8c-4.3,0.3-8.5,0.5-12.7,0.5c-44.5,0-84.8-17.7-114-46.4c-29.3-28.7-47.4-68.3-47.4-112.1c0-43.6,18.1-82.1,47.4-109.9C215.5,140.4,256.3,123.4,301,123.4z"/><path class="bolt" d="M304.8,209.5v56.1h36.6c0,0,7.5-1.5,2.3,7.7c-5.2,9.2-49,79.3-49,79.3s-4.7,8.4-4.9,0.1v-56.1h-36.6c0,0-7.5,1.5-2.3-7.7c5.2-9.2,49-79.3,49-79.3S304.6,201.2,304.8,209.5"/></svg>
-      <span><b>Andi</b> <small>by RestWerks</small></span>
+      <svg class="rwmark" viewBox="0 0 602 602" aria-hidden="true"><path class="r" d="M187.7,259.5l52,94H280l-35.5-62c27.8-5.7,48.9-30.4,48.9-59.7v0c0-33.5-27.4-61-61-61h-85.5h-33.3v121.9v60.7h33.3v-60.7v-33.2V204h82.2c15.3,0,27.7,12.5,27.7,27.7c0,15.3-12.5,27.7-27.7,27.7h-10.2H187.7z"/><polygon class="w" points="286.7,433.2 245.7,361.9 281.8,361.9 286.8,368.6 "/><path class="w" d="M293.7,271.6l15,35.3l36.9-91.3h23.2l33.6,87.9l49.8-132.6h34.2l-69.6,182.7h-27.7l-32.2-82.2l-35.5,82.2h-23.1l-28.2-59C279.6,288.7,287.7,280.9,293.7,271.6"/></svg>
+      <span><b>RestWerks</b></span>
     </a>
     <ul class="foot-links">
       <li><a href="https://restwerks.com/privacy">Privacy</a></li>
@@ -518,8 +521,9 @@
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var head = document.getElementById("ph-head");
   var thread = document.getElementById("ph-thread");
+  var issueEl = document.getElementById("ph-issue");
   var prog = document.getElementById("progress");
-  var S = { si:0, shown:0, view:"client", typing:false, timer:null };
+  var S = { si:0, shown:0, view:"client", timer:null };
 
   function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function initials(name){ return name.split(" ").map(function(p){ return p.charAt(0); }).join(""); }
@@ -543,8 +547,8 @@
         '<div class="ph-av g">' + ANDI_MARK + '</div>' +
         '<div><div class="ph-name">' + esc(AV) + '</div><div class="ph-sub">Support line</div></div>';
     } else {
-      var teammateUp = scn.teammate && scn.msgs.slice(0, S.shown).some(function(m){ return m.r === "teammate"; });
-      var who = teammateUp ? scn.teammate : "Andi";
+      var teammateUp = !!thread.querySelector('[data-role="teammate"]');
+      var who = (teammateUp && scn.teammate) ? scn.teammate : "Andi";
       head.innerHTML =
         '<div class="ph-av i">' + esc(initials(scn.client.name)) + '</div>' +
         '<div><div class="ph-name">' + esc(scn.client.name) + '</div></div>' +
@@ -552,24 +556,14 @@
     }
   }
 
-  function render(){
-    renderHead();
+  function renderIssue(){
     var scn = SCEN[S.si];
-    var html = "";
-    for(var i=0; i<S.shown; i++){
-      var m = scn.msgs[i];
-      var st = styleFor(m.r);
-      html += '<div class="row ' + st.side + '"><div class="bub ' + st.color + '">' + esc(m.t) + '</div><div class="time">' + esc(m.time) + '</div></div>';
-    }
-    if(S.typing){
-      html += '<div class="typing"><i></i><i></i><i></i></div>';
-    }
     if(S.view === "integrator"){
-      html += '<div class="ph-issue"><b>Issue:</b> ' + esc(scn.client.issue) + '</div>';
+      issueEl.style.display = "block";
+      issueEl.innerHTML = '<b>Issue:</b> ' + esc(scn.client.issue);
+    } else {
+      issueEl.style.display = "none";
     }
-    thread.innerHTML = html;
-    thread.scrollTop = thread.scrollHeight;
-    renderProgress();
   }
 
   function renderProgress(){
@@ -580,31 +574,56 @@
     prog.innerHTML = html;
   }
 
-  function gap(m){ if(reduce) return 650; return m.r === "client" ? 1050 : 1300; }
+  // append ONE new message; only this node animates, the rest hold still (no flash)
+  function appendMsg(m){
+    var st = styleFor(m.r);
+    var row = document.createElement("div");
+    row.className = "row " + st.side + (reduce ? "" : " in");
+    row.setAttribute("data-role", m.r);
+    row.innerHTML = '<div class="bub ' + st.color + '">' + esc(m.t) + '</div><div class="time">' + esc(m.time) + '</div>';
+    thread.appendChild(row);
+    if(!reduce){ setTimeout(function(){ row.classList.remove("in"); }, 400); }
+    if(S.view === "integrator" && m.r === "teammate"){ renderHead(); }
+  }
+
+  // view toggle: recolor existing bubbles in place, no rebuild, no animation
+  function recolor(){
+    renderHead(); renderIssue();
+    var rows = thread.querySelectorAll(".row");
+    for(var i=0; i<rows.length; i++){
+      var st = styleFor(rows[i].getAttribute("data-role"));
+      rows[i].className = "row " + st.side;
+      var b = rows[i].querySelector(".bub");
+      if(b){ b.className = "bub " + st.color; }
+    }
+  }
+
+  function startScenario(){
+    thread.innerHTML = "";
+    S.shown = 0;
+    renderHead(); renderIssue(); renderProgress();
+  }
+
+  function nextDelay(){
+    var nxt = SCEN[S.si].msgs[S.shown];
+    if(!nxt) return reduce ? 1000 : 3200;     // pause before the scenario rolls over
+    if(reduce) return 650;
+    return nxt.r === "client" ? 1500 : 1950;  // a longer beat before a reply, like real texting
+  }
 
   function step(){
     var scn = SCEN[S.si];
     if(S.shown >= scn.msgs.length){
       S.timer = setTimeout(function(){
         S.si = (S.si + 1) % SCEN.length;
-        S.shown = 0; S.typing = false;
-        render();
-        S.timer = setTimeout(step, 500);
-      }, 2300);
+        startScenario();
+        S.timer = setTimeout(step, reduce ? 500 : 700);
+      }, reduce ? 1200 : 3200);
       return;
     }
-    var next = scn.msgs[S.shown];
-    var agent = (next.r === "andi" || next.r === "teammate");
-    if(agent && !reduce){
-      S.typing = true; render();
-      S.timer = setTimeout(function(){
-        S.typing = false; S.shown++; render();
-        S.timer = setTimeout(step, gap(next));
-      }, 900);
-    } else {
-      S.shown++; render();
-      S.timer = setTimeout(step, gap(next));
-    }
+    appendMsg(scn.msgs[S.shown]);
+    S.shown++;
+    S.timer = setTimeout(step, nextDelay());
   }
 
   // toggle view WITHOUT restarting the play position
@@ -614,17 +633,17 @@
     var c = document.getElementById("v-client"), i = document.getElementById("v-integrator");
     c.classList.toggle("on", v === "client"); c.setAttribute("aria-selected", v === "client");
     i.classList.toggle("on", v === "integrator"); i.setAttribute("aria-selected", v === "integrator");
-    render();
+    recolor();
   };
 
   window.jumpScenario = function(i){
     if(S.timer) clearTimeout(S.timer);
-    S.si = i; S.shown = 0; S.typing = false;
-    render();
+    S.si = i;
+    startScenario();
     S.timer = setTimeout(step, 450);
   };
 
-  render();
+  startScenario();
   S.timer = setTimeout(step, 700);
 })();
 </script>
