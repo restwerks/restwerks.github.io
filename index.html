@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RestWerks index.html — Andi brand rebuild — 2026-06-17 -->
+<!-- restwerks-index v2.0.1 | 2026-06-17 | RestWerks public site (Andi brand rebuild). DEPLOY AS index.html at the restwerks.github.io repo root. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -35,7 +35,9 @@
   .rwmark .r{ fill:#fff; }
   .rwmark .w{ fill:var(--green); }
   .rwlock{ display:block; height:26px; width:auto; }
-  .brand .rwlock{ height:27px; }
+  .brand .rwlock{ height:23px; }
+  .brand-tag{ font-size:9.5px; font-weight:600; letter-spacing:0.01em; color:#C5D1DC; line-height:1; }
+  .brand-tag em{ color:var(--green); font-style:normal; }
   .foot-brand .rwlock{ height:24px; }
   .foot-tag{ font-size:11px; font-weight:600; letter-spacing:0.01em; color:#C5D1DC; }
   .foot-tag em{ color:var(--green); font-style:normal; }
@@ -43,7 +45,7 @@
   /* NAV */
   nav{ position:sticky; top:0; z-index:100; background:rgba(8,15,22,0.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line-d); }
   .nav-in{ max-width:1080px; margin:0 auto; padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; }
-  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
   .brand .mark{ width:30px; height:30px; }
   .brand .rwmark{ width:30px; height:30px; }
   .brand-name{ color:#fff; font-weight:800; font-size:19px; letter-spacing:-0.02em; }
@@ -269,7 +271,7 @@
 	l-12.8-26.7C136.5,296,140.2,292.4,142.9,288.2"/><polygon fill="#FFFFFF" points="378.8,300.2 384.9,300.2 392.2,275.7 399.4,300.2 405.6,300.2 416.6,262.4 409.2,262.4 402.5,287.8 
 	395.3,262.3 389.2,262.3 382,287.8 375.4,262.4 367.8,262.4 "/><polygon fill="#FFFFFF" points="419.6,300 444,300 444,292.6 426.6,292.6 426.6,284.7 441.7,284.7 441.7,277.4 426.6,277.4 
 	426.6,269.7 443.8,269.7 443.8,262.4 419.6,262.4 "/><polygon fill="#FFFFFF" points="481.9,300 488.9,300 488.9,288.5 492.7,284 502.6,300 511.1,300 497.4,278.3 510.5,262.4 502,262.4 
-	488.9,278.8 488.9,262.4 481.9,262.4 "/><polygon fill="#0C9D76" points="139.7,361.3 121.2,329.1 137.5,329.1 139.8,332.1 "/></svg></a>
+	488.9,278.8 488.9,262.4 481.9,262.4 "/><polygon fill="#0C9D76" points="139.7,361.3 121.2,329.1 137.5,329.1 139.8,332.1 "/></svg><span class="brand-tag">Text. <em>Ask.</em> Solved.</span></a>
     <ul class="nav-links">
       <li class="lnk"><a href="#how">How it works</a></li>
       <li class="lnk"><a href="#features">Features</a></li>
@@ -481,7 +483,7 @@
   <div class="wrap">
     <h2 class="h2">Ready to put Andi to work?</h2>
     <p>RestWerks is currently onboarding select residential AV integrators. Reach out to get started.</p>
-    <a class="cmail" href="mailto:andy@restwerks.com">andy@restwerks.com</a>
+    <a class="cmail" href="mailto:hello@restwerks.com">hello@restwerks.com</a>
   </div>
 </section>
 
@@ -513,7 +515,7 @@
     <ul class="foot-links">
       <li><a href="https://restwerks.com/privacy">Privacy</a></li>
       <li><a href="https://restwerks.com/terms">Terms</a></li>
-      <li><a href="mailto:andy@restwerks.com">Contact</a></li>
+      <li><a href="mailto:hello@restwerks.com">Contact</a></li>
       <li><a href="https://restwerks.com/dashboard">Dashboard</a></li>
     </ul>
     <span class="foot-copy">&copy; 2026 RestWerks LLC</span>
