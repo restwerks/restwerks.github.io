@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- restwerks-index v2.0.4 | 2026-06-19 | RestWerks public site (Andi brand). DEPLOY AS index.html at the restwerks.github.io repo root. v2.0.4: phone re-centered (un-justify, closes middle gap), tighter hero gaps (40->24), bigger headline (cap 64), phone 340->372, body 18->19, container 1200->1280. -->
+<!-- restwerks-index v2.0.6 | 2026-06-19 | RestWerks public site (Andi brand). DEPLOY AS index.html at the restwerks.github.io repo root. v2.0.6: hero left column is a flex stack with ONE equal gap (34px) between every item, per-element margins removed so spacing can't drift uneven; block runs a bit taller toward the phone. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -60,21 +60,20 @@
   /* HERO */
   .hero{ background:var(--navy); color:#fff; position:relative; overflow:hidden; min-height:calc(100vh - 64px); display:flex; align-items:center; }
   .hero::before{ content:''; position:absolute; top:-220px; right:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(12,157,118,0.18), transparent 68%); pointer-events:none; }
-  .hero-in{ width:100%; max-width:1280px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; position:relative; }
-  @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:40px; padding:40px 24px 56px; } }
-  .hero-copy{ display:block; }
-  .hero-copy-top{ display:block; }
-  .eyebrow{ display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9FE6CF; background:rgba(12,157,118,0.14); border:1px solid rgba(12,157,118,0.3); padding:6px 13px; border-radius:30px; margin-bottom:22px; }
-  h1{ font-size:clamp(29px,4.6vw,64px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; margin-bottom:24px; white-space:nowrap; }
+  .hero-in{ width:100%; max-width:1280px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:auto auto; justify-content:center; gap:40px; align-items:center; position:relative; }
+  @media(max-width:1000px){ .hero-in{ grid-template-columns:1fr; justify-content:stretch; gap:40px; padding:40px 24px 56px; } }
+  .hero-copy{ display:flex; flex-direction:column; align-items:flex-start; gap:34px; }
+  .eyebrow{ display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9FE6CF; background:rgba(12,157,118,0.14); border:1px solid rgba(12,157,118,0.3); padding:6px 13px; border-radius:30px; }
+  h1{ font-size:clamp(29px,4.6vw,64px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; white-space:nowrap; }
   h1 .g{ color:var(--green); }
-  .hero-sub{ font-size:19px; line-height:1.6; color:#C5D1DC; max-width:480px; margin-bottom:24px; }
-  .hero-actions{ display:flex; align-items:center; gap:22px; margin-bottom:24px; }
+  .hero-sub{ font-size:19px; line-height:1.6; color:#C5D1DC; max-width:480px; }
+  .hero-actions{ display:flex; align-items:center; gap:22px; }
   .btn{ display:inline-block; background:var(--green); color:#fff; padding:15px 28px; border-radius:10px; font-size:16px; font-weight:600; white-space:nowrap; transition:background .15s, transform .15s; }
   .btn:hover{ background:var(--green-d); transform:translateY(-1px); }
   .btn-text{ font-size:15px; font-weight:600; color:#fff; display:inline-flex; align-items:center; gap:7px; }
   .btn-text .arr{ transition:transform .15s; }
   .btn-text:hover .arr{ transform:translateX(3px); }
-  .hero-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding-top:26px; border-top:1px solid var(--line-d); max-width:520px; }
+  .hero-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding-top:26px; border-top:1px solid var(--line-d); width:100%; max-width:520px; }
   .hs-num{ font-size:30px; font-weight:800; letter-spacing:-0.02em; line-height:1; margin-bottom:7px; }
   .hs-num .u{ color:var(--green); }
   .hs-lab{ font-size:12.5px; color:var(--mist); line-height:1.4; }
@@ -288,14 +287,12 @@
 <header class="hero" id="top">
   <div class="hero-in">
     <div class="hero-copy">
-      <div class="hero-copy-top">
       <span class="eyebrow">After hours text support for residential AV</span>
       <h1>Text. <span class="g">Ask.</span> Solved.</h1>
       <p class="hero-sub">Andi answers your clients' texts around the clock, solves the common issues without a truck roll, and follows up automatically so no relationship goes cold.</p>
       <div class="hero-actions">
         <a class="btn" href="#contact">Get started</a>
         <a class="btn-text" href="#how">See how it works <span class="arr">&rarr;</span></a>
-      </div>
       </div>
       <div class="hero-stats">
         <div><div class="hs-num">26</div><div class="hs-lab">years of AV experience<br>in every reply</div></div>
