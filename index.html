@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- restwerks-index v2.0.1 | 2026-06-17 | RestWerks public site (Andi brand rebuild). DEPLOY AS index.html at the restwerks.github.io repo root. -->
+<!-- restwerks-index v2.0.2 | 2026-06-19 | RestWerks public site (Andi brand). DEPLOY AS index.html at the restwerks.github.io repo root. v2.0.2: honest internet-down scenario (no outage-lookup claim), battery ON/MUTE press-and-hold copy, hero width 1080->1200 + phone right-pinned (dead-space fix on wide screens), hero copy column stretched to match phone height. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -25,7 +25,7 @@
   html{ scroll-behavior:smooth; }
   body{ font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:var(--white); line-height:1.6; -webkit-font-smoothing:antialiased; }
   a{ text-decoration:none; color:inherit; }
-  .wrap{ max-width:1080px; margin:0 auto; padding:0 24px; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 24px; }
 
   /* MARK */
   .mark{ display:block; }
@@ -44,7 +44,7 @@
 
   /* NAV */
   nav{ position:sticky; top:0; z-index:100; background:rgba(8,15,22,0.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line-d); }
-  .nav-in{ max-width:1080px; margin:0 auto; padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; }
+  .nav-in{ max-width:1200px; margin:0 auto; padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; }
   .brand{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
   .brand .mark{ width:30px; height:30px; }
   .brand .rwmark{ width:30px; height:30px; }
@@ -60,8 +60,10 @@
   /* HERO */
   .hero{ background:var(--navy); color:#fff; position:relative; overflow:hidden; min-height:calc(100vh - 64px); display:flex; align-items:center; }
   .hero::before{ content:''; position:absolute; top:-220px; right:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(12,157,118,0.18), transparent 68%); pointer-events:none; }
-  .hero-in{ width:100%; max-width:1080px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; position:relative; }
-  @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:40px; padding:40px 24px 56px; } }
+  .hero-in{ width:100%; max-width:1200px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:stretch; position:relative; }
+  @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:40px; padding:40px 24px 56px; } .phone-col{ align-items:center; } }
+  .hero-copy{ display:flex; flex-direction:column; justify-content:space-between; height:100%; }
+  .hero-copy-top{ display:block; }
   .eyebrow{ display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9FE6CF; background:rgba(12,157,118,0.14); border:1px solid rgba(12,157,118,0.3); padding:6px 13px; border-radius:30px; margin-bottom:22px; }
   h1{ font-size:clamp(29px,4.6vw,51px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; margin-bottom:22px; white-space:nowrap; }
   h1 .g{ color:var(--green); }
@@ -78,7 +80,7 @@
   .hs-lab{ font-size:12.5px; color:var(--mist); line-height:1.4; }
 
   /* PHONE */
-  .phone-col{ display:flex; flex-direction:column; align-items:center; }
+  .phone-col{ display:flex; flex-direction:column; align-items:flex-end; }
   .vtoggle{ display:inline-flex; background:var(--navy-3); border:1px solid var(--line-d); border-radius:11px; padding:4px; margin-bottom:14px; gap:3px; }
   .vtoggle button{ font-family:inherit; border:0; background:transparent; color:var(--mist); font-size:12.5px; font-weight:600; padding:7px 16px; border-radius:8px; cursor:pointer; transition:all .18s; }
   .vtoggle button.on{ background:var(--green); color:#fff; }
@@ -231,7 +233,7 @@
 
   /* FOOTER */
   footer{ background:#05090D; color:var(--mist); padding:40px 0; }
-  .foot-in{ max-width:1080px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; }
+  .foot-in{ max-width:1200px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; }
   .foot-brand{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
   .foot-brand .mark{ width:26px; height:26px; }
   .foot-brand .rwmark{ width:26px; height:26px; }
@@ -285,13 +287,15 @@
 <!-- HERO -->
 <header class="hero" id="top">
   <div class="hero-in">
-    <div>
+    <div class="hero-copy">
+      <div class="hero-copy-top">
       <span class="eyebrow">After hours text support for residential AV</span>
       <h1>Text. <span class="g">Ask.</span> Solved.</h1>
       <p class="hero-sub">Andi answers your clients' texts around the clock, solves the common issues without a truck roll, and follows up automatically so no relationship goes cold.</p>
       <div class="hero-actions">
         <a class="btn" href="#contact">Get started</a>
         <a class="btn-text" href="#how">See how it works <span class="arr">&rarr;</span></a>
+      </div>
       </div>
       <div class="hero-stats">
         <div><div class="hs-num">26</div><div class="hs-lab">years of AV experience<br>in every reply</div></div>
@@ -531,8 +535,7 @@
       client:{ name:"Chris Palmer", issue:"Internet down. UPS powered off at the rack." },
       msgs:[
         { r:"client", t:"Internet's down again. Nothing's working.", time:"10:47 PM" },
-        { r:"andi", t:"On it. Checking your provider for an outage right now.", time:"10:47 PM" },
-        { r:"andi", t:"No outage on their end. Can you head to your equipment rack and tell me what you see?", time:"10:48 PM" },
+        { r:"andi", t:"Can you head to your equipment rack and tell me if everything has lights on it, or if anything looks dark?", time:"10:47 PM" },
         { r:"client", t:"All the lights are off except the bottom box.", time:"10:49 PM" },
         { r:"andi", t:"That bottom box is your UPS. Press the ON button, and hold it a couple seconds if a tap doesn't do it. Tell me if the other gear starts coming back.", time:"10:49 PM" },
         { r:"client", t:"Everything came back on!", time:"10:51 PM" },
@@ -544,7 +547,7 @@
         { r:"client", t:"Something in the rack is beeping every 30 seconds.", time:"11:23 PM" },
         { r:"andi", t:"That's a low battery alert from your UPS backup. Not an emergency tonight. I'll flag it for the team to get on the schedule.", time:"11:23 PM" },
         { r:"client", t:"Any way to silence it?", time:"11:24 PM" },
-        { r:"andi", t:"Press the MUTE button on the front of the unit. Someone will reach out to swap the battery.", time:"11:24 PM" },
+        { r:"andi", t:"Press and hold the ON/MUTE button for a couple seconds. Someone will reach out to swap the battery.", time:"11:24 PM" },
         { r:"client", t:"Perfect, thank you.", time:"11:25 PM" },
         { r:"andi", t:"No bother at all.", time:"11:25 PM" }
       ]},
