@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- restwerks-index v2.0.2 | 2026-06-19 | RestWerks public site (Andi brand). DEPLOY AS index.html at the restwerks.github.io repo root. v2.0.2: honest internet-down scenario (no outage-lookup claim), battery ON/MUTE press-and-hold copy, hero width 1080->1200 + phone right-pinned (dead-space fix on wide screens), hero copy column stretched to match phone height. -->
+<!-- restwerks-index v2.0.3 | 2026-06-19 | RestWerks public site (Andi brand). DEPLOY AS index.html at the restwerks.github.io repo root. v2.0.3: bigger one-line headline (cap 58), even ~40px hero spacing + vertically centered cluster (removes the bottom-pin void), tighter page sections (88->64). v2.0.2: honest internet-down scenario, battery ON/MUTE copy, width 1080->1200 + phone right-pin. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -60,15 +60,15 @@
   /* HERO */
   .hero{ background:var(--navy); color:#fff; position:relative; overflow:hidden; min-height:calc(100vh - 64px); display:flex; align-items:center; }
   .hero::before{ content:''; position:absolute; top:-220px; right:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(12,157,118,0.18), transparent 68%); pointer-events:none; }
-  .hero-in{ width:100%; max-width:1200px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:stretch; position:relative; }
+  .hero-in{ width:100%; max-width:1200px; margin:0 auto; padding:44px 24px 52px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; position:relative; }
   @media(max-width:880px){ .hero-in{ grid-template-columns:1fr; gap:40px; padding:40px 24px 56px; } .phone-col{ align-items:center; } }
-  .hero-copy{ display:flex; flex-direction:column; justify-content:space-between; height:100%; }
+  .hero-copy{ display:block; }
   .hero-copy-top{ display:block; }
   .eyebrow{ display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9FE6CF; background:rgba(12,157,118,0.14); border:1px solid rgba(12,157,118,0.3); padding:6px 13px; border-radius:30px; margin-bottom:22px; }
-  h1{ font-size:clamp(29px,4.6vw,51px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; margin-bottom:22px; white-space:nowrap; }
+  h1{ font-size:clamp(29px,4.6vw,58px); line-height:1.0; letter-spacing:-0.03em; font-weight:800; margin-bottom:40px; white-space:nowrap; }
   h1 .g{ color:var(--green); }
-  .hero-sub{ font-size:18px; line-height:1.6; color:#C5D1DC; max-width:480px; margin-bottom:30px; }
-  .hero-actions{ display:flex; align-items:center; gap:22px; margin-bottom:44px; }
+  .hero-sub{ font-size:18px; line-height:1.6; color:#C5D1DC; max-width:480px; margin-bottom:40px; }
+  .hero-actions{ display:flex; align-items:center; gap:22px; margin-bottom:40px; }
   .btn{ display:inline-block; background:var(--green); color:#fff; padding:15px 28px; border-radius:10px; font-size:16px; font-weight:600; white-space:nowrap; transition:background .15s, transform .15s; }
   .btn:hover{ background:var(--green-d); transform:translateY(-1px); }
   .btn-text{ font-size:15px; font-weight:600; color:#fff; display:inline-flex; align-items:center; gap:7px; }
@@ -122,7 +122,7 @@
   @media(prefers-reduced-motion:reduce){ .row.in{ animation:none; } }
 
   /* SECTIONS */
-  section{ padding:88px 0; }
+  section{ padding:64px 0; }
   .lab{ font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--green-d); margin-bottom:14px; }
   .h2{ font-size:clamp(30px,4.4vw,46px); line-height:1.08; letter-spacing:-0.03em; font-weight:800; color:var(--ink); margin-bottom:16px; }
   .intro{ font-size:18px; color:var(--ink-2); max-width:600px; line-height:1.6; }
