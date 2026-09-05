@@ -1,4 +1,5 @@
-<!-- dashboard.html (Dashboard v1.75.0, 2026-09-05_1256 CT) THE THREAD SHOWS WHAT THE PHONE SHOWED (dashboard only, no portal change; deploys alone). Found by holding Andy's handset next to the dashboard: webhook v9.27.2's ticket list arrived on the phone as four clean lines and rendered here as one run on paragraph. The newlines were never lost. They were composed, stored, sent and delivered intact; HTML collapses whitespace by default and esc() escapes the text without ever turning a line break into one. So .sms-msg has silently flattened EVERY multi line message since the thread was built, in the conversation view and the ticket workspace both, and it went unnoticed for months because Andi rarely sent one until the server started composing lists. white-space:pre-wrap keeps the breaks and still wraps long lines; overflow-wrap:anywhere keeps a long unbroken string (a URL, a model number) from pushing the bubble wide. Nothing stored changes and no message is rewritten. THE RULE THIS ENFORCES, and it is worth stating because it is the second time today a surface disagreed with reality: the dashboard thread is what the client received, character for character. A thread that renders differently from the phone is not a cosmetic issue, it is the record lying about what was sent. Prior v1.74.0, 2026-09-05_1247 CT THE TICKET NUMBER IN THE HOUSEHOLD RAIL (dashboard only, no portal change; deploys alone). Andy, Sept 5, looking at the Hepola rail: "in picture we should have ticket number in the tickets." The list showed a status dot, a label and a date, and that house carries three shade tickets and two rows both labelled Master Bed Shade, so no row could be named out loud to a tech or typed into a Teams message. Same reasoning as v1.60.9 putting the number on the ticket LIST and the conversation rail glance; this was the surface that got missed. Rendered quiet and tabular ahead of the label so the labels still line up down the column. It also matters more today than yesterday: webhook v9.27.2 now speaks these numbers to the CLIENT over text, so a client saying Ticket 31 needs to find Ticket 31 on this screen without counting rows. NOTE, deliberately not fixed here: the status dot still keys off the literal status string, so a ticket in one of the new waiting statuses draws the open dot. That is defensible (waiting IS live work) and a real dot for the waiting kind is its own decision, not a drive by. Prior v1.73.0, 2026-09-04_0230 CT THE HISTORY READS NEWEST FIRST, AND "JUST NOW" IS GONE (dashboard only, no portal change). Three things from Andy walking Ticket 30's history live. (1) "JUST NOW" WAS A LIE WITH A LONG LIFE. fmtDur was written for the LIVE clock, where under a minute genuinely means a ticket that just opened, and the history block reused it. But a history row measures the gap to the NEXT row, so it freezes the moment the status changes: a stretch that lasted forty seconds on Sep 3 will still read "just now" in a year. Andy: it should not be anywhere. It is now <1m everywhere, which is true whether the span is live or frozen, and it is one rule rather than one per surface. (2) THE CURRENT ROW SHOWS NO DURATION. It is the only row still growing, and the number it would show already has a home two blocks up in Time on this ticket. A second live number in the history is noise, and worse, it invites the reader to add it to the total. Blank means still happening. (3) NEWEST FIRST, WITH THE MIDDLE COLLAPSED, and the reversal is Andy's call over my lean. I argued a timeline should read forward; he is right that the thing you open a history for is what just happened, and making that the last line of a long scroll is backwards. So: the four most recent changes, then a collapsed band naming how many it hides, then the OPEN row pinned at the bottom as the anchor. Under six rows nothing collapses, since there is nothing to hide. The band expands in place and the ticket rail does not move. NOTE the durations still measure forward in time regardless of display order, so reversing the list changes what you read first and never what a row means. -->
+<!-- dashboard.html (Dashboard v1.76.0, 2026-09-05_1630 CT) THE PHOTO RENDERS WHEN IT HAS A CAPTION, AND THE CATEGORY PANEL SPLITS (pairs with portal v1.70.0, which is already live, so this deploys alone). Ship 3, dashboard half. ONE. THE CAPTIONED PHOTO. This is the half of Lance August report that was never fixed, and the Sept 2 close ruled out a different incident (two photos five minutes apart, two R2 keys) without ever looking for this one. The refs, the R2 object and the message row were all correct, confirmed by hard refresh. What was wrong is that the live path decided whether a photo had arrived by reading the message TEXT: appendLiveMessage soft reloaded the thread only when the message was exactly the string photo in brackets. The webhook writes that string ONLY when there is no caption. Send a picture with any words attached and the row text is the caption, so the test never matched, no reload fired, and the image sat invisible until some later message forced a redraw. A photo with a caption has never rendered live. The trigger is now the EVENT carrying media refs, which is a fact about the message rather than a guess read off its text, with the old bare string test kept underneath as a belt so nothing that works today stops working. Portal v1.70.0 puts the refs on the new_message event and the webhook half sends them; until the webhook ships, the belt is what runs and behaviour is exactly as it is today. TWO. THE CATEGORY PANEL SPLITS PARENT FROM SUBCATEGORY. Issues by category and Tickets by category both rendered a flat list off the old symptom vocabulary, where reboot required sat beside network as though they were the same kind of thing. They are not: one is an OUTCOME and the other is a place in the house. The panel now renders the eleven parents plus Other, each row expandable into its subcategories, and the parent bar is the sum of its children so the totals still add up. Uncategorised is its OWN row and is never dropped, which is the rule that made the hero say 11 conversations while the categories summed to 9 back in v1.64.0. A parent the shop has HIDDEN is not rendered, but its tickets still count in the total, because a number that changes when somebody toggles a checkbox is not a number anyone can trust. THREE. THE CATEGORIES EDITOR joins the Tickets settings tab beside statuses and urgency. Owners can rename a parent, hide a parent they do not service, and add, rename, hide or remove a subcategory. There is no add or delete for a PARENT, deliberately and not as an oversight: every analytic here is a ratio across time or across shops, and a parent that appears in June makes every earlier comparison dishonest. A seeded subcategory hides rather than deletes for the same reason. NOTE, carried forward from v1.74.0 and still not fixed: the ticket status dot keys off the literal status string, so a ticket in one of the waiting statuses draws the open dot. Still defensible, still its own decision. -->
+<!-- Prior v1.75.0, 2026-09-05_1256 CT THE THREAD SHOWS WHAT THE PHONE SHOWED (dashboard only, no portal change; deploys alone). Found by holding Andy's handset next to the dashboard: webhook v9.27.2's ticket list arrived on the phone as four clean lines and rendered here as one run on paragraph. The newlines were never lost. They were composed, stored, sent and delivered intact; HTML collapses whitespace by default and esc() escapes the text without ever turning a line break into one. So .sms-msg has silently flattened EVERY multi line message since the thread was built, in the conversation view and the ticket workspace both, and it went unnoticed for months because Andi rarely sent one until the server started composing lists. white-space:pre-wrap keeps the breaks and still wraps long lines; overflow-wrap:anywhere keeps a long unbroken string (a URL, a model number) from pushing the bubble wide. Nothing stored changes and no message is rewritten. THE RULE THIS ENFORCES, and it is worth stating because it is the second time today a surface disagreed with reality: the dashboard thread is what the client received, character for character. A thread that renders differently from the phone is not a cosmetic issue, it is the record lying about what was sent. Prior v1.74.0, 2026-09-05_1247 CT THE TICKET NUMBER IN THE HOUSEHOLD RAIL (dashboard only, no portal change; deploys alone). Andy, Sept 5, looking at the Hepola rail: "in picture we should have ticket number in the tickets." The list showed a status dot, a label and a date, and that house carries three shade tickets and two rows both labelled Master Bed Shade, so no row could be named out loud to a tech or typed into a Teams message. Same reasoning as v1.60.9 putting the number on the ticket LIST and the conversation rail glance; this was the surface that got missed. Rendered quiet and tabular ahead of the label so the labels still line up down the column. It also matters more today than yesterday: webhook v9.27.2 now speaks these numbers to the CLIENT over text, so a client saying Ticket 31 needs to find Ticket 31 on this screen without counting rows. NOTE, deliberately not fixed here: the status dot still keys off the literal status string, so a ticket in one of the new waiting statuses draws the open dot. That is defensible (waiting IS live work) and a real dot for the waiting kind is its own decision, not a drive by. Prior v1.73.0, 2026-09-04_0230 CT THE HISTORY READS NEWEST FIRST, AND "JUST NOW" IS GONE (dashboard only, no portal change). Three things from Andy walking Ticket 30's history live. (1) "JUST NOW" WAS A LIE WITH A LONG LIFE. fmtDur was written for the LIVE clock, where under a minute genuinely means a ticket that just opened, and the history block reused it. But a history row measures the gap to the NEXT row, so it freezes the moment the status changes: a stretch that lasted forty seconds on Sep 3 will still read "just now" in a year. Andy: it should not be anywhere. It is now <1m everywhere, which is true whether the span is live or frozen, and it is one rule rather than one per surface. (2) THE CURRENT ROW SHOWS NO DURATION. It is the only row still growing, and the number it would show already has a home two blocks up in Time on this ticket. A second live number in the history is noise, and worse, it invites the reader to add it to the total. Blank means still happening. (3) NEWEST FIRST, WITH THE MIDDLE COLLAPSED, and the reversal is Andy's call over my lean. I argued a timeline should read forward; he is right that the thing you open a history for is what just happened, and making that the last line of a long scroll is backwards. So: the four most recent changes, then a collapsed band naming how many it hides, then the OPEN row pinned at the bottom as the anchor. Under six rows nothing collapses, since there is nothing to hide. The band expands in place and the ticket rail does not move. NOTE the durations still measure forward in time regardless of display order, so reversing the list changes what you read first and never what a row means. -->
 <!-- Prior v1.72.0, 2026-09-04_0200 CT THE BADGES STAY RIGHT (dashboard only, no portal change). Andy, on the live sidebar: with the open badge at zero the remaining two slid left and sat against the word Tickets instead of at the right edge. The cause is that the right alignment was never a property of the GROUP, it was margin-left:auto on .nav-badge, which is to say on whichever badge happened to be first, and .sched and .waiting each override it with a fixed 3px so they can sit tight against their neighbour. With three badges visible the first one pushes and the rest follow and it looks deliberate; hide the first and nothing pushes at all. It has been latent since v1.9.0 added the second badge and only surfaced now because v1.71.0 made a nav item that regularly has its FIRST badge empty. THE FIX is a real group: the badges live in one flex container that owns the margin-left:auto and the spacing between them, so alignment no longer depends on which of them happen to be showing. Applied to every nav item rather than only Tickets, so a single badge and a group of three sit on exactly the same right edge, which they did not before either. No count, colour or behaviour changes. -->
 <!-- Prior v1.71.0, 2026-09-04_0130 CT THE WAITING BADGE, AND TWO WRITERS THAT DISAGREED (dashboard only, no portal change; portal v1.69.0 already carries waiting_tickets). Found by Andy on the live board: moving a ticket to Waiting on Parts turned the red badge off, then navigating back into Tickets turned it on again. A REAL BUG AND A CLEAN ONE. Two functions write that badge and v1.66.0 only updated one of them. loadTickets counts from the rows it just fetched and I taught it that waiting is live work, so it counted open PLUS waiting; loadCounts reads open_tickets off /api/stats, which counts kind 'open' only. Whichever ran last won, so the number changed depending on how you arrived at the page. The lesson is the one from the two seeds in portal v1.68.0, which is why that has a test: two copies of a count is not a duplication problem, it is a DRIFT problem, and the drift is invisible until the two paths disagree in front of someone. THE FIX IS NOT TO PICK ONE, it is to stop having two answers. Both writers now read the same three fields and set the same three badges. THE THIRD BADGE, Andy's call, and the right one: waiting gets its OWN badge in its own colour rather than hiding inside open or vanishing. Scheduled already proved the pattern in v1.9.0, red for what needs you and purple for what is booked, and waiting is a third thing that is neither. Now the sidebar and the board tell the same story: three numbers, three sections, same order. Open stays strictly kind 'open', so red goes back to meaning act now, which is the same reasoning that stops the clock in a waiting status. The badge colour is the seeded Waiting on Client blue rather than a per status colour, because a shop with three waiting statuses cannot have three badges and the sidebar is answering "how much is parked", not "parked on what". -->
 <!-- Prior v1.70.0, 2026-09-04_0100 CT OPEN AND SCHEDULED KEEP THEIR COLOURS (pairs with portal v1.69.0; DEPLOY PORTAL FIRST). Andy, asked whether a recoloured status should follow through to the sidebar badges: he does not want Open and Scheduled recolourable at all, for support reasons. That is the better answer than syncing the badges, and it removes the inconsistency rather than plumbing around it, because those two badges ARE Open and Scheduled and nothing else in the sidebar reads a status colour. Their colours are a language the whole dashboard already speaks (nav badges, conversation ticket dots, board section headers, ticket pills), so a shop that turned Open green would make every screenshot they send unreadable to whoever is helping them. Colour editing only ever existed for CUSTOM statuses, where the server assigns a default the shop would otherwise be stuck with; applying it to all six was reflex, not a decision. NOW: Open and Scheduled render a plain dot, not a control. Waiting on Client, Waiting on Parts, Resolved, Closed and anything a shop adds keep the picker, since nothing outside the ticket surfaces reads those. Labels stay editable on every status including the two frozen ones, which is the split that matters: what a shop calls Open is theirs, what colour Open is belongs to everyone who has to read their screen. THE PORTAL REFUSES IT TOO, in v1.69.0, because a rule enforced only in the dashboard is a rule until someone hits the API. URGENCY COLOUR EDITING IS REMOVED entirely: Low through Critical is a scale, the four seeded colours already read as one, and nothing is keyed to them. Its dots go plain too, so the two lists still line up column for column. -->
@@ -1172,7 +1173,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.75.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.76.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2673,6 +2674,21 @@ function renderSettings(c) {
     html += '<div class="set-readonly">Only owners can change the urgency list.</div>';
   }
   html += '</div>';
+  // ── CATEGORIES (v1.76.0) ──────────────────────────────────────────────────
+  // Narrower on purpose than the two editors above it. A shop can rename a parent, hide one it
+  // does not service, and split a child finer. It cannot add or remove a parent, because every
+  // number on the home panel is a ratio and a parent that appears in June makes every earlier
+  // comparison dishonest.
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Categories</div>';
+  html += '<div class="set-section-note">What kind of problem a ticket is. The eleven categories are fixed so your numbers stay comparable month to month, but you can rename one to your own words and hide anything you do not service. Inside each one you can add your own subcategories as you find you need them. Hiding never changes a count: tickets already filed under a category keep counting.</div>';
+  if (isOwner) {
+    html += '<div id="vocab-cat-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
+    html += '<div class="hd-err" id="vocab-cat-err" style="margin-top:0.4rem;"></div>';
+  } else {
+    html += '<div class="set-readonly">Only owners can change the category list.</div>';
+  }
+  html += '</div>';
   html += '</div>';
 
   html += '<div class="set-tabpanel" id="settab-team">';
@@ -2703,11 +2719,127 @@ function setTab(id) {
   document.querySelectorAll('#settings-body .set-tabpanel').forEach(function(p){ p.classList.toggle('active', p.id === 'settab-' + id); });
 }
 
+
+// ── CATEGORY EDITOR (v1.76.0) ────────────────────────────────────────────────
+// Same discipline as the status and urgency editors: every write goes through the portal and then
+// the vocabulary is re-read, so what the editor shows is what the server actually stored rather
+// than what this file hoped it stored.
+//
+// A parent renders with an eye rather than an X. There is no delete because there is no route, and
+// the missing control is the message, the same way a locked status row leaves its action cell empty
+// instead of printing the word LOCKED.
+var _catOpen = {};
+function catToggle(key) {
+  _catOpen[key] = !_catOpen[key];
+  renderCategoryEditor();
+}
+
+function renderCategoryEditor() {
+  var body = document.getElementById('vocab-cat-body');
+  if (!body) return;
+  var cats = tkCategories();
+  var subs = tkSubcategories();
+  if (!cats.length) {
+    body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.8rem;">No categories yet.</div>';
+    return;
+  }
+  var h = '<div class="vocab-grid">' +
+    '<div class="vocab-row-g vocab-headrow"><div class="vocab-head"></div><div class="vocab-head">Category</div>' +
+    '<div class="vocab-head c">Shown</div><div class="vocab-head"></div></div>';
+
+  cats.forEach(function(c) {
+    var kids = subs.filter(function(x){ return x.category_key === c.key; });
+    var open = !!_catOpen[c.key];
+    var caret = kids.length
+      ? '<span style="display:inline-block;width:0.75rem;font-size:0.6rem;color:var(--ink-soft);cursor:pointer;' +
+        (open ? 'transform:rotate(90deg);' : '') + '" onclick="catToggle(\'' + c.key + '\')">&#9654;</span>'
+      : '<span style="display:inline-block;width:0.75rem;"></span>';
+    h += '<div class="vocab-row-g">' +
+      '<div class="vocab-cell c">' + caret + '</div>' +
+      '<div class="vocab-cell"><input class="vocab-name" value="' + esc(c.label) + '" onchange="catRename(' + c.id + ', this.value)" /></div>' +
+      '<div class="vocab-cell c"><button class="vocab-tog' + (c.visible === false ? '' : ' on') + '" title="' +
+        (c.visible === false ? 'Hidden from your board and your numbers panel' : 'Shown') +
+        '" onclick="catSetVisible(' + c.id + ', ' + (c.visible === false ? 'true' : 'false') + ')">&#128065;</button></div>' +
+      '<div class="vocab-cell c"></div></div>';
+
+    if (open) {
+      kids.forEach(function(k) {
+        h += '<div class="vocab-row-g">' +
+          '<div class="vocab-cell c"></div>' +
+          '<div class="vocab-cell" style="padding-left:1.1rem;"><input class="vocab-name" style="font-size:0.78rem;" value="' + esc(k.label) + '" onchange="subRename(' + k.id + ', this.value)" /></div>' +
+          '<div class="vocab-cell c"><button class="vocab-tog' + (k.visible === false ? '' : ' on') + '" title="' +
+            (k.visible === false ? 'Hidden' : 'Shown') +
+            '" onclick="subSetVisible(' + k.id + ', ' + (k.visible === false ? 'true' : 'false') + ')">&#128065;</button></div>' +
+          // A seeded child hides, it never deletes: it is part of the shared vocabulary every
+          // shop's numbers are compared against. Only a child this shop added can be removed.
+          '<div class="vocab-cell c">' + (k.is_locked ? '' : '<button class="vocab-act" title="Remove" onclick="subDelete(' + k.id + ')">&#10005;</button>') + '</div></div>';
+      });
+      h += '<div class="vocab-row-g"><div class="vocab-cell c"></div>' +
+        '<div class="vocab-cell" style="padding-left:1.1rem;"><input class="fld-input" id="subnew-' + c.key + '" type="text" placeholder="Add a subcategory" style="font-size:0.78rem;" /></div>' +
+        '<div class="vocab-cell c"><button class="btn-primary" style="padding:0.25rem 0.6rem;font-size:0.72rem;" onclick="subAdd(\'' + c.key + '\')">Add</button></div>' +
+        '<div class="vocab-cell c"></div></div>';
+    }
+  });
+  body.innerHTML = h + '</div>';
+}
+
+function catErr(msg) {
+  var e = document.getElementById('vocab-cat-err');
+  if (e) e.textContent = msg || '';
+}
+
+async function catWrite(url, method, payload) {
+  catErr('');
+  try {
+    var res = await rwFetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: payload ? JSON.stringify(payload) : undefined
+    });
+    if (!res.ok) {
+      var d = {};
+      try { d = await res.json(); } catch (e) {}
+      catErr(d.error || 'That did not save.');
+      return false;
+    }
+    return true;
+  } catch (e) { catErr('That did not save.'); return false; }
+}
+
+async function catRename(id, label) {
+  if (await catWrite('/api/ticket-categories/' + id, 'PUT', { label: label })) { await loadTicketVocab(true); renderCategoryEditor(); }
+}
+async function catSetVisible(id, visible) {
+  if (await catWrite('/api/ticket-categories/' + id, 'PUT', { visible: visible })) { await loadTicketVocab(true); renderCategoryEditor(); }
+}
+async function subRename(id, label) {
+  if (await catWrite('/api/ticket-subcategories/' + id, 'PUT', { label: label })) { await loadTicketVocab(true); renderCategoryEditor(); }
+}
+async function subSetVisible(id, visible) {
+  if (await catWrite('/api/ticket-subcategories/' + id, 'PUT', { visible: visible })) { await loadTicketVocab(true); renderCategoryEditor(); }
+}
+async function subDelete(id) {
+  if (!confirm('Remove this subcategory?')) return;
+  if (await catWrite('/api/ticket-subcategories/' + id, 'DELETE', null)) { await loadTicketVocab(true); renderCategoryEditor(); }
+}
+async function subAdd(catKey) {
+  var input = document.getElementById('subnew-' + catKey);
+  if (!input) return;
+  var label = (input.value || '').trim();
+  if (!label) return;
+  _catOpen[catKey] = true;
+  if (await catWrite('/api/ticket-subcategories', 'POST', { category_key: catKey, label: label })) {
+    await loadTicketVocab(true);
+    renderCategoryEditor();
+  }
+}
+
 // ── STATUS AND URGENCY EDITORS (v1.66.0) ─────────────────────────────────────
 // Everything here writes through the portal and then re-reads the vocabulary, so what the editor
 // shows is always what the server actually stored rather than what this file hoped it stored.
 async function renderVocabEditors() {
   await loadTicketVocab(true);
+  renderCategoryEditor();
   var sb = document.getElementById('vocab-status-body');
   if (sb) {
     var list = tkStatuses();
@@ -4927,10 +5059,23 @@ function appendLiveMessage(data) {
                       '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>' +
                       '<div id="seen-by-line"></div>';
   thread.scrollTop = thread.scrollHeight;
-  // v1.59.0: an inbound [photo] arrives over SSE as text only (the signed URL is minted by the
-  // portal thread read, not the notify ping), so soft reload the open thread a beat later and
-  // the image pops into the same bubble spot.
-  if (data.role === 'user' && data.message === '[photo]') {
+  // v1.76.0: THE TRIGGER IS THE MEDIA, NOT THE TEXT.
+  // v1.59.0 decided whether a photo had arrived by testing the message text against the exact
+  // string [photo]. The webhook writes that string ONLY when the picture came with no caption:
+  // a captioned photo logs the CAPTION as its text, so the test never matched, no reload fired,
+  // and the image was invisible until some later message forced a redraw. That is the half of
+  // Lance's August photo report that was never fixed, and it is a guess read off the text
+  // standing in for a fact about the message.
+  //
+  // The event now carries the media refs (portal v1.70.0 puts them on new_message). We still
+  // soft reload rather than drawing straight from the event, because the refs are R2 keys and
+  // the signed URL is minted by the portal thread read; asking for the thread is what turns a
+  // ref into something a browser can display.
+  //
+  // The old bare-string test stays underneath as a belt, so an uncaptioned photo keeps working
+  // through the window before the webhook half ships and starts sending media.
+  var hasMedia = Array.isArray(data.media) && data.media.length > 0;
+  if (data.role === 'user' && (hasMedia || data.message === '[photo]')) {
     setTimeout(refreshLiveThread, 1200);
   }
 }
@@ -6208,6 +6353,19 @@ async function loadTicketVocab(force) {
 }
 function tkStatuses() { return (_tkVocab && _tkVocab.statuses) || []; }
 function tkPriorities() { return (_tkVocab && _tkVocab.priorities) || []; }
+// v1.76.0: the taxonomy arrives on the same read. Same null-means-not-loaded rule as above, so a
+// caller that runs before the vocab lands gets an empty list and falls back to the raw key rather
+// than rendering the word undefined.
+function tkCategories() { return (_tkVocab && _tkVocab.categories) || []; }
+function tkSubcategories() { return (_tkVocab && _tkVocab.subcategories) || []; }
+function tkCatLabel(key) {
+  var row = tkCategories().filter(function(c){ return c.key === key; })[0];
+  return row ? row.label : fmtCategory(key);
+}
+function tkSubLabel(catKey, subKey) {
+  var row = tkSubcategories().filter(function(x){ return x.category_key === catKey && x.key === subKey; })[0];
+  return row ? row.label : fmtCategory(subKey);
+}
 function tkStatusRow(key) {
   var list = tkStatuses();
   for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i];
@@ -7522,6 +7680,32 @@ function hsScope(which) { if (which !== 'integrator') return; loadHomeStats(); }
 
 var HS_CAT_COLORS = ['var(--green)', '#2D7DD2', '#b45309', '#cc4400', '#7c3aed', '#888780'];
 
+// v1.76.0: A PARENT ROW THAT OPENS.
+// The panel used to render one flat list off the old symptom vocabulary, where reboot_required sat
+// beside network_internet as though they were the same kind of thing. One is an OUTCOME and the
+// other is a place in the house. Now the row is the PARENT and its subcategories live underneath it,
+// revealed on click.
+//
+// THE PARENT BAR IS THE SUM OF ITS CHILDREN, always, so opening a row can never show numbers that
+// do not add up to the row that opened. The child bars are drawn against the PARENT total rather
+// than against the largest child, because the question a child bar answers is what share of this
+// category it is, not how it ranks against its siblings.
+//
+// UNCATEGORISED IS ITS OWN ROW and is never dropped. That rule is why the v1.64.0 hero could say 11
+// conversations while the categories summed to 9, and it costs one row to keep honest.
+//
+// A HIDDEN PARENT IS NOT RENDERED BUT STILL COUNTS in the total. A number that changes when somebody
+// toggles a visibility checkbox is not a number anybody can trust.
+var _hsOpenCat = {};
+function hsToggleCat(elId, key) {
+  var k = elId + ':' + key;
+  _hsOpenCat[k] = !_hsOpenCat[k];
+  var kid = document.getElementById('hskids-' + elId + '-' + key);
+  var car = document.getElementById('hscar-' + elId + '-' + key);
+  if (kid) kid.style.display = _hsOpenCat[k] ? '' : 'none';
+  if (car) car.style.transform = _hsOpenCat[k] ? 'rotate(90deg)' : '';
+}
+
 function hsBars(elId, rows, emptyMsg) {
   var el = document.getElementById(elId);
   if (!el) return;
@@ -7529,16 +7713,59 @@ function hsBars(elId, rows, emptyMsg) {
     el.innerHTML = '<div class="eq-notes" style="font-style:italic;">' + emptyMsg + '</div>';
     return;
   }
-  el.innerHTML = rows.map(function(c, i) {
-    return '<div class="issue-row"><div class="issue-label">' + esc(fmtCategory(c.category)) + '</div>' +
-      '<div class="issue-bar-wrap"><div class="issue-bar" style="width:' + c.pct + '%;background:' +
-      HS_CAT_COLORS[i % HS_CAT_COLORS.length] + ';"></div></div>' +
+  // Hidden parents are dropped from the DISPLAY only. Their counts are already inside whatever
+  // total the portal computed the percentages against, which is the point.
+  var hidden = {};
+  tkCategories().forEach(function(c){ if (c.visible === false) hidden[c.key] = true; });
+
+  var html = rows.filter(function(c){ return !hidden[c.category]; }).map(function(c, i) {
+    var color = HS_CAT_COLORS[i % HS_CAT_COLORS.length];
+    var kids = Array.isArray(c.subcategories) ? c.subcategories : [];
+    var key = String(c.category || 'uncategorized');
+    var open = _hsOpenCat[elId + ':' + key];
+    var caret = kids.length
+      ? '<span id="hscar-' + elId + '-' + esc(key) + '" style="display:inline-block;width:0.7rem;' +
+        'font-size:0.6rem;color:var(--ink-soft);transition:transform 0.12s;' +
+        (open ? 'transform:rotate(90deg);' : '') + '">&#9654;</span>'
+      : '<span style="display:inline-block;width:0.7rem;"></span>';
+    var clickable = kids.length ? ' style="cursor:pointer;" onclick="hsToggleCat(\'' + elId + '\',\'' + key + '\')"' : '';
+
+    var row = '<div class="issue-row"' + clickable + '>' +
+      '<div class="issue-label">' + caret + ' ' + esc(hsCatLabel(c.category)) + '</div>' +
+      '<div class="issue-bar-wrap"><div class="issue-bar" style="width:' + c.pct + '%;background:' + color + ';"></div></div>' +
       '<div class="issue-pct">' + c.count + '</div></div>';
+
+    if (kids.length) {
+      var parentTotal = c.count || 0;
+      row += '<div id="hskids-' + elId + '-' + esc(key) + '"' + (open ? '' : ' style="display:none;"') + '>' +
+        kids.map(function(k) {
+          // Share OF THE PARENT, not of the biggest sibling. Guarded against a zero parent so a
+          // count that arrives before its total cannot produce a NaN width.
+          var w = parentTotal > 0 ? Math.round((k.count / parentTotal) * 100) : 0;
+          return '<div class="issue-row" style="padding-left:1.15rem;opacity:0.85;">' +
+            '<div class="issue-label" style="font-size:0.74rem;">' + esc(tkSubLabel(c.category, k.subcategory)) + '</div>' +
+            '<div class="issue-bar-wrap"><div class="issue-bar" style="width:' + w + '%;background:' + color + ';opacity:0.55;"></div></div>' +
+            '<div class="issue-pct" style="font-size:0.74rem;">' + k.count + '</div></div>';
+        }).join('') + '</div>';
+    }
+    return row;
   }).join('');
+  el.innerHTML = html;
+}
+
+// Uncategorised arrives as a null or empty key and has to read as a real row rather than a blank
+// label, because a blank label looks like a rendering fault and this row is a monitoring signal.
+function hsCatLabel(key) {
+  if (!key || key === 'uncategorized' || key === 'uncategorised') return 'Uncategorized';
+  return tkCatLabel(key);
 }
 
 async function loadHomeStats() {
   try {
+    // v1.76.0: the taxonomy labels come off the vocab read, so it has to be in hand before the
+    // bars render or every parent would draw its raw key for one frame. Cached after the first
+    // call, so this is one round trip per session and not one per panel load.
+    await loadTicketVocab();
     var res = await rwFetch('/api/home-stats?window=' + encodeURIComponent(_hsWindow));
     if (!res.ok) return;
     var s = await res.json();
