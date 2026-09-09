@@ -1,4 +1,11 @@
-<!-- dashboard.html (Dashboard v1.77.1, 2026-09-05_2015 CT) THE TEAM TOGGLE COULD NOT SHOW THAT
+<!-- dashboard.html (Dashboard v1.78.0, 2026-09-08_2345 CT) ARCHIVE AND DELETE FOR THREADS.
+Two controls, not one. ARCHIVE hides a thread from the list and touches no statistic, so the
+home panel keeps its history when somebody tidies up; the Archived filter reads them back and
+unarchive restores exactly. DELETE is owner-only and permanent: it removes every message,
+summary and ticket marker on that number. The confirm says what is going and warns that the
+home panel numbers move, because they are counted off the conversations table.
+Requires portal v1.72.0. Previous note follows.
+THE TEAM TOGGLE COULD NOT SHOW THAT
 IT WAS ON. Dashboard only, no portal change.
 U+1F4E3 MEGAPHONE IS AN EMOJI PRESENTATION GLYPH, so the font paints it in its own colours and
 CSS `color` cannot touch it. Every other toggle in this editor signals its on state through
@@ -1197,7 +1204,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.77.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.78.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1296,6 +1303,11 @@ select.fld-input { appearance:auto;cursor:pointer; }
           <div class="panel-chrome">
             <div class="conv-list-header">
               <input class="conv-search" type="text" id="conv-search" placeholder="Search conversations..." oninput="filterConvs(this.value)" />
+              <div class="seg-group" id="conv-seg">
+                <button class="seg on" id="conv-seg-active" onclick="convSetView('active')">Active</button>
+                <button class="seg" id="conv-seg-archived" onclick="convSetView('archived')">Archived</button>
+                <button class="seg" id="conv-seg-all" onclick="convSetView('all')">All</button>
+              </div>
               <div class="panel-chrome-action" onclick="loadRealConversations()">&#x21bb; Refresh</div>
             </div>
             <div id="real-convs-body"><div class="loading-row">Loading...</div></div>
@@ -5202,7 +5214,7 @@ async function loadRealConversations() {
     if (!res.ok) { body.innerHTML = '<div class="loading-row">No live conversations yet.</div>'; return; }
     var threads = await res.json();
     _allThreads = threads;
-    renderConvList(threads);
+    renderConvList(convViewFilter(threads));
     updateConvBadge(threads);
   } catch (err) {
     body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
@@ -5211,7 +5223,12 @@ async function loadRealConversations() {
 
 function renderConvList(threads) {
   var body = document.getElementById('real-convs-body');
-  if (!threads.length) { body.innerHTML = '<div class="loading-row">No conversations yet. Text 952-997-0100 to start one.</div>'; return; }
+  if (!threads.length) {
+    body.innerHTML = '<div class="loading-row">' + (_convView === 'archived'
+      ? 'No archived conversations.'
+      : 'No conversations yet. Text 952-997-0100 to start one.') + '</div>';
+    return;
+  }
   body.innerHTML = '';
   threads.forEach(function(t) {
     var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : null;
@@ -5347,16 +5364,89 @@ function updateConvBadge(threads) {
   setBadge('followups', window._openFollowups || 0);
 }
 
+// ── THREAD ARCHIVE VIEW (v1.78.0) ────────────────────────────────────────────
+// 'active' hides archived threads, 'archived' shows only those, 'all' shows everything.
+// Purely a list filter: the badge count and every home-panel statistic are untouched by it,
+// which is the whole point of archive being separate from delete.
+var _convView = 'active';
+
+function convViewFilter(list) {
+  if (_convView === 'all') return list;
+  if (_convView === 'archived') return list.filter(function(t) { return !!t.archived; });
+  return list.filter(function(t) { return !t.archived; });
+}
+
+function convSetView(v) {
+  _convView = v;
+  ['active','archived','all'].forEach(function(k) {
+    var el = document.getElementById('conv-seg-' + k);
+    if (el) el.className = 'seg' + (k === v ? ' on' : '');
+  });
+  var q = document.getElementById('conv-search');
+  filterConvs(q ? q.value : '');
+}
+
+// Owner-only thread controls. Archive first and styled as the ordinary action, delete second
+// and deliberately plainer, so the reversible one is the easy reach.
+function threadAdminHtml(phone, label) {
+  if (!(window._rwUser && window._rwUser.role === 'owner')) return '';
+  var t = (_allThreads || []).filter(function(x) { return x.phone_number === phone; })[0];
+  var isArchived = !!(t && t.archived);
+  var esc = function(v) { return String(v).replace(/'/g, "\\'"); };
+  var arg = "'" + esc(phone) + "'";
+  return '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(' + arg + ',' + (isArchived ? 'false' : 'true') + ')">'
+       + (isArchived ? 'Restore' : 'Archive') + '</button>'
+       + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;opacity:0.6;" onclick="convDelete(' + arg + ",'" + esc(label) + "')\">Delete</button>";
+}
+
 function filterConvs(query) {
-  if (!query) { renderConvList(_allThreads); return; }
+  if (!query) { renderConvList(convViewFilter(_allThreads)); return; }
   var q = query.toLowerCase();
-  var filtered = _allThreads.filter(function(t) {
+  var filtered = convViewFilter(_allThreads).filter(function(t) {
     var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : '';
     var household = t.household_name || '';
     var preview = (t.last_message || '').toLowerCase();
     return fullName.toLowerCase().includes(q) || household.toLowerCase().includes(q) || preview.includes(q) || t.phone_number.includes(q);
   });
   renderConvList(filtered);
+}
+
+// ── ARCHIVE / DELETE ACTIONS (v1.78.0) ───────────────────────────────────────
+async function convArchive(phone, archived) {
+  try {
+    var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone) + '/archive', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived: !!archived })
+    });
+    if (!res.ok) { alert('Could not ' + (archived ? 'archive' : 'restore') + ' that thread.'); return; }
+    await loadRealConversations();
+    goBack();
+  } catch (err) { alert('Could not reach the server.'); }
+}
+
+// Permanent. The confirm names the number, says what goes, and warns that the home panel
+// numbers move, because after-hours counts, the category chart and the resolution rate are
+// all counted off the conversations table.
+async function convDelete(phone, label) {
+  var who = label || phone;
+  if (!confirm('Delete the conversation with ' + who + ' permanently?\n\n'
+    + 'This removes every message, summary and ticket marker on this number. It cannot be undone.\n\n'
+    + 'The home panel statistics are counted from these messages, so those numbers will drop.\n\n'
+    + 'To hide the thread without losing anything, cancel and use Archive instead.')) return;
+  try {
+    var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone), { method: 'DELETE' });
+    if (!res.ok) {
+      alert(res.status === 403 ? 'Only the account owner can delete a conversation.' : 'Could not delete that thread.');
+      return;
+    }
+    var out = await res.json();
+    await loadRealConversations();
+    goBack();
+    if (out && out.suppressed) {
+      alert('Deleted. This number is now opted out, so Andi will not reply to it again.');
+    }
+  } catch (err) { alert('Could not reach the server.'); }
 }
 
 async function openRealConv(encodedPhone, name) {
@@ -5398,6 +5488,7 @@ async function openRealConv(encodedPhone, name) {
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
             '<div id="attach-slot"></div>' +
+            threadAdminHtml(decodeURIComponent(encodedPhone), displayName) +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
