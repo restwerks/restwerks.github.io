@@ -2611,6 +2611,7 @@ function renderSettings(c) {
   html += '<button class="hd-tab" data-settab="branding" onclick="setTab(\'branding\')">Branding</button>';
   html += '<button class="hd-tab" data-settab="andi" onclick="setTab(\'andi\')">Andi</button>';
   html += '<button class="hd-tab" data-settab="tickets" onclick="setTab(\'tickets\')">Tickets</button>';
+  if (isOwner) html += '<button class="hd-tab" data-settab="data" onclick="setTab(\'data\');loadThreadAdmin()">Data</button>';
   html += '</div>';
 
   // ── INFO ────────────────────────────────────────────────────────────────────
@@ -2740,12 +2741,68 @@ function renderSettings(c) {
   html += '</div>';
   html += '</div>';
 
+  // ── DATA (v1.78.0) ──────────────────────────────────────────────────────────
+  // Owner only, and the tab is not rendered at all for a member rather than rendered
+  // disabled: a control nobody may use should not be visible to them.
+  if (isOwner) {
+    html += '<div class="set-tabpanel" id="settab-data">';
+    html += '<div class="set-section">';
+    html += '<div class="set-section-title">Delete a conversation</div>';
+    html += '<div class="set-section-note">Permanently removes every message, summary and ticket marker on a number. This cannot be undone, and the home panel counts are measured from these messages, so they will drop. To hide a thread without losing anything, open it and use Archive instead.</div>';
+    html += '<div id="thread-admin-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
+    html += '</div>';
+    html += '</div>';
+  }
+
   document.getElementById('settings-body').innerHTML = html;
   wireAddressAutocomplete('set-street', function(p) {
     setVal('set-street', p.street); setVal('set-city', p.city);
     setVal('set-state', p.state); setVal('set-zip', p.zip);
   }, { fillInput: false });
   if (isOwner) { loadTeam(); loadSummaryRecipients(c); loadQuickSettings(); renderVocabEditors(); }
+}
+
+// ── THREAD ADMIN (v1.78.0) ───────────────────────────────────────────────────
+// The LIST only. No message bodies are fetched or shown here: this screen exists to pick a
+// thread to remove, not to read one. /api/conversations already carries everything the row
+// needs, so there is no new route behind this.
+async function loadThreadAdmin() {
+  var body = document.getElementById('thread-admin-body');
+  if (!body) return;
+  try {
+    var res = await rwFetch('/api/conversations');
+    if (!res.ok) { body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.8rem;">Could not load conversations.</div>'; return; }
+    window._threadAdminRows = await res.json();
+    renderThreadAdmin();
+  } catch (err) {
+    body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.8rem;">Could not reach the server.</div>';
+  }
+}
+
+function renderThreadAdmin() {
+  var body = document.getElementById('thread-admin-body');
+  if (!body) return;
+  var rows = window._threadAdminRows || [];
+  if (!rows.length) { body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.8rem;">No conversations.</div>'; return; }
+  var html = '';
+  rows.forEach(function(t) {
+    var full = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : '';
+    var name = full || t.phone_number;
+    var sub = [];
+    if (full) sub.push(t.phone_number);
+    if (t.household_name) sub.push(t.household_name);
+    sub.push((t.message_count || 0) + ' message' + (Number(t.message_count) === 1 ? '' : 's'));
+    if (!t.attached) sub.push('unknown number');
+    if (t.archived) sub.push('archived');
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border);">'
+      + '<div style="min-width:0;">'
+      + '<div style="font-size:0.82rem;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(name) + '</div>'
+      + '<div style="font-size:0.72rem;color:var(--ink-soft);">' + esc(sub.join(' \u00b7 ')) + '</div>'
+      + '</div>'
+      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;flex:none;" onclick="convDelete(\'' + String(t.phone_number).replace(/'/g, "\\'") + '\',\'' + String(name).replace(/'/g, "\\'") + '\')">Delete</button>'
+      + '</div>';
+  });
+  body.innerHTML = html;
 }
 
 // v1.43.0: settings tab switching (scoped to the settings panel so it never collides with the
@@ -5386,8 +5443,9 @@ function convSetView(v) {
   filterConvs(q ? q.value : '');
 }
 
-// Owner-only thread controls. Archive first and styled as the ordinary action, delete second
-// and deliberately plainer, so the reversible one is the easy reach.
+// Owner-only thread control. Archive only: it is reversible, so it belongs one tap from the
+// thread. Delete is permanent and lives in Settings > Data behind a typed confirmation, which
+// is far enough away that nobody reaches it while reading a live conversation.
 function threadAdminHtml(phone, label) {
   if (!(window._rwUser && window._rwUser.role === 'owner')) return '';
   var t = (_allThreads || []).filter(function(x) { return x.phone_number === phone; })[0];
@@ -5396,7 +5454,7 @@ function threadAdminHtml(phone, label) {
   var arg = "'" + esc(phone) + "'";
   return '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(' + arg + ',' + (isArchived ? 'false' : 'true') + ')">'
        + (isArchived ? 'Restore' : 'Archive') + '</button>'
-       + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;opacity:0.6;" onclick="convDelete(' + arg + ",'" + esc(label) + "')\">Delete</button>";
+       ;
 }
 
 function filterConvs(query) {
@@ -5425,15 +5483,18 @@ async function convArchive(phone, archived) {
   } catch (err) { alert('Could not reach the server.'); }
 }
 
-// Permanent. The confirm names the number, says what goes, and warns that the home panel
-// numbers move, because after-hours counts, the category chart and the resolution rate are
-// all counted off the conversations table.
+// Permanent, so the gate is typing the word rather than clicking OK. An accidental Return on a
+// plain confirm deletes a thread; nobody types DELETE by accident. The prompt names who is going
+// and warns that the home panel counts move, because the after-hours numbers, the category chart
+// and the resolution rate are all measured off these very rows.
 async function convDelete(phone, label) {
   var who = label || phone;
-  if (!confirm('Delete the conversation with ' + who + ' permanently?\n\n'
-    + 'This removes every message, summary and ticket marker on this number. It cannot be undone.\n\n'
-    + 'The home panel statistics are counted from these messages, so those numbers will drop.\n\n'
-    + 'To hide the thread without losing anything, cancel and use Archive instead.')) return;
+  var typed = prompt('Delete the conversation with ' + who + ' permanently?\n\n'
+    + 'This removes every message, summary and ticket marker on this number. It cannot be undone.\n'
+    + 'The home panel counts are measured from these messages, so those numbers will drop.\n\n'
+    + 'Type DELETE to confirm.');
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== 'DELETE') { alert('Not deleted. You have to type DELETE exactly.'); return; }
   try {
     var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone), { method: 'DELETE' });
     if (!res.ok) {
@@ -5442,9 +5503,9 @@ async function convDelete(phone, label) {
     }
     var out = await res.json();
     await loadRealConversations();
-    goBack();
-    if (out && out.suppressed) {
-      alert('Deleted. This number is now opted out, so Andi will not reply to it again.');
+    if (document.getElementById('thread-admin-body')) await loadThreadAdmin();
+    if (out && out.stop_record_kept) {
+      alert('Messages deleted. This number had sent STOP, so its opt-out record is kept and Andi stays silent for it.');
     }
   } catch (err) { alert('Could not reach the server.'); }
 }
