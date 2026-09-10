@@ -1,9 +1,10 @@
 <!-- dashboard.html (Dashboard v1.78.0, 2026-09-08_2345 CT) ARCHIVE AND DELETE FOR THREADS.
-Two controls, not one. ARCHIVE hides a thread from the list and touches no statistic, so the
-home panel keeps its history when somebody tidies up; the Archived filter reads them back and
-unarchive restores exactly. DELETE is owner-only and permanent: it removes every message,
-summary and ticket marker on that number. The confirm says what is going and warns that the
-home panel numbers move, because they are counted off the conversations table.
+Two controls, not one, and both live together in Settings > Conversations, owner only. ARCHIVE hides a
+thread from the Conversations list and touches no statistic, so the home panel keeps its history
+when somebody tidies up; the Archived filter reads them back and Restore puts them straight back.
+DELETE is permanent, gated behind typing the word DELETE, and removes every message, summary and
+ticket marker on that number. The prompt warns that the home panel numbers move, because they are
+counted off the conversations table.
 Requires portal v1.72.0. Previous note follows.
 THE TEAM TOGGLE COULD NOT SHOW THAT
 IT WAS ON. Dashboard only, no portal change.
@@ -2611,7 +2612,7 @@ function renderSettings(c) {
   html += '<button class="hd-tab" data-settab="branding" onclick="setTab(\'branding\')">Branding</button>';
   html += '<button class="hd-tab" data-settab="andi" onclick="setTab(\'andi\')">Andi</button>';
   html += '<button class="hd-tab" data-settab="tickets" onclick="setTab(\'tickets\')">Tickets</button>';
-  if (isOwner) html += '<button class="hd-tab" data-settab="data" onclick="setTab(\'data\');loadThreadAdmin()">Data</button>';
+  if (isOwner) html += '<button class="hd-tab" data-settab="conversations" onclick="setTab(\'conversations\');loadThreadAdmin()">Conversations</button>';
   html += '</div>';
 
   // ── INFO ────────────────────────────────────────────────────────────────────
@@ -2741,14 +2742,18 @@ function renderSettings(c) {
   html += '</div>';
   html += '</div>';
 
-  // ── DATA (v1.78.0) ──────────────────────────────────────────────────────────
+  // ── CONVERSATIONS (v1.78.0) ─────────────────────────────────────────────────
+  // Named for what it governs, like every other tab in this strip. Settings > Tickets already
+  // shares a name with the Tickets panel without confusing anybody. A Data or Privacy tab is
+  // a different thing and belongs to the client-deletion workflow, which spans households,
+  // threads and the learning pool rather than living in any one of them.
   // Owner only, and the tab is not rendered at all for a member rather than rendered
   // disabled: a control nobody may use should not be visible to them.
   if (isOwner) {
-    html += '<div class="set-tabpanel" id="settab-data">';
+    html += '<div class="set-tabpanel" id="settab-conversations">';
     html += '<div class="set-section">';
-    html += '<div class="set-section-title">Delete a conversation</div>';
-    html += '<div class="set-section-note">Permanently removes every message, summary and ticket marker on a number. This cannot be undone, and the home panel counts are measured from these messages, so they will drop. To hide a thread without losing anything, open it and use Archive instead.</div>';
+    html += '<div class="set-section-title">Conversations</div>';
+    html += '<div class="set-section-note">Archive hides a thread from the Conversations list and changes nothing else: no message is lost and no number on the home panel moves. Restore puts it straight back. Delete permanently removes every message, summary and ticket marker on that number, cannot be undone, and will drop the home panel counts, because those are measured from these messages.</div>';
     html += '<div id="thread-admin-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
     html += '</div>';
     html += '</div>';
@@ -2779,6 +2784,8 @@ async function loadThreadAdmin() {
   }
 }
 
+function esc1(v) { return String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
 function renderThreadAdmin() {
   var body = document.getElementById('thread-admin-body');
   if (!body) return;
@@ -2799,7 +2806,10 @@ function renderThreadAdmin() {
       + '<div style="font-size:0.82rem;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(name) + '</div>'
       + '<div style="font-size:0.72rem;color:var(--ink-soft);">' + esc(sub.join(' \u00b7 ')) + '</div>'
       + '</div>'
-      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;flex:none;" onclick="convDelete(\'' + String(t.phone_number).replace(/'/g, "\\'") + '\',\'' + String(name).replace(/'/g, "\\'") + '\')">Delete</button>'
+      + '<div style="display:flex;gap:0.4rem;flex:none;">'
+      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(\'' + esc1(t.phone_number) + '\',' + (t.archived ? 'false' : 'true') + ')">' + (t.archived ? 'Restore' : 'Archive') + '</button>'
+      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;opacity:0.65;" onclick="convDelete(\'' + esc1(t.phone_number) + '\',\'' + esc1(name) + '\')">Delete</button>'
+      + '</div>'
       + '</div>';
   });
   body.innerHTML = html;
@@ -5443,20 +5453,6 @@ function convSetView(v) {
   filterConvs(q ? q.value : '');
 }
 
-// Owner-only thread control. Archive only: it is reversible, so it belongs one tap from the
-// thread. Delete is permanent and lives in Settings > Data behind a typed confirmation, which
-// is far enough away that nobody reaches it while reading a live conversation.
-function threadAdminHtml(phone, label) {
-  if (!(window._rwUser && window._rwUser.role === 'owner')) return '';
-  var t = (_allThreads || []).filter(function(x) { return x.phone_number === phone; })[0];
-  var isArchived = !!(t && t.archived);
-  var esc = function(v) { return String(v).replace(/'/g, "\\'"); };
-  var arg = "'" + esc(phone) + "'";
-  return '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(' + arg + ',' + (isArchived ? 'false' : 'true') + ')">'
-       + (isArchived ? 'Restore' : 'Archive') + '</button>'
-       ;
-}
-
 function filterConvs(query) {
   if (!query) { renderConvList(convViewFilter(_allThreads)); return; }
   var q = query.toLowerCase();
@@ -5470,6 +5466,9 @@ function filterConvs(query) {
 }
 
 // ── ARCHIVE / DELETE ACTIONS (v1.78.0) ───────────────────────────────────────
+// Both controls live in Settings > Conversations now, so this refreshes that list rather than the
+// conversation panel it used to be launched from. loadRealConversations still runs so the
+// Conversations tab and its badge are correct the moment you switch back to them.
 async function convArchive(phone, archived) {
   try {
     var res = await rwFetch('/api/conversations/' + encodeURIComponent(phone) + '/archive', {
@@ -5477,9 +5476,10 @@ async function convArchive(phone, archived) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ archived: !!archived })
     });
+    if (res.status === 403) { alert('Only the account owner can archive a conversation.'); return; }
     if (!res.ok) { alert('Could not ' + (archived ? 'archive' : 'restore') + ' that thread.'); return; }
     await loadRealConversations();
-    goBack();
+    if (document.getElementById('thread-admin-body')) await loadThreadAdmin();
   } catch (err) { alert('Could not reach the server.'); }
 }
 
@@ -5504,6 +5504,7 @@ async function convDelete(phone, label) {
     var out = await res.json();
     await loadRealConversations();
     if (document.getElementById('thread-admin-body')) await loadThreadAdmin();
+    if (window._currentPhone && decodeURIComponent(window._currentPhone) === phone) goBack();
     if (out && out.stop_record_kept) {
       alert('Messages deleted. This number had sent STOP, so its opt-out record is kept and Andi stays silent for it.');
     }
@@ -5549,7 +5550,6 @@ async function openRealConv(encodedPhone, name) {
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
             '<div id="attach-slot"></div>' +
-            threadAdminHtml(decodeURIComponent(encodedPhone), displayName) +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
