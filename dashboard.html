@@ -1,4 +1,30 @@
-<!-- dashboard.html (Dashboard v1.78.0, 2026-09-09_1925 CT) ARCHIVE AND DELETE FOR THREADS.
+<!-- dashboard.html (Dashboard v1.79.0, 2026-09-09_2055 CT) EMAIL LOOKS LIKE EMAIL (Ship A, the
+dashboard half; pairs with portal v1.73.0, DEPLOY PORTAL FIRST). Since Sept 8 a real client email
+has been matched, written to the right thread and rendered as an ordinary grey client bubble,
+indistinguishable from a text. channel, email_subject and email_from were on every one of those
+rows and nothing read them. FOUR THINGS. (1) THE PANE IS TINTED to the channel of the last INBOUND,
+not one bubble, because a tech glances at a thread for two seconds before typing and a border is
+something you have to look for. Muted slate indigo, and the palette rule it sets down is that
+STATUS colours are saturated and CHANNEL colours are muted, so email never competes with the five
+saturated colours already spoken for on this screen and Slack and voice have somewhere to live
+later. (2) THE EMAIL BUBBLE carries SUBJECT and SENDER above the body: a text has no subject and an
+email's is usually where the real complaint is, and the sender address is the only thing on a phone
+keyed thread that says WHICH person in a two person household wrote it. It stays a right aligned
+client bubble rather than a card, because the row is the client speaking, but it is wider and a
+long body collapses behind Show more. (3) THE PER BUBBLE MARKER, drawn only on a thread that
+actually holds both channels, since a tinted mixed thread otherwise reads as entirely email. Every
+pure SMS thread in the account renders exactly as it did in v1.78.0. (4) THE REPLY BAR IS NOT
+TINTED, and that is a deliberate departure from the locked design rather than an omission. The
+design puts the bar inside the tint so the colour says what is about to LEAVE; Ship A can only
+receive, so a tinted bar would say email while the Send button sends a text. A note says it in
+words until Ship B wires the toggle, and both come out then. ALSO: the email body is escaped, which
+this renderer has never done, because emailDoor only runs htmlToText when there is no plain text
+part, so a text/plain email reaches the bubble with no tag stripping. The SMS path is untouched;
+that hole is older and gets its own pass. KNOWN AND NOT FIXED HERE: nothing notifies the portal on
+an inbound email, so an email does not append live, does not push, and does not move a badge until
+something refreshes the list. That is a webhook change and it carries a real product question about
+whether a tech gets a push at 11pm for a channel Andi does not answer.
+Prior v1.78.0, 2026-09-09_1925 CT ARCHIVE AND DELETE FOR THREADS.
 Two controls, not one, and both live together in Settings > Conversations, owner only. ARCHIVE hides a
 thread from the Conversations list and touches no statistic, so the home panel keeps its history
 when somebody tidies up; the Archived filter reads them back and Restore puts them straight back.
@@ -217,6 +243,53 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .sms-sender { font-size:0.62rem;color:var(--ink-soft);padding:0 0.85rem;align-self:flex-start;margin-top:-4px; }
 .sms-time { font-size:0.65rem;color:var(--ink-soft);padding:0 0.85rem; }
 .sms-time.right { text-align:right;align-self:flex-end; }
+/* ── CHANNEL: EMAIL (v1.79.0) ───────────────────────────────────────────────
+   THE PALETTE RULE THIS ESTABLISHES, and it matters more with every channel
+   added: STATUS colours are SATURATED (green Andi, blue teammate and follow
+   up, orange issue and open, purple scheduled, amber flag) and CHANNEL colours
+   are MUTED. A channel is context, not a state, so it must never read as a
+   sixth status competing with the five that already mean something on this
+   screen. Email takes a muted slate indigo; Slack and voice can take
+   neighbouring muted hues later and still collide with nothing. */
+:root { --ch-email:#5B6B99; --ch-email-pane:#edeff5; --ch-email-soft:#dee3ef; --ch-email-line:#c6cee2; --ch-email-ink:#3d4a70; }
+body.dark { --ch-email:#93a1c9; --ch-email-pane:#101319; --ch-email-soft:#232a3c; --ch-email-line:#333c56; --ch-email-ink:#aab6d6; }
+/* THE PANE, tinted to the channel of the LAST INBOUND. Both rules are spelled
+   out because `body.dark .sms-thread` outranks a bare `.sms-thread.ch-email`
+   on specificity, and dark mode would otherwise quietly keep its own floor. */
+.sms-thread.ch-email { background:var(--ch-email-pane); }
+body.dark .sms-thread.ch-email { background:var(--ch-email-pane); }
+/* THE EMAIL BUBBLE. Wider than a text on purpose: an email is paragraphs, and
+   75% of the column is a canyon to read one in. It stays a right aligned
+   client bubble rather than becoming a card, because the row IS the client
+   speaking and pulling it out of the conversation line would break the one
+   thing that makes a thread readable at a glance. */
+.sms-msg.sms-email { max-width:min(88%, 700px);padding:0;background:var(--ch-email-soft);border:1px solid var(--ch-email-line);overflow:hidden; }
+body.dark .sms-msg.sms-email { background:var(--ch-email-soft); }
+.eml-head { padding:0.5rem 0.85rem 0.45rem;border-bottom:1px solid var(--ch-email-line);white-space:normal; }
+.eml-subj { font-size:0.8rem;font-weight:600;color:var(--ch-email-ink);line-height:1.35; }
+.eml-from { font-size:0.66rem;color:var(--ink-soft);margin-top:2px;overflow-wrap:anywhere; }
+.eml-body { padding:0.55rem 0.85rem;white-space:pre-wrap; }
+.eml-body.eml-clamp { max-height:11.5rem;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,#000 68%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 68%,transparent 100%); }
+.eml-more { display:block;width:100%;border:none;border-top:1px solid var(--ch-email-line);background:transparent;color:var(--ch-email-ink);font-family:inherit;font-size:0.68rem;font-weight:600;letter-spacing:0.03em;padding:0.35rem;cursor:pointer; }
+.eml-more:hover { background:var(--ch-email-line); }
+/* THE PER BUBBLE MARKER, drawn ONLY on a thread that genuinely carries both
+   channels. Once the pane is tinted a mixed thread reads as entirely email,
+   and a tech scrolling back a week should never have to infer which channel
+   something went out on. A pure SMS thread, which is every thread but one
+   today, renders exactly as it did in v1.78.0 with no marker anywhere. */
+.sms-chan { font-weight:600;letter-spacing:0.05em;text-transform:uppercase;font-size:0.58rem; }
+.sms-chan.ch-e { color:var(--ch-email); }
+.sms-chan.ch-s { color:var(--ink-soft); }
+/* WHAT IS ABOUT TO LEAVE. The locked design puts the reply bar INSIDE the tint
+   so the colour says what is about to leave rather than only what arrived.
+   Ship A can only RECEIVE email, so tinting the bar now would be this surface
+   telling a lie, which is the one thing a thread is never allowed to do. The
+   bar stays untinted and a note says it in words instead. Both the note and
+   this rule come out when Ship B wires the channel toggle. */
+.reply-note { padding:0.45rem 1.25rem;border-top:1px solid var(--ch-email-line);background:var(--ch-email-pane);font-size:0.7rem;color:var(--ch-email-ink);line-height:1.4; }
+.reply-note strong { color:var(--ch-email-ink); }
 .sms-resolved { align-self:center;background:var(--green-bg);color:#0f6e50;border-radius:100px;font-size:0.72rem;font-weight:600;padding:0.25rem 0.85rem;margin-top:0.25rem; }
 .detail-summary { padding:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.4rem; }
 .detail-row { font-size:0.82rem;color:var(--ink-mid);line-height:1.55; }
@@ -1205,7 +1278,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.78.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.79.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5193,6 +5266,15 @@ function appendLiveMessage(data) {
   var oldSeen = document.getElementById('seen-by-line');
   if (oldSeen && oldSeen.parentNode) oldSeen.parentNode.removeChild(oldSeen);
   window._seenViewers = [];
+  // v1.79.0: the tint tracks the LAST INBOUND, so a client who emails at 11pm and then texts in
+  // the morning must not leave the pane still reading email while a text sits under it. Every row
+  // that reaches this function today arrived by SMS, because nothing notifies the portal on an
+  // inbound email, so any inbound landing here IS a text and clears the tint and the note.
+  if (data.role === 'user' && thread.classList.contains('ch-email')) {
+    thread.classList.remove('ch-email');
+    var staleNote = document.getElementById('reply-note');
+    if (staleNote && staleNote.parentNode) staleNote.parentNode.removeChild(staleNote);
+  }
   if (data.role === 'send_marker' || data.role === 'ticket_marker') {
     // v1.19.0/v1.20.0: marker rows are never SMS bubbles, live or loaded.
     thread.innerHTML += '<div class="sms-system">' + esc(data.message) + '</div>' + '<div id="seen-by-line"></div>';
@@ -5531,6 +5613,16 @@ async function openRealConv(encodedPhone, name) {
     var householdName = data.householdName || null;
     window._seenViewers = data.viewers || [];
     var html = buildThreadHTML(messages, displayName) + seenByHtml(data.viewers || []);
+    // v1.79.0: THE WHOLE PANE IS TINTED TO THE CHANNEL OF THE LAST INBOUND. A border on one
+    // bubble is something you have to look for; a differently coloured pane is something you
+    // cannot miss, and a tech glances at a thread for about two seconds before typing. It keys
+    // off the last INBOUND rather than the last message of any kind, because the question the
+    // colour answers is how this client is reaching us right now.
+    var lastInbound = null;
+    for (var li = messages.length - 1; li >= 0; li--) {
+      if (messages[li].role === 'user') { lastInbound = messages[li]; break; }
+    }
+    var paneEmail = !!(lastInbound && lastInbound.channel === 'email');
     var hasHuman = messages.some(function(m) { return m.role === 'human'; });
     var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
     var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
@@ -5553,7 +5645,9 @@ async function openRealConv(encodedPhone, name) {
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="sms-thread" id="live-thread">' + html + '</div>' +
+        '<div class="sms-thread' + (paneEmail ? ' ch-email' : '') + '" id="live-thread">' + html + '</div>' +
+        (paneEmail ?
+          '<div class="reply-note" id="reply-note">This client last reached out by <strong>email</strong>. Anything you send from here still goes out as a <strong>text message</strong>.</div>' : '') +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
@@ -5601,6 +5695,16 @@ async function openRealConv(encodedPhone, name) {
 
 function buildThreadHTML(messages, clientName) {
   if (!messages.length) return '';
+  // v1.79.0: is this thread MIXED? The per bubble channel marker is drawn only when the answer
+  // is yes. Marking every bubble on a thread that has only ever been texts would add noise to
+  // every conversation in the account to solve a problem exactly one of them has.
+  var EML_MARKER_ROLES = { summary:1, handback:1, send_marker:1, ticket_marker:1 };
+  var sawSms = false, sawEmail = false;
+  for (var ci = 0; ci < messages.length; ci++) {
+    if (EML_MARKER_ROLES[messages[ci].role]) continue;
+    if (messages[ci].channel === 'email') sawEmail = true; else sawSms = true;
+  }
+  var threadMixed = sawSms && sawEmail;
   var html = '';
   var firstTime = new Date(messages[0].created_at);
   var sessionLabel = firstTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
@@ -5670,11 +5774,60 @@ function buildThreadHTML(messages, clientName) {
       '</div>';
     }
     var hideBubble = photos && m.message === '[photo]';
-    html += (hideBubble ? '' : '<div class="sms-msg ' + cls + '" data-mi="' + i + '"' + inlineStyle + '>' + m.message + '</div>') +
+
+    // v1.79.0: THE EMAIL BUBBLE. Subject and sender ride ABOVE the body because a text has no
+    // subject and an email's usually carries the real complaint, and because the sender address
+    // is the only thing on a phone keyed thread that says WHICH person in a two person household
+    // actually wrote it. Both columns have been stored on every email row since Sept 8 and
+    // nothing has ever read them.
+    var isEmail = m.channel === 'email';
+    var bubbleHtml;
+    if (isEmail) {
+      // THE BODY IS ESCAPED HERE AND THE SMS PATH IS LEFT EXACTLY AS IT WAS. This renderer has
+      // interpolated m.message raw since the thread was built, which was survivable while every
+      // message came through a carrier. An email body does not: emailDoor only runs htmlToText
+      // when there is no plain text part, so a text/plain email arrives with no tag stripping at
+      // all. That is a new door and it is closed on the branch that opens it. The SMS hole is
+      // real, older, and belongs to its own pass rather than riding along in a rendering build.
+      var emlBody = esc(m.message == null ? '' : m.message);
+      var emlLong = emlBody.length > 520 || (emlBody.match(/\n/g) || []).length > 9;
+      var emlHead = '';
+      if (m.email_subject || m.email_from) {
+        emlHead = '<div class="eml-head">' +
+          (m.email_subject ? '<div class="eml-subj">' + esc(m.email_subject) + '</div>' : '') +
+          (m.email_from ? '<div class="eml-from">' + esc(m.email_from) + '</div>' : '') +
+        '</div>';
+      }
+      bubbleHtml = '<div class="sms-msg ' + cls + ' sms-email" data-mi="' + i + '">' + emlHead +
+        '<div class="eml-body' + (emlLong ? ' eml-clamp' : '') + '">' + emlBody + '</div>' +
+        (emlLong ? '<button class="eml-more" onclick="emlToggle(this)">Show more</button>' : '') +
+      '</div>';
+    } else {
+      bubbleHtml = '<div class="sms-msg ' + cls + '" data-mi="' + i + '"' + inlineStyle + '>' + m.message + '</div>';
+    }
+    var chanTag = '';
+    if (threadMixed) {
+      chanTag = isEmail
+        ? '<span class="sms-chan ch-e">Email</span> &middot; '
+        : '<span class="sms-chan ch-s">Text</span> &middot; ';
+    }
+
+    html += (hideBubble ? '' : bubbleHtml) +
             photos + sender +
-            '<div class="sms-time' + (isClient ? ' right' : '') + '">' + time + '</div>';
+            '<div class="sms-time' + (isClient ? ' right' : '') + '">' + chanTag + time + '</div>';
   }
   return html;
+}
+
+// v1.79.0: a long email collapses to about eight lines behind a soft fade rather than making
+// the reader scroll a screen of somebody's signature block to reach the next message. The quoted
+// chain is already gone before this ever runs (emailDoor strips it at the door), so what is
+// clamped is genuinely the person's own text, which is why the default is collapsed rather than
+// hidden. classList.toggle returns whether the class is now PRESENT, and present means clamped.
+function emlToggle(btn) {
+  var body = btn.previousElementSibling;
+  if (!body) return;
+  btn.textContent = body.classList.toggle('eml-clamp') ? 'Show more' : 'Show less';
 }
 
 // Centered "Seen by" line at the bottom of the thread, same quiet treatment as "Handed back to
