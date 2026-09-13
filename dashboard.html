@@ -1,4 +1,24 @@
-<!-- dashboard.html (Dashboard v1.84.0, 2026-09-13_2115 CT) EMAIL SHIP B: A REPLY CAN LEAVE BY
+<!-- dashboard.html (Dashboard v1.84.1, 2026-09-13_2300 CT) THE BAND STOPS AT THE CHANNEL CHANGE
+(dashboard only, NO portal change, portal stays 1.74.0). Found live minutes after 1.84.0 deployed,
+on a real client thread. Andy answered an email at 3:17, the client replied by email at 3:18, then
+he TEXTED a photo at 3:21 and the blue ran straight through the photo and every message after it.
+WHY: v1.83.0 scoped the band to the SESSION and a session closes on a SUMMARY row, so an email
+landing in a session that has not been summarised yet paints every text that follows for as long
+as the session stays open, which on a quiet thread is days. That is the 1.79.0 pane tint back in a
+smaller box and by the same mechanism, a colour that only one specific later event can retire.
+THE CORRECTION KEEPS BOTH HALVES. v1.82.0 banded a contiguous run of email ROWS and came out
+striped, because the summary card that closes an email exchange carries channel sms and fell onto
+the plain floor under the exchange it was summarising. Those two cases were never the same thing.
+A MARKER (summary, handback, send marker, ticket marker) is a note ABOUT the conversation rather
+than a message on a channel, so it INHERITS and never closes the band. A REAL MESSAGE on another
+channel is a genuine channel change and closes it. A marker that closes an email exchange takes
+the channel BEHIND it, because a summary belongs to what it summarises; the date line that opens
+the next session takes the channel AHEAD of it, because it introduces what comes next. The render
+harness assertion that read bandCount === 1 and called it "the text did not split the band" was
+passing for the wrong reason the whole time, since bandCount counts OPENINGS and never had an
+opinion about what landed inside; it is replaced by div balance, which measures containment
+exactly. Both harnesses invert one assertion each, with the reason on the record.
+Prior v1.84.0, 2026-09-13_2115 CT EMAIL SHIP B: A REPLY CAN LEAVE BY
 EMAIL (pairs with portal v1.74.0 and webhook v9.32.0. DEPLOY WEBHOOK, THEN PORTAL, THEN THIS. The
 webhook fence that stops an email reply silencing Andi on the texts has to exist before anything
 can send an email reply, so this ship reverses the usual order for the first time). Until tonight,
@@ -1437,7 +1457,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.84.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.84.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5876,25 +5896,43 @@ function buildThreadHTML(messages, clientName) {
     if (messages[ci].channel === 'email') sawEmail = true; else sawSms = true;
   }
   var threadMixed = sawSms && sawEmail;
-  // v1.83.0: THE BAND IS SCOPED TO THE SESSION, NOT TO THE EMAIL MESSAGES. v1.82.0 wrapped a
-  // contiguous run of email rows, which meant an email exchange came out striped: blue behind
-  // the client's email, plain behind the summary card that closes the very same exchange. If
-  // the exchange happened over email then the exchange is the thing that was email, so the
-  // whole section holds the colour, including Andi's turns in it and the summary that ends it.
+  // v1.84.1: THE BAND FOLLOWS THE CHANNEL AND MARKERS INHERIT IT. Found live on a real thread:
+  // Andy answered an email at 3:17, the client replied by email at 3:18, then he TEXTED a photo
+  // at 3:21 and the blue ran straight through it and kept running.
   //
-  // A SESSION is what the renderer already draws: it opens on a green date line and closes on a
-  // summary row, which is also where the next date line is emitted. So sessions are counted by
-  // walking the summary rows, and a session is an email exchange if ANY non-marker row in it
-  // arrived by email. A session holding both channels still goes blue; the per bubble EMAIL and
-  // TEXT markers are what say which row was which, and they are the right tool for that job
-  // because they are per row and the background is per section.
-  var sessOf = [], sessIsEmail = [], curSess = 0;
+  // WHY IT RAN. v1.83.0 scoped the band to the SESSION, and a session closes on a SUMMARY row.
+  // A live thread has no summary until one gets written, so an email that arrives in an open
+  // session paints every text after it, for as long as the session stays open, which on a quiet
+  // thread is days. That is the 1.79.0 pane tint back in a smaller box and by the same
+  // mechanism: a colour only one specific later event can retire.
+  //
+  // WHY IT WAS SCOPED THAT WAY IS STILL RIGHT, and the fix keeps it. v1.82.0 banded a contiguous
+  // RUN of email rows and came out striped, because the summary card that CLOSES an email
+  // exchange is written with channel sms and fell onto the plain floor underneath the very
+  // exchange it was summarising.
+  //
+  // THE TWO CASES WERE NEVER THE SAME THING, and that is the whole correction. A MARKER (summary,
+  // handback, send marker, ticket marker) is not a message on a channel at all; it is a note
+  // ABOUT the conversation, so it INHERITS and never closes the band. A REAL MESSAGE on another
+  // channel is a genuine channel change and closes it. So a summary stays inside its own email
+  // exchange, and Andy's photo lands on the plain floor where it belongs.
+  //
+  // A marker between two email rows inherits from both and stays blue. A marker that CLOSES an
+  // email exchange, with texts after it, takes the channel BEHIND it rather than ahead, because
+  // a summary belongs to the exchange it is summarising and not to whatever happens next.
+  var want = [], lastReal = false;
   for (var si = 0; si < messages.length; si++) {
-    sessOf[si] = curSess;
-    if (!EML_MARKER_ROLES[messages[si].role] && messages[si].channel === 'email') {
-      sessIsEmail[curSess] = true;
+    if (EML_MARKER_ROLES[messages[si].role]) { want[si] = lastReal; continue; }
+    lastReal = messages[si].channel === 'email';
+    want[si] = lastReal;
+  }
+  // The channel of the next REAL message at or after i, for the date line that opens a session:
+  // it introduces what comes next rather than closing what came before.
+  function wantAhead(i) {
+    for (var k = i; k < messages.length; k++) {
+      if (!EML_MARKER_ROLES[messages[k].role]) return messages[k].channel === 'email';
     }
-    if (messages[si].role === 'summary') curSess++;
+    return false;
   }
   var bandOpen = false;
   function bandTo(want) {
@@ -5908,7 +5946,7 @@ function buildThreadHTML(messages, clientName) {
                      firstTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   // The opening date line is part of session 0, so the band has to be open BEFORE it is drawn
   // or the section starts a line lower than the session it is colouring.
-  html += bandTo(!!sessIsEmail[0]);
+  html += bandTo(wantAhead(0));
   html += '<div class="sms-system-line green"><div class="sline"></div><span>' + sessionLabel + '</span><div class="sline"></div></div>';
 
   for (var i = 0; i < messages.length; i++) {
@@ -5916,7 +5954,7 @@ function buildThreadHTML(messages, clientName) {
     // One decision, at the top, for every row regardless of which branch handles it. The old
     // version decided per branch, which is what let the summary card fall outside its own
     // session's band.
-    html += bandTo(!!sessIsEmail[sessOf[i]]);
+    html += bandTo(!!want[i]);
     if (m.role === 'summary') {
       try {
         var s = typeof m.message === 'string' ? JSON.parse(m.message) : m.message;
@@ -5931,7 +5969,7 @@ function buildThreadHTML(messages, clientName) {
           var nextTime = new Date(messages[i+1].created_at);
           var nextLabel = nextTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
                           nextTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-          html += bandTo(!!sessIsEmail[sessOf[i] + 1]);
+          html += bandTo(wantAhead(i + 1));
           html += '<div class="sms-system-line green"><div class="sline"></div><span>' + nextLabel + '</span><div class="sline"></div></div>';
         }
       } catch(e) {}
