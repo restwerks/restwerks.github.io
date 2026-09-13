@@ -1,4 +1,22 @@
-<!-- dashboard.html (Dashboard v1.80.0, 2026-09-13_1200 CT) THE EMAIL BUBBLE HAD NO HEIGHT
+<!-- dashboard.html (Dashboard v1.81.0, 2026-09-13_1400 CT) SHIP A, SUBTRACTED (dashboard only,
+NO portal change, portal stays 1.73.0). This build REMOVES the pane tint, the reply note and the
+flag fab lift, and is smaller than the build before it. WHY: the pane tint keyed off the last
+INBOUND, which meant only a TEXT FROM THE CLIENT could clear it. A tech replying did not clear it.
+Andi did not clear it. So the first real email turned the pane blue and on an email-preferring
+client it would have stayed blue for months, the whole time that every message leaving the box was
+a text. The colour was answering "how did they reach us" while wrapped around the control that
+answers "how am I about to reply", and on a quiet thread those two answers drift apart and stay
+apart. A note in small print underneath was contradicting the colour above it, which is the
+surface arguing with itself. THE SPLIT THAT REPLACES IT: BACKGROUND CARRIES WHAT ARRIVED, per
+message, which is the email bubble and nothing else; THE REPLY CONTROL WILL CARRY WHAT IS ABOUT TO
+LEAVE, in Ship B, because the signal belongs on the thing that does the thing. Until Ship B lands,
+nothing on this screen makes any claim about the outbound channel, which is correct, because
+nothing but a text can go. KEPT UNCHANGED: the email bubble with subject and sender, the EMAIL and
+TEXT markers on mixed threads, the escaped email body, and flex-shrink:0 on the base .sms-msg.
+--ch-email-pane is deleted rather than left declared and unused; Ship B declares what the reply
+control needs. STILL OPEN: nothing notifies the portal on an inbound email, so an email does not
+append live, does not push, and does not move a badge until something refreshes.
+Prior v1.80.0, 2026-09-13_1200 CT THE EMAIL BUBBLE HAD NO HEIGHT
 (dashboard only, NO portal change, portal stays 1.73.0). Three defects off the first real client
 email to land on the deployed 1.79.0, all three layout, all three mine. (1) THE BUBBLE RENDERED AS
 A 2px LINE. A flex item whose overflow is anything but visible has an automatic minimum size of
@@ -289,13 +307,20 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
    there was simply nothing to see. The rule stands (statuses saturated, channels muted) and the
    values are redone to clear it by a margin the layout harness now measures rather than by an
    eyeball, in BOTH themes, since the first version was only ever looked at in dark. */
-:root { --ch-email:#4F6191; --ch-email-pane:#dae4f6; --ch-email-soft:#c6d3ef; --ch-email-line:#adbfe0; --ch-email-ink:#36426b; }
-body.dark { --ch-email:#93a1c9; --ch-email-pane:#171d2e; --ch-email-soft:#2a3350; --ch-email-line:#404b6b; --ch-email-ink:#b9c6e8; }
-/* THE PANE, tinted to the channel of the LAST INBOUND. Both rules are spelled
-   out because `body.dark .sms-thread` outranks a bare `.sms-thread.ch-email`
-   on specificity, and dark mode would otherwise quietly keep its own floor. */
-.sms-thread.ch-email { background:var(--ch-email-pane); }
-body.dark .sms-thread.ch-email { background:var(--ch-email-pane); }
+:root { --ch-email:#4F6191; --ch-email-soft:#c6d3ef; --ch-email-line:#adbfe0; --ch-email-ink:#36426b; }
+body.dark { --ch-email:#93a1c9; --ch-email-soft:#2a3350; --ch-email-line:#404b6b; --ch-email-ink:#b9c6e8; }
+/* v1.81.0: THE PANE TINT IS GONE, AND THE REASON IS WORTH KEEPING. It keyed off the
+   last INBOUND, so only a TEXT FROM THE CLIENT could clear it. A reply from a tech
+   did not. Andi did not. So the first real email turned the whole pane blue and it
+   would have stayed blue for months on a client who prefers email, the entire time
+   that every single message leaving the box was a text. The colour was answering
+   "how did they reach us" while sitting around the control that answers "how am I
+   about to reply", and on a quiet thread those two drift apart and stay apart.
+   THE SPLIT THAT REPLACED IT: BACKGROUND CARRIES WHAT ARRIVED, per message, which
+   is the email bubble below and nothing else. THE REPLY CONTROL WILL CARRY WHAT IS
+   ABOUT TO LEAVE, in Ship B, because the signal belongs on the thing that does the
+   thing rather than on a pane around it. Until then nothing on this screen makes any
+   claim about the outbound channel, which is correct: nothing but a text can go. */
 /* THE EMAIL BUBBLE. Wider than a text on purpose: an email is paragraphs, and
    75% of the column is a canyon to read one in. It stays a right aligned
    client bubble rather than becoming a card, because the row IS the client
@@ -326,15 +351,10 @@ body.dark .sms-msg.sms-email { background:var(--ch-email-soft); }
    telling a lie, which is the one thing a thread is never allowed to do. The
    bar stays untinted and a note says it in words instead. Both the note and
    this rule come out when Ship B wires the channel toggle. */
-.reply-note { padding:0.45rem 76px 0.45rem 1.25rem;border-top:1px solid var(--ch-email-line);background:var(--ch-email-pane);font-size:0.7rem;color:var(--ch-email-ink);line-height:1.4; }
-.reply-note strong { color:var(--ch-email-ink); }
-/* v1.80.0: .flag-fab is pinned at bottom:74px, tuned when the reply box was the only thing under
-   the thread. The note added a band exactly there and the flag circle landed on the sentence, so
-   the end of it was unreadable on the first thread it ever appeared on. The lift clears a one
-   line note; the 76px right gutter above is the half that still holds when the note wraps on a
-   narrow window, which a fixed lift cannot. Both go when Ship B replaces the note with a real
-   channel toggle. */
-.thread-main.has-note .flag-fab { bottom:112px; }
+/* v1.81.0: .reply-note and the .flag-fab lift that existed to clear it are both gone. The note
+   was there to say in small print what the pane tint was implying wrongly in colour, so removing
+   the tint removed the need for the apology. The fab goes back to bottom:74px, which is where it
+   has been correct since long before email existed. */
 .sms-resolved { align-self:center;background:var(--green-bg);color:#0f6e50;border-radius:100px;font-size:0.72rem;font-weight:600;padding:0.25rem 0.85rem;margin-top:0.25rem; }
 .detail-summary { padding:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.4rem; }
 .detail-row { font-size:0.82rem;color:var(--ink-mid);line-height:1.55; }
@@ -1323,7 +1343,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.80.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.81.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5311,19 +5331,6 @@ function appendLiveMessage(data) {
   var oldSeen = document.getElementById('seen-by-line');
   if (oldSeen && oldSeen.parentNode) oldSeen.parentNode.removeChild(oldSeen);
   window._seenViewers = [];
-  // v1.79.0: the tint tracks the LAST INBOUND, so a client who emails at 11pm and then texts in
-  // the morning must not leave the pane still reading email while a text sits under it. Every row
-  // that reaches this function today arrived by SMS, because nothing notifies the portal on an
-  // inbound email, so any inbound landing here IS a text and clears the tint and the note.
-  if (data.role === 'user' && thread.classList.contains('ch-email')) {
-    thread.classList.remove('ch-email');
-    var staleNote = document.getElementById('reply-note');
-    if (staleNote && staleNote.parentNode) staleNote.parentNode.removeChild(staleNote);
-    // v1.80.0: the note going away has to take the flag fab's lift with it, or the fab is left
-    // hovering 112px up over an empty strip of thread for the rest of the session.
-    var tmain = thread.closest ? thread.closest('.thread-main') : null;
-    if (tmain) tmain.classList.remove('has-note');
-  }
   if (data.role === 'send_marker' || data.role === 'ticket_marker') {
     // v1.19.0/v1.20.0: marker rows are never SMS bubbles, live or loaded.
     thread.innerHTML += '<div class="sms-system">' + esc(data.message) + '</div>' + '<div id="seen-by-line"></div>';
@@ -5662,16 +5669,6 @@ async function openRealConv(encodedPhone, name) {
     var householdName = data.householdName || null;
     window._seenViewers = data.viewers || [];
     var html = buildThreadHTML(messages, displayName) + seenByHtml(data.viewers || []);
-    // v1.79.0: THE WHOLE PANE IS TINTED TO THE CHANNEL OF THE LAST INBOUND. A border on one
-    // bubble is something you have to look for; a differently coloured pane is something you
-    // cannot miss, and a tech glances at a thread for about two seconds before typing. It keys
-    // off the last INBOUND rather than the last message of any kind, because the question the
-    // colour answers is how this client is reaching us right now.
-    var lastInbound = null;
-    for (var li = messages.length - 1; li >= 0; li--) {
-      if (messages[li].role === 'user') { lastInbound = messages[li]; break; }
-    }
-    var paneEmail = !!(lastInbound && lastInbound.channel === 'email');
     var hasHuman = messages.some(function(m) { return m.role === 'human'; });
     var lastHandback = messages.filter(function(m) { return m.role === 'handback'; }).pop();
     var lastHuman = messages.filter(function(m) { return m.role === 'human'; }).pop();
@@ -5685,7 +5682,7 @@ async function openRealConv(encodedPhone, name) {
     window._andiActive = andiActive;
     document.getElementById('conv-detail-content').innerHTML =
     '<div class="thread-shell">' +
-      '<div class="thread-main' + (paneEmail ? ' has-note' : '') + '">' +
+      '<div class="thread-main">' +
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
@@ -5694,9 +5691,7 @@ async function openRealConv(encodedPhone, name) {
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="sms-thread' + (paneEmail ? ' ch-email' : '') + '" id="live-thread">' + html + '</div>' +
-        (paneEmail ?
-          '<div class="reply-note" id="reply-note">This client last reached out by <strong>email</strong>. Anything you send from here still goes out as a <strong>text message</strong>.</div>' : '') +
+        '<div class="sms-thread" id="live-thread">' + html + '</div>' +
         '<div class="reply-box">' +
           '<textarea id="reply-input" class="reply-textarea" placeholder="Type a reply..." rows="1"></textarea>' +
           '<button id="send-btn" class="reply-send">Send</button>' +
