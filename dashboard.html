@@ -1,4 +1,25 @@
-<!-- dashboard.html (Dashboard v1.79.0, 2026-09-09_2055 CT) EMAIL LOOKS LIKE EMAIL (Ship A, the
+<!-- dashboard.html (Dashboard v1.80.0, 2026-09-13_1200 CT) THE EMAIL BUBBLE HAD NO HEIGHT
+(dashboard only, NO portal change, portal stays 1.73.0). Three defects off the first real client
+email to land on the deployed 1.79.0, all three layout, all three mine. (1) THE BUBBLE RENDERED AS
+A 2px LINE. A flex item whose overflow is anything but visible has an automatic minimum size of
+ZERO. 1.79.0 put overflow:hidden on the email bubble so the corners would clip the subject strip,
+which set that one bubble's minimum height to zero; .sms-thread is a scrolled column flex container
+so it was overflowing, and flex-shrink crushed the only item that would let it. Measured in a real
+browser: the bubble 2px, its own subject strip 51px, its body 38px. The content was laid out
+correctly and the parent was squashed out from under it. flex-shrink:0 now sits on the BASE
+.sms-msg, not on the email rule, because the trap belongs to any bubble that ever needs to clip.
+(2) THE TINT WAS APPLIED AND INVISIBLE. Dark pane #101319 against a floor of #0d0d0c, which is
+four values on red. The rule that channels are muted while statuses are saturated was right;
+confusing muted with low contrast was not. Redone in both themes, and the threshold that let it
+pass was wrong too, so the harness now measures the delta instead of trusting it. (3) THE FLAG FAB
+SAT ON THE NOTE. bottom:74px was tuned when the reply box was the only thing under the thread; the
+note landed in that band and the circle covered the end of the sentence. Lifted when the note is
+present, plus a reserved right gutter that survives the note wrapping, which a fixed lift cannot.
+WHY NONE OF THIS WAS CAUGHT: email_render_harness asserts on HTML strings and went 52 green on a
+build whose bubble had no height. A new email_layout_harness loads this actual file into headless
+Chromium, injects the real thread with the real Sept 8 row, and MEASURES. It reproduces all three
+against 1.79.0 before it passes against this.
+Prior v1.79.0, 2026-09-09_2055 CT EMAIL LOOKS LIKE EMAIL (Ship A, the
 dashboard half; pairs with portal v1.73.0, DEPLOY PORTAL FIRST). Since Sept 8 a real client email
 has been matched, written to the right thread and rendered as an ordinary grey client bubble,
 indistinguishable from a text. channel, email_subject and email_from were on every one of those
@@ -235,7 +256,18 @@ body.dark .sms-thread { background:#0d0d0c; }
      composing ticket lists. pre-wrap keeps the breaks and still wraps long lines normally;
      nothing about the stored message changes. The rule this enforces: the dashboard thread is
      what the client received, character for character. */
-  white-space:pre-wrap;overflow-wrap:anywhere; }
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  /* v1.80.0: A FLEX ITEM WITH overflow OTHER THAN visible HAS AN AUTOMATIC MINIMUM SIZE OF ZERO.
+     v1.79.0 put overflow:hidden on the email bubble so the rounded corners would clip the subject
+     strip and the Show more button, which silently set that one bubble's minimum height to zero.
+     .sms-thread is a scrolled column flex container, so it was overflowing, so flex-shrink did
+     what it is supposed to do and crushed the only item that would let it: the first real client
+     email rendered as a 2px line while its own subject strip measured 51px and its body 38px.
+     The children were laid out correctly the whole time and the parent had been squashed out from
+     under them. 52 string assertions went green on this, because no string assertion has ever had
+     an opinion about a box model. It is pinned on the BASE rule, not on the email rule, since the
+     trap belongs to any bubble that ever needs to clip. */
+  flex-shrink:0; }
 .sms-client { background:#e0e0e0;color:#1a1a18;align-self:flex-end;border-bottom-right-radius:4px; }
 body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
 .sms-andi { background:var(--green);color:white;align-self:flex-start;border-bottom-left-radius:4px; }
@@ -251,8 +283,14 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
    sixth status competing with the five that already mean something on this
    screen. Email takes a muted slate indigo; Slack and voice can take
    neighbouring muted hues later and still collide with nothing. */
-:root { --ch-email:#5B6B99; --ch-email-pane:#edeff5; --ch-email-soft:#dee3ef; --ch-email-line:#c6cee2; --ch-email-ink:#3d4a70; }
-body.dark { --ch-email:#93a1c9; --ch-email-pane:#101319; --ch-email-soft:#232a3c; --ch-email-line:#333c56; --ch-email-ink:#aab6d6; }
+/* v1.80.0: MUTED HAD TO MEAN LOWER CHROMA, NOT LOWER CONTRAST, and v1.79.0 confused the two.
+   The dark pane was #101319 against a thread floor of #0d0d0c: four values on red, six on green,
+   thirteen on blue. The class was applied, the mechanism worked perfectly, and on a real screen
+   there was simply nothing to see. The rule stands (statuses saturated, channels muted) and the
+   values are redone to clear it by a margin the layout harness now measures rather than by an
+   eyeball, in BOTH themes, since the first version was only ever looked at in dark. */
+:root { --ch-email:#4F6191; --ch-email-pane:#dae4f6; --ch-email-soft:#c6d3ef; --ch-email-line:#adbfe0; --ch-email-ink:#36426b; }
+body.dark { --ch-email:#93a1c9; --ch-email-pane:#171d2e; --ch-email-soft:#2a3350; --ch-email-line:#404b6b; --ch-email-ink:#b9c6e8; }
 /* THE PANE, tinted to the channel of the LAST INBOUND. Both rules are spelled
    out because `body.dark .sms-thread` outranks a bare `.sms-thread.ch-email`
    on specificity, and dark mode would otherwise quietly keep its own floor. */
@@ -288,8 +326,15 @@ body.dark .sms-msg.sms-email { background:var(--ch-email-soft); }
    telling a lie, which is the one thing a thread is never allowed to do. The
    bar stays untinted and a note says it in words instead. Both the note and
    this rule come out when Ship B wires the channel toggle. */
-.reply-note { padding:0.45rem 1.25rem;border-top:1px solid var(--ch-email-line);background:var(--ch-email-pane);font-size:0.7rem;color:var(--ch-email-ink);line-height:1.4; }
+.reply-note { padding:0.45rem 76px 0.45rem 1.25rem;border-top:1px solid var(--ch-email-line);background:var(--ch-email-pane);font-size:0.7rem;color:var(--ch-email-ink);line-height:1.4; }
 .reply-note strong { color:var(--ch-email-ink); }
+/* v1.80.0: .flag-fab is pinned at bottom:74px, tuned when the reply box was the only thing under
+   the thread. The note added a band exactly there and the flag circle landed on the sentence, so
+   the end of it was unreadable on the first thread it ever appeared on. The lift clears a one
+   line note; the 76px right gutter above is the half that still holds when the note wraps on a
+   narrow window, which a fixed lift cannot. Both go when Ship B replaces the note with a real
+   channel toggle. */
+.thread-main.has-note .flag-fab { bottom:112px; }
 .sms-resolved { align-self:center;background:var(--green-bg);color:#0f6e50;border-radius:100px;font-size:0.72rem;font-weight:600;padding:0.25rem 0.85rem;margin-top:0.25rem; }
 .detail-summary { padding:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.4rem; }
 .detail-row { font-size:0.82rem;color:var(--ink-mid);line-height:1.55; }
@@ -1278,7 +1323,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.79.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.80.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5274,6 +5319,10 @@ function appendLiveMessage(data) {
     thread.classList.remove('ch-email');
     var staleNote = document.getElementById('reply-note');
     if (staleNote && staleNote.parentNode) staleNote.parentNode.removeChild(staleNote);
+    // v1.80.0: the note going away has to take the flag fab's lift with it, or the fab is left
+    // hovering 112px up over an empty strip of thread for the rest of the session.
+    var tmain = thread.closest ? thread.closest('.thread-main') : null;
+    if (tmain) tmain.classList.remove('has-note');
   }
   if (data.role === 'send_marker' || data.role === 'ticket_marker') {
     // v1.19.0/v1.20.0: marker rows are never SMS bubbles, live or loaded.
@@ -5636,7 +5685,7 @@ async function openRealConv(encodedPhone, name) {
     window._andiActive = andiActive;
     document.getElementById('conv-detail-content').innerHTML =
     '<div class="thread-shell">' +
-      '<div class="thread-main">' +
+      '<div class="thread-main' + (paneEmail ? ' has-note' : '') + '">' +
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
