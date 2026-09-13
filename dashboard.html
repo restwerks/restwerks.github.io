@@ -1,4 +1,35 @@
-<!-- dashboard.html (Dashboard v1.81.0, 2026-09-13_1400 CT) SHIP A, SUBTRACTED (dashboard only,
+<!-- dashboard.html (Dashboard v1.83.0, 2026-09-13_1615 CT) THE BAND IS SESSION SCOPED
+(dashboard only, NO portal change, portal stays 1.73.0). v1.82.0 wrapped a contiguous RUN of email
+rows, which came out striped: blue behind the client's email, plain behind the summary card that
+closes the very same exchange. If the exchange happened over email then the EXCHANGE is the thing
+that was email, so the whole section holds the colour now, including Andi's turns in it, the
+markers inside it and the summary that ends it. A SESSION is what the renderer already draws: it
+opens on a green date line and closes on a summary row, which is also where the next date line is
+emitted, so sessions are counted by walking the summary rows. A session is an email exchange if
+ANY non-marker row in it arrived by email; a session holding both channels still goes blue, and
+the per bubble EMAIL and TEXT markers are what say which row was which, since those are per row
+and the background is per section. The band decision now happens once at the top of the loop for
+every row instead of per branch, which is exactly what let the summary card fall outside its own
+session before. STILL NOT A CLAIM ABOUT OUTBOUND: the thread background stays plain, the reply box
+stays plain, and the blue Send Email control lands in Ship B. STILL OPEN: nothing notifies the
+portal on an inbound email, so an email does not append live or push until a refresh.
+Prior v1.82.0, 2026-09-13_1530 CT THE EMAIL SECTION BAND (dashboard
+only, NO portal change, portal stays 1.73.0). The email messages now sit on a full width blue
+section that bleeds to the pane edges, rather than the colour living only inside the bubble.
+WHY THIS IS NOT THE 1.79.0 PANE TINT COMING BACK, which is the whole question: that tint coloured
+the ENTIRE conversation window and keyed off the LAST INBOUND, so it was a standing claim about
+the thread, and only a text from the client could retire it. On an email-preferring client it
+would have sat blue for months while every message leaving the box was a text. THIS band is
+scoped to the rows it sits under. It says "these messages arrived by email", which is a fact
+about those rows and cannot go stale, and it says nothing at all about what happens when you hit
+Send. It opens on a contiguous run of email messages and closes the moment anything else appears,
+so summary cards, ticket markers, handbacks and every text stay outside it on the plain floor.
+The thread background itself stays untinted. The outbound signal goes on the reply control in
+Ship B, where a blue Send Email button says what is about to leave at the point it leaves.
+KEPT: subject and sender on the bubble, EMAIL and TEXT markers on mixed threads, the escaped
+body, flex-shrink:0 on the base .sms-msg. STILL OPEN: nothing notifies the portal on an inbound
+email, so an email does not append live, does not push, and does not move a badge until a refresh.
+Prior v1.81.0, 2026-09-13_1400 CT SHIP A, SUBTRACTED (dashboard only,
 NO portal change, portal stays 1.73.0). This build REMOVES the pane tint, the reply note and the
 flag fab lift, and is smaller than the build before it. WHY: the pane tint keyed off the last
 INBOUND, which meant only a TEXT FROM THE CLIENT could clear it. A tech replying did not clear it.
@@ -307,8 +338,8 @@ body.dark .sms-client { background:#2a2a27;color:#f0efe8; }
    there was simply nothing to see. The rule stands (statuses saturated, channels muted) and the
    values are redone to clear it by a margin the layout harness now measures rather than by an
    eyeball, in BOTH themes, since the first version was only ever looked at in dark. */
-:root { --ch-email:#4F6191; --ch-email-soft:#c6d3ef; --ch-email-line:#adbfe0; --ch-email-ink:#36426b; }
-body.dark { --ch-email:#93a1c9; --ch-email-soft:#2a3350; --ch-email-line:#404b6b; --ch-email-ink:#b9c6e8; }
+:root { --ch-email:#4F6191; --ch-email-band:#dae4f6; --ch-email-soft:#c6d3ef; --ch-email-line:#adbfe0; --ch-email-ink:#36426b; }
+body.dark { --ch-email:#93a1c9; --ch-email-band:#171d2e; --ch-email-soft:#2a3350; --ch-email-line:#404b6b; --ch-email-ink:#b9c6e8; }
 /* v1.81.0: THE PANE TINT IS GONE, AND THE REASON IS WORTH KEEPING. It keyed off the
    last INBOUND, so only a TEXT FROM THE CLIENT could clear it. A reply from a tech
    did not. Andi did not. So the first real email turned the whole pane blue and it
@@ -321,6 +352,18 @@ body.dark { --ch-email:#93a1c9; --ch-email-soft:#2a3350; --ch-email-line:#404b6b
    ABOUT TO LEAVE, in Ship B, because the signal belongs on the thing that does the
    thing rather than on a pane around it. Until then nothing on this screen makes any
    claim about the outbound channel, which is correct: nothing but a text can go. */
+/* v1.82.0: THE EMAIL SECTION BAND. A full width tinted section behind the email messages
+   themselves, bleeding to the pane edges with a negative margin that cancels .sms-thread's
+   1.25rem padding. THE DIFFERENCE FROM THE 1.79.0 PANE TINT MATTERS AND IS THE WHOLE REASON
+   THIS IS SAFE: that tint coloured the ENTIRE conversation window and keyed off the last
+   inbound, so it was a claim about the thread as a whole and only a text from the client could
+   ever retire it. This is scoped to the rows it sits under. It says "these messages arrived by
+   email", which is a fact about those rows and cannot go stale, and it says nothing whatsoever
+   about what happens when you hit Send. It opens on a run of email messages and closes the
+   moment anything else appears, so summary cards, ticket markers and every text stay outside
+   it on the plain floor. The reply control carries the outbound signal, in Ship B. */
+.eml-band { display:flex;flex-direction:column;gap:0.5rem;margin:0 -1.25rem;padding:0.7rem 1.25rem;
+  background:var(--ch-email-band);border-top:1px solid var(--ch-email-line);border-bottom:1px solid var(--ch-email-line); }
 /* THE EMAIL BUBBLE. Wider than a text on purpose: an email is paragraphs, and
    75% of the column is a canyon to read one in. It stays a right aligned
    client bubble rather than becoming a card, because the row IS the client
@@ -1343,7 +1386,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.81.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.83.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5749,14 +5792,47 @@ function buildThreadHTML(messages, clientName) {
     if (messages[ci].channel === 'email') sawEmail = true; else sawSms = true;
   }
   var threadMixed = sawSms && sawEmail;
+  // v1.83.0: THE BAND IS SCOPED TO THE SESSION, NOT TO THE EMAIL MESSAGES. v1.82.0 wrapped a
+  // contiguous run of email rows, which meant an email exchange came out striped: blue behind
+  // the client's email, plain behind the summary card that closes the very same exchange. If
+  // the exchange happened over email then the exchange is the thing that was email, so the
+  // whole section holds the colour, including Andi's turns in it and the summary that ends it.
+  //
+  // A SESSION is what the renderer already draws: it opens on a green date line and closes on a
+  // summary row, which is also where the next date line is emitted. So sessions are counted by
+  // walking the summary rows, and a session is an email exchange if ANY non-marker row in it
+  // arrived by email. A session holding both channels still goes blue; the per bubble EMAIL and
+  // TEXT markers are what say which row was which, and they are the right tool for that job
+  // because they are per row and the background is per section.
+  var sessOf = [], sessIsEmail = [], curSess = 0;
+  for (var si = 0; si < messages.length; si++) {
+    sessOf[si] = curSess;
+    if (!EML_MARKER_ROLES[messages[si].role] && messages[si].channel === 'email') {
+      sessIsEmail[curSess] = true;
+    }
+    if (messages[si].role === 'summary') curSess++;
+  }
+  var bandOpen = false;
+  function bandTo(want) {
+    if (want === bandOpen) return '';
+    bandOpen = want;
+    return want ? '<div class="eml-band">' : '</div>';
+  }
   var html = '';
   var firstTime = new Date(messages[0].created_at);
   var sessionLabel = firstTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
                      firstTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  // The opening date line is part of session 0, so the band has to be open BEFORE it is drawn
+  // or the section starts a line lower than the session it is colouring.
+  html += bandTo(!!sessIsEmail[0]);
   html += '<div class="sms-system-line green"><div class="sline"></div><span>' + sessionLabel + '</span><div class="sline"></div></div>';
 
   for (var i = 0; i < messages.length; i++) {
     var m = messages[i];
+    // One decision, at the top, for every row regardless of which branch handles it. The old
+    // version decided per branch, which is what let the summary card fall outside its own
+    // session's band.
+    html += bandTo(!!sessIsEmail[sessOf[i]]);
     if (m.role === 'summary') {
       try {
         var s = typeof m.message === 'string' ? JSON.parse(m.message) : m.message;
@@ -5771,6 +5847,7 @@ function buildThreadHTML(messages, clientName) {
           var nextTime = new Date(messages[i+1].created_at);
           var nextLabel = nextTime.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' +
                           nextTime.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+          html += bandTo(!!sessIsEmail[sessOf[i] + 1]);
           html += '<div class="sms-system-line green"><div class="sline"></div><span>' + nextLabel + '</span><div class="sline"></div></div>';
         }
       } catch(e) {}
@@ -5860,6 +5937,9 @@ function buildThreadHTML(messages, clientName) {
             photos + sender +
             '<div class="sms-time' + (isClient ? ' right' : '') + '">' + chanTag + time + '</div>';
   }
+  // An unclosed band would swallow the rest of the thread into a blue box, so it closes here
+  // unconditionally rather than relying on the loop having ended on a text.
+  html += bandTo(false);
   return html;
 }
 
