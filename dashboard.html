@@ -1,4 +1,32 @@
-<!-- dashboard.html (Dashboard v1.85.0, 2026-09-14_0210 CT) AN EMAIL ONLY THREAD GETS ITS ROW
+<!-- dashboard.html (Dashboard v1.86.0, 2026-09-13_2045 CT) THE OPEN THREAD STOPS CLAIMING A
+CHANNEL IT DOES NOT HAVE (pairs with portal v1.77.0; DEPLOY PORTAL FIRST). Found on the first live
+email only thread, minutes after 1.85.0. The LIST row was right and the OPEN THREAD was wrong in
+two places, which is the same defect twice: a surface still asking the phone question when the key
+is an address.
+
+(1) THE HEADER SAID "Andi is handling this" AND IT WAS FALSE. andiActive is computed as the absence
+of a human takeover, so a thread with no human rows reads as Andi covering it. Andi does not answer
+email at all (getHistory has excluded email rows since webhook 9.31.0) and he cannot text somebody
+with no phone, so the header was claiming cover that does not exist. The list already suppressed
+the pill for exactly this reason in 1.85.0 and the header never learned. The status now renders
+EMPTY on a thread with no phone rather than saying something untrue, and statusForOpenConv does the
+same so the SSE resets cannot put the sentence back.
+
+(2) THE SEND BUTTON WOULD HAVE TEXTED SOMEBODY WITH NO PHONE. Portal 1.75.0 returns a clean 422 so
+nothing breaks and the tech's words are restored, but a control that cannot work should not be
+offered. The compose is disabled on a phoneless thread and the placeholder names the thing that
+DOES work: reply by email off the client's own message. The moment email reply mode is armed the
+compose enables again, because that path sends through Graph and needs no phone at all.
+
+BOTH READ THE PORTAL, NOT THE ROW. phone_number and thread_key now ride on the /api/thread payload
+(portal 1.77.0), because the row the user clicked is not available when a thread is opened from a
+push notification or a deep link, which is exactly when a wrong answer would be least noticed.
+
+THE COMPOSE ELEMENTS ARE DISABLED, NEVER REMOVED. Six places read #reply-input and #send-btn by id
+and none of them guard for null. Taking the markup out would have traded an honest empty header for
+a TypeError, which is the same class as the search crash 1.85.0 fixed an hour ago.
+
+Prior v1.85.0, 2026-09-14_0210 CT AN EMAIL ONLY THREAD GETS ITS ROW
 (pairs with portal v1.76.0; DEPLOY PORTAL FIRST). Andy, looking at the live list: why doesn't it
 get a row, it would look the same with name and household, just blue and no Andi on the right.
 He was right, and reading the renderer is what settled it. The list has been keyed on thread_key
@@ -781,6 +809,10 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .conv-card.email-only { background:var(--ch-email-band);box-shadow:inset 3px 0 0 var(--ch-email); }
 .conv-card.email-only:hover { background:var(--ch-email-soft); }
 .conv-card.email-only .conv-name { color:var(--ch-email-ink); }
+/* v1.86.0: the compose on a thread that cannot be texted. Quiet rather than alarming: the thread
+   is not broken, it just answers on a different channel. */
+.reply-box.reply-nophone .reply-textarea { opacity:0.55;cursor:not-allowed; }
+.reply-box.reply-nophone .reply-send { opacity:0.45;cursor:not-allowed; }
 .conv-card-body { flex:1;padding:0.4rem 1rem 0.4rem 0.5rem;min-width:0; }
 .conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.1rem; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
@@ -1497,7 +1529,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.85.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.86.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5735,6 +5767,9 @@ function notAndiStatusHtml() {
 // The SSE handlers reset the open thread's status on certain events; this keeps a muted Special
 // reading Not Andi instead of snapping back to the green Andi line.
 function statusForOpenConv() {
+  // v1.86.0: the SSE resets run through here, so without this an inbound event would put
+  // "Andi is handling this" back onto an email only thread after the render removed it.
+  if ((window._openConvMeta || {}).email_only) return '';
   return isMutedSpecial(window._openConvMeta || {}) ? notAndiStatusHtml() : andiStatusHtml();
 }
 
@@ -5866,7 +5901,11 @@ async function openRealConv(encodedPhone, name) {
     var lastHuman = messages.filter(isSmsHuman).pop();
     var andiActive = !hasHuman || (lastHandback && lastHuman && new Date(lastHandback.created_at) > new Date(lastHuman.created_at));
     // build #4: cache this thread's type + window so the header and SSE resets can read "muted".
-    window._openConvMeta = { client_type: data.client_type || null, coverage_start: data.coverage_start || null, coverage_end: data.coverage_end || null, integrator_timezone: data.integrator_timezone || null };
+    // v1.86.0: THE THREAD ASKS THE PORTAL WHETHER IT HAS A PHONE. Not the row that was clicked:
+    // a thread opened from a push notification or a deep link has no row behind it.
+    var threadEmailOnly = !!data.thread_key && !data.phone_number;
+    window._openConvEmailOnly = threadEmailOnly;
+    window._openConvMeta = { client_type: data.client_type || null, coverage_start: data.coverage_start || null, coverage_end: data.coverage_end || null, integrator_timezone: data.integrator_timezone || null, email_only: threadEmailOnly };
     var mutedSpecial = isMutedSpecial(window._openConvMeta);
     // No hand back on a coverage mute: Andi never had it, the window does, and he resumes on his own.
     var handbackBtnHtml = (!andiActive && !mutedSpecial) ?
@@ -5878,7 +5917,7 @@ async function openRealConv(encodedPhone, name) {
         '<div class="detail-header" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;height:53px;box-sizing:border-box;">' +
           '<div class="detail-name">' + displayName + '</div>' +
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
-            '<div class="detail-meta" id="thread-status"><span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this</div>' +
+            '<div class="detail-meta" id="thread-status">' + (threadEmailOnly ? '' : '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this') + '</div>' +
             '<div id="attach-slot"></div>' +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
@@ -5907,7 +5946,12 @@ async function openRealConv(encodedPhone, name) {
     loadEquipmentPanel(decodeURIComponent(encodedPhone));
     var statusEl = document.getElementById('thread-status');
     if (statusEl) {
-      if (mutedSpecial) {
+      // v1.86.0: an email only thread gets NO status line. Andi is not covering it and no person
+      // has taken it; the honest answer is to say nothing rather than pick one of the three
+      // sentences this slot knows, all of which are about a text thread.
+      if (threadEmailOnly) {
+        statusEl.innerHTML = '';
+      } else if (mutedSpecial) {
         statusEl.innerHTML = notAndiStatusHtml();
       } else if (!andiActive) {
         statusEl.innerHTML = humanStatusHtml(lastHuman ? lastHuman.created_at : new Date().toISOString());
@@ -6258,6 +6302,22 @@ function emlApplyReplyMode() {
   var strip = document.getElementById('reply-target');
   if (!box || !btn) return;
   var t = window._emailReplyTo;
+  // v1.86.0: THE TEXT COMPOSE IS OFF ON A THREAD WITH NO PHONE, and this is the one function that
+  // knows whether an email reply is armed, so it is the only place the two states can be decided
+  // together. Disabled rather than removed: six places read these two ids without a null guard.
+  var input = document.getElementById('reply-input');
+  var noPhone = !!window._openConvEmailOnly && !t;
+  if (input) {
+    input.disabled = noPhone;
+    input.placeholder = noPhone
+      ? 'No phone number on this thread. Right click a message to reply by email.'
+      : 'Type a reply...';
+  }
+  btn.disabled = noPhone;
+  // add/remove rather than toggle(name, force): every other classList call in this function uses
+  // the same two, and the render harness stubs exactly those. A lone toggle here took the whole
+  // suite down with a TypeError, which is a loud way to learn that a helper is the odd one out.
+  if (noPhone) box.classList.add('reply-nophone'); else box.classList.remove('reply-nophone');
   if (t) {
     box.classList.add('eml-mode');
     btn.classList.add('eml-send');
