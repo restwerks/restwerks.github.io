@@ -1,4 +1,38 @@
-<!-- dashboard.html (Dashboard v1.84.1, 2026-09-13_2300 CT) THE BAND STOPS AT THE CHANNEL CHANGE
+<!-- dashboard.html (Dashboard v1.85.0, 2026-09-14_0210 CT) AN EMAIL ONLY THREAD GETS ITS ROW
+(pairs with portal v1.76.0; DEPLOY PORTAL FIRST). Andy, looking at the live list: why doesn't it
+get a row, it would look the same with name and household, just blue and no Andi on the right.
+He was right, and reading the renderer is what settled it. The list has been keyed on thread_key
+since portal 1.75.0, so an email only thread DOES produce a row. Three things were wrong with it.
+
+(1) THE NAME RENDERED AS THE WORD null. The fallback chain was fullName || phone_number and both
+are null on an email only thread, so the client's name slot printed the literal string. thread_key
+is the address and is now the honest last resort.
+
+(2) THE ROW COULD NOT BE OPENED. enterConversation was handed encodeURIComponent(phone_number),
+so the click opened /api/thread?phone=null and the thread came back empty. It is handed the KEY
+now, and that needs no portal change at all, because /api/thread has compared its parameter
+against thread_key since 1.75.0. That one line is what makes the whole thing clickable.
+
+(3) THE GREEN Andi PILL SHOWED, AND IT WAS A LIE. andiActive is !humanHandling, and an email only
+thread has no human rows, so the pill appeared by default. Andi does not answer email at all
+(getHistory has excluded email rows since webhook 9.31.0) and he cannot text somebody with no
+phone, so the pill was claiming cover that does not exist. It is suppressed explicitly rather
+than by side effect, and the slot is left EMPTY rather than saying Email, because that pill
+answers who is covering this thread and the honest answer is a person.
+
+AND A CRASH THAT WAS WAITING: filterConvs called t.phone_number.includes(q) with no guard, so the
+first search typed after an email only thread existed would have thrown a TypeError and taken the
+whole conversation search down. It searches the key now.
+
+THE TINT IS SCOPED TO THREADS WITH NO PHONE, and that is the whole design argument. It reuses
+--ch-email-band, the same token as the email band inside a thread, so blue means one thing in both
+places. A texting client who sent one email in September is NOT tinted: a tint that covers a mixed
+thread reads as entirely email, which is exactly the bug v1.82.0 through v1.84.1 kept correcting
+one level down. A thread with no phone is email only permanently, so the tint can never go stale.
+A wash plus a solid left edge rather than a flat fill, because the unread dot and the message
+count live in that row and a flat fill swallows both.
+
+Prior v1.84.1, 2026-09-13_2300 CT THE BAND STOPS AT THE CHANNEL CHANGE
 (dashboard only, NO portal change, portal stays 1.74.0). Found live minutes after 1.84.0 deployed,
 on a real client thread. Andy answered an email at 3:17, the client replied by email at 3:18, then
 he TEXTED a photo at 3:21 and the blue ran straight through the photo and every message after it.
@@ -741,6 +775,12 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .conv-unread-indicator { width:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
 .conv-unread-dot { width:8px;height:8px;border-radius:50%;background:transparent; }
 .conv-card.unread .conv-unread-dot { background:var(--green); }
+/* v1.85.0: an email only thread, meaning one with no phone number at all. Same token as the email
+   band inside a thread. Wash plus a left edge, never a flat fill: the unread dot and the count
+   sit in this row and a solid block swallows them. */
+.conv-card.email-only { background:var(--ch-email-band);box-shadow:inset 3px 0 0 var(--ch-email); }
+.conv-card.email-only:hover { background:var(--ch-email-soft); }
+.conv-card.email-only .conv-name { color:var(--ch-email-ink); }
 .conv-card-body { flex:1;padding:0.4rem 1rem 0.4rem 0.5rem;min-width:0; }
 .conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.1rem; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
@@ -1457,7 +1497,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.84.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.85.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5560,8 +5600,12 @@ function renderConvList(threads) {
   }
   body.innerHTML = '';
   threads.forEach(function(t) {
+    // v1.85.0: THE KEY IS NOT ALWAYS A PHONE. An email only thread carries phone_number null,
+    // and the old chain ended there, so this slot printed the literal word null.
+    var emailOnly = !t.phone_number && !!t.thread_key;
+    var threadKey = t.phone_number || t.thread_key || '';
     var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : null;
-    var name = fullName || t.phone_number;
+    var name = fullName || threadKey;
     var household = t.household_name || null;
     var householdHtml = household ? '<span class="conv-household">' + household + '</span>' : '';
     // v1.17.0: an unattached number (client-texts-first, no person on file yet) gets an Unknown
@@ -5569,7 +5613,9 @@ function renderConvList(threads) {
     // not shipped the attached flag yet.
     var unattached = (t.attached === false) || (t.attached === undefined && !t.first_name && !t.household_name);
     if (unattached) householdHtml += '<span class="conv-unknown">Unknown</span>';
-    var ep = encodeURIComponent(t.phone_number);
+    // v1.85.0: the KEY opens the thread, not the phone. No portal change needed for this:
+    // /api/thread has compared its parameter against thread_key since portal 1.75.0.
+    var ep = encodeURIComponent(threadKey);
     var time = fmtConvTime(t.last_message_at);
     // Handling state from the human and handback markers, same math the thread
     // detail view uses, so the list and the open thread always agree.
@@ -5594,13 +5640,19 @@ function renderConvList(threads) {
     }
     var count = t.message_count || '';
     var mutedSpecial = isMutedSpecial(t);
-    var andiLabelHtml = mutedSpecial
-      ? '<span class="conv-notandi-label">Not Andi</span>'
-      : (andiActive
-          ? '<span class="conv-andi-label">Andi</span>'
-          : (humanHandling ? resumeCountdownSpan(t.last_human_at) : ''));
+    // v1.85.0: NO PILL ON AN EMAIL ONLY THREAD. andiActive is the absence of a human takeover,
+    // so without this the green Andi pill shows by default and claims cover that does not exist:
+    // Andi does not answer email and cannot text a client with no phone. Empty rather than a word
+    // like Email, because this pill answers who is covering the thread.
+    var andiLabelHtml = emailOnly
+      ? ''
+      : (mutedSpecial
+        ? '<span class="conv-notandi-label">Not Andi</span>'
+        : (andiActive
+            ? '<span class="conv-andi-label">Andi</span>'
+            : (humanHandling ? resumeCountdownSpan(t.last_human_at) : '')));
     var card = document.createElement('div');
-    card.className = 'conv-card' + (unread ? ' unread' : '');
+    card.className = 'conv-card' + (unread ? ' unread' : '') + (emailOnly ? ' email-only' : '');
     card.innerHTML =
       '<div class="conv-unread-indicator"><div class="conv-unread-dot"></div></div>' +
       '<div class="conv-card-body">' +
@@ -5722,7 +5774,11 @@ function filterConvs(query) {
     var fullName = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : '';
     var household = t.household_name || '';
     var preview = (t.last_message || '').toLowerCase();
-    return fullName.toLowerCase().includes(q) || household.toLowerCase().includes(q) || preview.includes(q) || t.phone_number.includes(q);
+    // v1.85.0: phone_number is null on an email only thread, and .includes on null throws, so
+    // the first search typed after one existed would have taken the whole list down. Searching
+    // the key also means typing part of an address finds the thread.
+    var key = t.phone_number || t.thread_key || '';
+    return fullName.toLowerCase().includes(q) || household.toLowerCase().includes(q) || preview.includes(q) || key.toLowerCase().includes(q);
   });
   renderConvList(filtered);
 }
