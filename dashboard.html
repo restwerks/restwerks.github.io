@@ -1,4 +1,12 @@
-<!-- dashboard.html (Dashboard v1.86.0, 2026-09-13_2045 CT) THE OPEN THREAD STOPS CLAIMING A
+<!-- dashboard.html (Dashboard v1.86.1, 2026-09-13_2115 CT) TWO THINGS FROM THE FIRST LOOK AT
+1.86.0 ON A REAL EMAIL ONLY THREAD. (1) THE PLACEHOLDER WAS TOO LONG AND CLIPPED at the second
+line, so it read "No phone number on this thread. Right click a message to" and stopped mid
+sentence. The compose textarea is one row tall and does not grow for placeholder text. Shortened
+to fit. (2) THE DISABLED SEND BUTTON STILL LOOKED LIVE. opacity 0.45 over a saturated green still
+reads as a green button, which is the same class of mistake as a state glyph that paints its own
+colour: the eye reads HUE first and dimming a colour is not the same as removing it. It goes
+grayscale as well, so a control that cannot fire does not look like one that can.
+Prior v1.86.0, 2026-09-13_2045 CT THE OPEN THREAD STOPS CLAIMING A
 CHANNEL IT DOES NOT HAVE (pairs with portal v1.77.0; DEPLOY PORTAL FIRST). Found on the first live
 email only thread, minutes after 1.85.0. The LIST row was right and the OPEN THREAD was wrong in
 two places, which is the same defect twice: a surface still asking the phone question when the key
@@ -812,7 +820,7 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 /* v1.86.0: the compose on a thread that cannot be texted. Quiet rather than alarming: the thread
    is not broken, it just answers on a different channel. */
 .reply-box.reply-nophone .reply-textarea { opacity:0.55;cursor:not-allowed; }
-.reply-box.reply-nophone .reply-send { opacity:0.45;cursor:not-allowed; }
+.reply-box.reply-nophone .reply-send { opacity:0.4;filter:grayscale(1);cursor:not-allowed; }
 .conv-card-body { flex:1;padding:0.4rem 1rem 0.4rem 0.5rem;min-width:0; }
 .conv-card-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.1rem; }
 .conv-name { font-size:0.88rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:0.4rem; }
@@ -1529,7 +1537,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.86.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.86.1</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -6310,7 +6318,7 @@ function emlApplyReplyMode() {
   if (input) {
     input.disabled = noPhone;
     input.placeholder = noPhone
-      ? 'No phone number on this thread. Right click a message to reply by email.'
+      ? 'No phone here. Right click a message to reply by email.'
       : 'Type a reply...';
   }
   btn.disabled = noPhone;
