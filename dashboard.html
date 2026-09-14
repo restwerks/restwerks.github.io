@@ -1,5 +1,26 @@
-<!-- dashboard.html (Dashboard v1.87.0, 2026-09-13_2130 CT) A THREAD WITH ONE CHANNEL DEFAULTS TO
-IT (dashboard only, no portal change; portal 1.78.0 already returns everything this reads).
+<!-- dashboard.html (Dashboard v1.88.0, 2026-09-13_2145 CT) THE RULE MOVES TO ONE PLACE, AND THE
+SEND STOPS DISARMING A THREAD THAT HAS NOWHERE TO GO (dashboard only, no portal change).
+
+Found by Andy on the first email sent from 1.87.0: the reply went out, threaded correctly, and the
+compose then fell back to the DISABLED text box. Sending clears _emailReplyTo and re-renders the
+mode, which is right on a mixed thread and wrong on a phoneless one, where there is nothing to fall
+back to.
+
+It is the cancel X defect one path over, and that is the tell. I removed the X in 1.87.0 because it
+led to a dead end, then left the SEND doing exactly what the X would have done. Two paths to the
+same dead end and I only closed one, because the arming lived in loadThread and the disarming lived
+somewhere else.
+
+SO THE RULE LIVES IN ONE FUNCTION NOW. emlApplyReplyMode decides everything: with no phone and no
+target it ARMS the newest client email instead of disabling, so open, send, cancel and every future
+caller all land in the same state without any of them knowing about each other. The 1.87.0 auto arm
+in loadThread is deleted rather than kept alongside it, because two places computing one rule is how
+this happened in the first place.
+
+The disabled compose survives as the honest floor: no phone and no answerable email row means there
+is genuinely nothing to send, and the box says so.
+
+Prior v1.87.0, 2026-09-13_2130 CT A THREAD WITH ONE CHANNEL DEFAULTS TO IT (dashboard only).
 
 Andy, looking at 1.86.1: why wouldn't this default to email. He is right and the answer is that the
 right click was built for the wrong thread. It exists to DISAMBIGUATE on a MIXED thread, where a
@@ -1560,7 +1581,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.87.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.88.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -6003,19 +6024,9 @@ async function openRealConv(encodedPhone, name) {
       emlThreadEl.addEventListener('touchend', emlTouchCancel);
       emlThreadEl.addEventListener('touchmove', emlTouchCancel, { passive: true });
     }
-    // v1.87.0: ONE CHANNEL, SO IT IS THE DEFAULT. Point the email reply at the newest client
-    // email before the compose renders its mode. Newest rather than first, because a thread with
-    // several emails should answer the live one. If there is somehow no answerable email row the
-    // compose stays disabled, which is the 1.86.1 behaviour and still honest.
-    if (threadEmailOnly && !window._emailReplyTo) {
-      for (var ei = messages.length - 1; ei >= 0; ei--) {
-        var em = messages[ei];
-        if (em.role === 'user' && em.channel === 'email' && em.id) {
-          window._emailReplyTo = { id: em.id, subject: em.email_subject || '', from: em.email_from || '' };
-          break;
-        }
-      }
-    }
+    // v1.88.0: the auto arm used to live here. It lives in emlApplyReplyMode now, so opening,
+    // sending and cancelling all resolve to the same state instead of three callers each
+    // remembering to do it.
     emlApplyReplyMode();
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
@@ -6346,6 +6357,21 @@ function emlApplyReplyMode() {
   var strip = document.getElementById('reply-target');
   if (!box || !btn) return;
   var t = window._emailReplyTo;
+  // v1.88.0: ONE CHANNEL, SO IT IS THE DEFAULT, AND IT RE-ARMS ITSELF. A thread with no phone has
+  // exactly one way to answer, so this function arms it rather than waiting to be told: on open,
+  // after a send clears the target, and after anything else that disarms. Newest client email
+  // rather than first, because a thread with several should answer the live one.
+  if (!t && window._openConvEmailOnly) {
+    var tmsgs = window._threadMsgs || [];
+    for (var ti = tmsgs.length - 1; ti >= 0; ti--) {
+      var tm = tmsgs[ti];
+      if (tm.role === 'user' && tm.channel === 'email' && tm.id) {
+        t = { id: tm.id, subject: tm.email_subject || '', from: tm.email_from || '' };
+        window._emailReplyTo = t;
+        break;
+      }
+    }
+  }
   // v1.86.0: THE TEXT COMPOSE IS OFF ON A THREAD WITH NO PHONE, and this is the one function that
   // knows whether an email reply is armed, so it is the only place the two states can be decided
   // together. Disabled rather than removed: six places read these two ids without a null guard.
