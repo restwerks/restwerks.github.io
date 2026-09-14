@@ -1,4 +1,27 @@
-<!-- dashboard.html (Dashboard v1.86.1, 2026-09-13_2115 CT) TWO THINGS FROM THE FIRST LOOK AT
+<!-- dashboard.html (Dashboard v1.87.0, 2026-09-13_2130 CT) A THREAD WITH ONE CHANNEL DEFAULTS TO
+IT (dashboard only, no portal change; portal 1.78.0 already returns everything this reads).
+
+Andy, looking at 1.86.1: why wouldn't this default to email. He is right and the answer is that the
+right click was built for the wrong thread. It exists to DISAMBIGUATE on a MIXED thread, where a
+client texts and emails and a tech has to say which message they are answering. An email only
+thread has nothing to disambiguate: there is one channel, one client message, and making somebody
+right click to reach the only thing that works is a step with no question behind it.
+
+SO THE REPLY ARMS ITSELF. On a thread with no phone, loadThread points the email reply at the
+NEWEST client email in the thread and the compose opens blue, reading Send Email, with the subject
+strip above it. Nothing new is sent and no new path is taken: this is exactly what emlStartReply
+does on a right click, called for you instead of by you.
+
+A MIXED THREAD IS UNCHANGED, deliberately. Text stays the default there because it is the live
+channel and the one Andi is on, and email stays behind the right click. The auto arm is gated on
+having NO phone, which is the same gate as the tint and the disabled compose, so all three agree
+about what kind of thread this is.
+
+AND THE CANCEL X IS GONE on a phoneless thread, because there is nothing to cancel back to. In
+1.86.1 pressing it would have dropped you into a disabled text box on a thread that can only do
+email, which is a control whose only outcome is a dead end.
+
+Prior v1.86.1, 2026-09-13_2115 CT TWO THINGS FROM THE FIRST LOOK AT
 1.86.0 ON A REAL EMAIL ONLY THREAD. (1) THE PLACEHOLDER WAS TOO LONG AND CLIPPED at the second
 line, so it read "No phone number on this thread. Right click a message to" and stopped mid
 sentence. The compose textarea is one row tall and does not grow for placeholder text. Shortened
@@ -1537,7 +1560,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.86.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.87.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -5980,6 +6003,19 @@ async function openRealConv(encodedPhone, name) {
       emlThreadEl.addEventListener('touchend', emlTouchCancel);
       emlThreadEl.addEventListener('touchmove', emlTouchCancel, { passive: true });
     }
+    // v1.87.0: ONE CHANNEL, SO IT IS THE DEFAULT. Point the email reply at the newest client
+    // email before the compose renders its mode. Newest rather than first, because a thread with
+    // several emails should answer the live one. If there is somehow no answerable email row the
+    // compose stays disabled, which is the 1.86.1 behaviour and still honest.
+    if (threadEmailOnly && !window._emailReplyTo) {
+      for (var ei = messages.length - 1; ei >= 0; ei--) {
+        var em = messages[ei];
+        if (em.role === 'user' && em.channel === 'email' && em.id) {
+          window._emailReplyTo = { id: em.id, subject: em.email_subject || '', from: em.email_from || '' };
+          break;
+        }
+      }
+    }
     emlApplyReplyMode();
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
@@ -6335,7 +6371,7 @@ function emlApplyReplyMode() {
       strip.innerHTML = '<span class="reply-target-label">Replying by email</span>' +
         '<div class="reply-target-main">' + esc(t.subject || '(no subject)') +
         (t.from ? ' &middot; ' + esc(t.from) : '') + '</div>' +
-        '<button class="reply-target-x" onclick="emlCancelReply()" title="Cancel">&times;</button>';
+        (window._openConvEmailOnly ? '' : '<button class="reply-target-x" onclick="emlCancelReply()" title="Cancel">&times;</button>');
     }
   } else {
     box.classList.remove('eml-mode');
