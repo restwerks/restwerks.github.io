@@ -1,4 +1,28 @@
-<!-- dashboard.html (Dashboard v1.88.0, 2026-09-13_2145 CT) THE RULE MOVES TO ONE PLACE, AND THE
+<!-- dashboard.html (Dashboard v1.89.0, 2026-10-05_2053 CT) SEEN, NEEDS NOTHING (pairs with portal
+v1.81.0; DEPLOY PORTAL FIRST). Andy, Oct 4: "I can't stand the conversation badge showing 2 and I
+have no way to clear it." The sticky dot had exactly one way out, a reply, and the two threads
+holding it needed none: a test thread on a mistyped address and an archived thread belonging to a
+real person. FOUR THINGS.
+
+(1) MARK AS READ, IN TWO PLACES THAT DO ONE THING. A Mark as read button in the open thread's header,
+shown ONLY while that thread is lighting the badge, and the same action on a right click (long press
+on the phone) of the client's last message, beside Reply by email on an email bubble. Both call
+markThreadRead, which posts the team wide stamp (portal 1.81.0) and clears the dot for everyone. The
+unread RULE is untouched: threadUnread simply treats a thread as read while its newest message is no
+newer than the stamp, so the next message from anyone lights it exactly as before.
+
+(2) ARCHIVED THREADS LEAVE THE BADGE. updateConvBadge counts only threads that are not archived.
+Archive still touches no statistic; the badge is a to do signal, not a statistic.
+
+(3) SETTINGS ARCHIVE AND DELETE BY THREAD KEY. The list sent phone_number, which is null on an email
+only thread, so it asked to archive a thread called null and failed. It sends the key now, and the
+row names the address instead of printing null.
+
+(4) THE TITLE BAR FOLLOWS THE THEME. The installed app's title bar took the manifest's navy and never
+changed. The theme-color meta now tracks the topbar colour and is repainted on every light and dark
+switch; the manifest carries the dark topbar colour for the moment before the page has loaded.
+
+Prior v1.88.0, 2026-09-13_2145 CT THE RULE MOVES TO ONE PLACE, AND THE
 SEND STOPS DISARMING A THREAD THAT HAS NOWHERE TO GO (dashboard only, no portal change).
 
 Found by Andy on the first email sent from 1.87.0: the reply went out, threaded correctly, and the
@@ -300,7 +324,7 @@ Prior v1.77.0, 2026-09-05_1930 CT NUDGES BECOME A SETTING (pairs with portal v1.
 <title>RestWerks</title>
 <!-- PWA Slice A: installable app (manifest + icons + standalone metas). SW registered at end of script. -->
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#0B1D33">
+<meta name="theme-color" content="#1e1e1c">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -845,6 +869,10 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .sms-system-line.green span { color:var(--green); }
 .handback-btn { background:none;color:var(--blue);border:1px solid var(--blue);border-radius:7px;padding:0.25rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer;white-space:nowrap; }
 .handback-btn:hover { background:var(--blue);color:white; }
+/* v1.89.0: quieter than Hand back on purpose. It says nothing to the client and changes no state on
+   the thread; it only tells the team this one needs nothing. */
+.markread-btn { background:none;color:var(--ink-soft);border:1px solid var(--border);border-radius:7px;padding:0.25rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;cursor:pointer;white-space:nowrap; }
+.markread-btn:hover { color:var(--ink);border-color:var(--ink-soft); }
 .conv-list-header { padding:0.85rem 1.25rem 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;border-bottom:1px solid var(--border); }
 .conv-search { flex:1;background:var(--canvas-warm);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;transition:border-color 0.2s; }
 .conv-search:focus { border-color:var(--brand); }
@@ -1581,7 +1609,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.88.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.89.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2640,6 +2668,9 @@ async function moveQuickMsg(id, dir) {
 //                         message (server gives last_viewed_any, shared team-wide).
 //   team (human) spoke last -> read.
 function threadUnread(t) {
+  // v1.89.0: "seen, needs nothing". A person stamped this thread and nothing newer has arrived, so it
+  // is read for everyone. The rules below are untouched; the next message puts it straight back.
+  if (t.marked_read_at && t.last_message_at && new Date(t.last_message_at) <= new Date(t.marked_read_at)) return false;
   var role = t.preview_role;
   if (role === 'user') {
     // Which team voice came most recently, a human or Andi?
@@ -3169,13 +3200,16 @@ function renderThreadAdmin() {
   if (!rows.length) { body.innerHTML = '<div style="color:var(--ink-soft);font-size:0.8rem;">No conversations.</div>'; return; }
   var html = '';
   rows.forEach(function(t) {
+    // v1.89.0: THE KEY, NOT THE PHONE. An email only thread has phone_number null, so this row
+    // printed null and its buttons asked the portal to archive a thread called null.
+    var key = t.thread_key || t.phone_number || '';
     var full = t.first_name ? (t.first_name + ' ' + (t.last_name || '')).trim() : '';
-    var name = full || t.phone_number;
+    var name = full || key;
     var sub = [];
-    if (full) sub.push(t.phone_number);
+    if (full) sub.push(key);
     if (t.household_name) sub.push(t.household_name);
     sub.push((t.message_count || 0) + ' message' + (Number(t.message_count) === 1 ? '' : 's'));
-    if (!t.attached) sub.push('unknown number');
+    if (!t.attached) sub.push(t.phone_number ? 'unknown number' : 'unknown address');
     if (t.archived) sub.push('archived');
     html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border);">'
       + '<div style="min-width:0;">'
@@ -3183,8 +3217,8 @@ function renderThreadAdmin() {
       + '<div style="font-size:0.72rem;color:var(--ink-soft);">' + esc(sub.join(' \u00b7 ')) + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:0.4rem;flex:none;">'
-      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(\'' + esc1(t.phone_number) + '\',' + (t.archived ? 'false' : 'true') + ')">' + (t.archived ? 'Restore' : 'Archive') + '</button>'
-      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;opacity:0.65;" onclick="convDelete(\'' + esc1(t.phone_number) + '\',\'' + esc1(name) + '\')">Delete</button>'
+      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="convArchive(\'' + esc1(key) + '\',' + (t.archived ? 'false' : 'true') + ')">' + (t.archived ? 'Restore' : 'Archive') + '</button>'
+      + '<button class="btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;opacity:0.65;" onclick="convDelete(\'' + esc1(key) + '\',\'' + esc1(name) + '\')">Delete</button>'
       + '</div>'
       + '</div>';
   });
@@ -5524,6 +5558,9 @@ function startSSE() {
     // v1.16.0: debounced — bursts collapse into one refresh.
     scheduleListRefresh();
   });
+  // v1.89.0: a teammate marked a thread read or archived one; the badge and list follow.
+  _sseSource.addEventListener('thread-state', function() { _sseBeat(); scheduleListRefresh(); });
+  _sseSource.addEventListener('thread-archived', function() { _sseBeat(); scheduleListRefresh(); });
   _sseSource.addEventListener('viewed', function(e) {
     _sseBeat();
     try {
@@ -5669,6 +5706,7 @@ async function loadRealConversations() {
     _allThreads = threads;
     renderConvList(convViewFilter(threads));
     updateConvBadge(threads);
+    syncMarkReadBtn();
   } catch (err) {
     body.innerHTML = '<div class="loading-row">Could not load conversations.</div>';
   }
@@ -5825,8 +5863,11 @@ function statusForOpenConv() {
   return isMutedSpecial(window._openConvMeta || {}) ? notAndiStatusHtml() : andiStatusHtml();
 }
 
+// v1.89.0: what lights the badge. An archived thread never does: archive says you are done with it.
+// One function so the header button, the right click menu and the badge cannot disagree.
+function convBadgeLit(t) { return !!t && !t.archived && threadUnread(t); }
 function updateConvBadge(threads) {
-  var unreadCount = threads.filter(threadUnread).length;
+  var unreadCount = threads.filter(convBadgeLit).length;
   setBadge('conversations', unreadCount);
   tkBadgeCounts();
   setBadge('followups', window._openFollowups || 0);
@@ -5971,6 +6012,7 @@ async function openRealConv(encodedPhone, name) {
           '<div style="display:flex;align-items:center;gap:0.85rem;">' +
             '<div class="detail-meta" id="thread-status">' + (threadEmailOnly ? '' : '<span class="status-dot" style="display:inline-block;margin-right:4px;"></span>Andi is handling this') + '</div>' +
             '<div id="attach-slot"></div>' +
+            '<div id="markread-slot"></div>' +
             '<div id="handback-slot">' + handbackBtnHtml + '</div>' +
           '</div>' +
         '</div>' +
@@ -5996,6 +6038,7 @@ async function openRealConv(encodedPhone, name) {
       });
     }
     loadEquipmentPanel(decodeURIComponent(encodedPhone));
+    syncMarkReadBtn();
     var statusEl = document.getElementById('thread-status');
     if (statusEl) {
       // v1.86.0: an email only thread gets NO status line. Andi is not covering it and no person
@@ -6284,48 +6327,100 @@ function emlMenuClose() {
   document.removeEventListener('click', emlMenuClose);
 }
 
-function emlMenuOpen(x, y, id) {
+// v1.89.0: the bubble menu carries up to two items. id is the email row to reply to (or null);
+// canMark offers Mark as read on the client's last message while the thread is lighting the badge.
+function emlMenuOpen(x, y, id, canMark) {
   emlMenuClose();
   var m = document.createElement('div');
   m.className = 'eml-menu';
+  var items = '';
   // A portal with no Graph credentials SAYS SO rather than offering a menu item that fails on
   // click. Silence would read as a broken right click, which is the worse of the two.
-  m.innerHTML = window._emailSendReady
+  if (id) items += window._emailSendReady
     ? '<div class="eml-menu-item" data-act="reply">Reply by email</div>'
     : '<div class="eml-menu-item eml-menu-dead">Email sending is not set up</div>';
+  if (canMark) items += '<div class="eml-menu-item" data-act="markread">Mark as read</div>';
+  m.innerHTML = items;
   m.style.left = Math.max(4, Math.min(x, window.innerWidth - 190)) + 'px';
   m.style.top = Math.max(4, Math.min(y, window.innerHeight - 70)) + 'px';
   document.body.appendChild(m);
   _emlMenu = m;
   m.addEventListener('click', function(ev) {
     var it = ev.target.closest ? ev.target.closest('.eml-menu-item') : null;
-    if (!it || it.getAttribute('data-act') !== 'reply') return;
-    emlStartReply(id);
-    emlMenuClose();
+    var act = it ? it.getAttribute('data-act') : null;
+    if (act === 'reply') { emlStartReply(id); emlMenuClose(); }
+    else if (act === 'markread') { emlMenuClose(); markThreadRead(); }
   });
   // Deferred by a tick, or the very click that opened this menu closes it again.
   setTimeout(function() { document.addEventListener('click', emlMenuClose); }, 0);
+}
+
+// v1.89.0: what a bubble offers. Reply by email on a client email; Mark as read on the client's LAST
+// message, only while this thread is lighting the badge. Neither: null, and the browser's own menu
+// stands untouched.
+function threadMenuFor(target) {
+  var b = target && target.closest ? target.closest('.sms-msg.sms-client') : null;
+  if (!b) return null;
+  var emlId = b.getAttribute('data-eml') || null;
+  var canMark = false;
+  var mi = parseInt(b.getAttribute('data-mi'), 10);
+  var msgs = window._threadMsgs || [];
+  var lastUser = -1;
+  for (var i = msgs.length - 1; i >= 0; i--) { if (msgs[i].role === 'user') { lastUser = i; break; } }
+  if (mi === lastUser && lastUser >= 0) canMark = currentThreadLit();
+  if (!emlId && !canMark) return null;
+  return { emlId: emlId, canMark: canMark };
 }
 
 function emlThreadContext(e) {
   // Flag mode owns every bubble in the thread while it is on, and two selection models fighting
   // over the same element is how a surface starts doing something nobody asked for.
   if (_flagMode) return;
-  var b = e.target.closest ? e.target.closest('[data-eml]') : null;
-  if (!b) return;   // not a client email: the browser's own menu stands, untouched
+  var t = threadMenuFor(e.target);
+  if (!t) return;
   e.preventDefault();
-  emlMenuOpen(e.clientX, e.clientY, b.getAttribute('data-eml'));
+  emlMenuOpen(e.clientX, e.clientY, t.emlId, t.canMark);
 }
 
 function emlTouchStart(e) {
   if (_flagMode) return;
-  var b = e.target.closest ? e.target.closest('[data-eml]') : null;
-  if (!b) return;
+  var t = threadMenuFor(e.target);
+  if (!t) return;
   var pt = e.touches && e.touches[0];
   var x = pt ? pt.clientX : 40, y = pt ? pt.clientY : 120;
-  var id = b.getAttribute('data-eml');
   emlTouchCancel();
-  _emlTouch = setTimeout(function() { _emlTouch = null; emlMenuOpen(x, y, id); }, 550);
+  _emlTouch = setTimeout(function() { _emlTouch = null; emlMenuOpen(x, y, t.emlId, t.canMark); }, 550);
+}
+
+// ─── v1.89.0: SEEN, NEEDS NOTHING ────────────────────────────────────────────
+function currentThreadRow() {
+  if (!window._currentPhone) return null;
+  var key = decodeURIComponent(window._currentPhone);
+  var rows = window._allThreads || _allThreads || [];
+  for (var i = 0; i < rows.length; i++) { if ((rows[i].thread_key || rows[i].phone_number) === key) return rows[i]; }
+  return null;
+}
+function currentThreadLit() { return convBadgeLit(currentThreadRow()); }
+function syncMarkReadBtn() {
+  var slot = document.getElementById('markread-slot');
+  if (!slot) return;
+  slot.innerHTML = currentThreadLit()
+    ? '<button class="markread-btn" onclick="markThreadRead()" title="Seen, needs nothing. Clears the dot for the whole team until the client writes again.">Mark as read</button>'
+    : '';
+}
+async function markThreadRead() {
+  if (!window._currentPhone) return;
+  var key = decodeURIComponent(window._currentPhone);
+  try {
+    var res = await rwFetch('/api/conversations/' + encodeURIComponent(key) + '/mark-read', { method: 'POST' });
+    if (!res.ok) { alert('Could not mark this thread as read.'); return; }
+    var out = await res.json();
+    var row = currentThreadRow();
+    if (row) row.marked_read_at = out.marked_read_at;
+    renderConvList(convViewFilter(_allThreads));
+    updateConvBadge(_allThreads);
+    syncMarkReadBtn();
+  } catch (err) { alert('Could not reach the server.'); }
 }
 function emlTouchCancel() { if (_emlTouch) { clearTimeout(_emlTouch); _emlTouch = null; } }
 
@@ -8785,12 +8880,22 @@ function setTime(btn) {
   _hsWindow = (t === '24h' || t === '7d') ? t : '30d';
   loadHomeStats();
 }
+// v1.89.0: the installed app's title bar is painted from theme-color, so it follows the topbar
+// colour in both themes instead of the navy the manifest shipped with in June.
+function syncThemeColor() {
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) return;
+  var c = getComputedStyle(document.body).getPropertyValue('--white').trim();
+  meta.setAttribute('content', c || (document.body.classList.contains('dark') ? '#1e1e1c' : '#ffffff'));
+}
 function toggleMode() {
   var dark = document.body.classList.toggle('dark');
   document.getElementById('mode-btn').textContent = dark ? '☀️' : '🌙';
   localStorage.setItem('rw-mode', dark ? 'dark' : 'light');
+  syncThemeColor();
 }
 if (localStorage.getItem('rw-mode')==='dark') { document.body.classList.add('dark'); document.getElementById('mode-btn').textContent='☀️'; }
+syncThemeColor();
 document.getElementById('login-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
 document.getElementById('su-pw').addEventListener('keydown', function(e) { if (e.key==='Enter') doSignup(); });
 document.getElementById('su-pw2').addEventListener('keydown', function(e) { if (e.key==='Enter') doSignup(); });
