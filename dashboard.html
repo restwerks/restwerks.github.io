@@ -1,4 +1,13 @@
-<!-- dashboard.html (Dashboard v1.89.0, 2026-10-05_2053 CT) SEEN, NEEDS NOTHING (pairs with portal
+<!-- dashboard.html (Dashboard v1.90.0, 2026-10-06_2215 CT) THE TICKET CARD GETS ITS TOTAL, AND AN EMPTY
+RESPONSE TIME SAYS WHY (pairs with portal v1.82.0; DEPLOY PORTAL FIRST). Two of Andy's parked items. ONE. Tickets
+by category now carries a line under its title, for example 2 tickets, last 30 days, read from the portal's new
+tickets_opened field, which counts every ticket opened in the page window, categorized or not, so the number is
+real and never the sum of the bars. The bars follow the same window now (the portal change). With no tickets in
+the window the card says so instead of No tickets categorized yet, which read as a fault. On a portal that does
+not send the field the line stays hidden. TWO. Avg response time showed a blank when there was nothing to
+average; it now carries the same kind of note as Avg resolution time, fills in as the team replies to tickets,
+shown only while the number is empty. Nothing else changes. DEPLOY SIGNAL: the sidebar reads Dashboard v1.90.0.
+Prior v1.89.0, 2026-10-05_2053 CT SEEN, NEEDS NOTHING (pairs with portal
 v1.81.0; DEPLOY PORTAL FIRST). Andy, Oct 4: "I can't stand the conversation badge showing 2 and I
 have no way to clear it." The sticky dot had exactly one way out, a reply, and the two threads
 holding it needed none: a test thread on a mistyped address and an archived thread belonging to a
@@ -1609,7 +1618,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.89.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.90.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1689,7 +1698,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div class="sec-head"><div class="sec-title">Tickets</div></div>
         <div class="analytics-grid">
           <div class="analytics-card">
-            <div class="analytics-title">Tickets by category</div>
+            <div class="analytics-title">Tickets by category<div class="hs-note" id="hs-cats-total" style="display:none;text-transform:none;letter-spacing:normal;font-weight:400;"></div></div>
             <div id="hs-cats"><div class="loading-row">Loading...</div></div>
           </div>
           <div class="analytics-card">
@@ -1697,7 +1706,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
             <div class="trend-row" onclick="nav('tickets',navItem('tickets'))" style="cursor:pointer;"><div class="trend-label">Open tickets</div><div class="trend-val r" id="hs-open">&#8195;</div></div>
             <div class="trend-row" onclick="nav('tickets',navItem('tickets'))" style="cursor:pointer;"><div class="trend-label">Scheduled</div><div class="trend-val" id="hs-sched">&#8195;</div></div>
             <div class="trend-row" onclick="nav('followups',navItem('followups'))" style="cursor:pointer;"><div class="trend-label">Follow ups pending</div><div class="trend-val b" id="hs-fu">&#8195;</div></div>
-            <div class="trend-row"><div class="trend-label">Avg response time</div><div class="trend-val" id="hs-tkresp">&#8195;</div></div>
+            <div class="trend-row"><div class="trend-label">Avg response time<div class="hs-note" id="hs-tkresp-note" style="display:none;">fills in as the team replies to tickets</div></div><div class="trend-val" id="hs-tkresp">&#8195;</div></div>
             <div class="trend-row"><div class="trend-label">Avg resolution time<div class="hs-note" id="hs-tkres-note">fills in as tickets resolve</div></div><div class="trend-val" id="hs-tkres">&#8195;</div></div>
           </div>
         </div>
@@ -8846,6 +8855,9 @@ async function loadHomeStats() {
     // because this average only counts tickets resolved since the clock existed and an owner
     // reading one number off two tickets should be able to see that it is two tickets.
     hsMinutes('hs-tkresp', s.ticket_response_minutes);
+    // v1.90.0: an empty response time says why, the same way the resolution row does.
+    var respNote = document.getElementById('hs-tkresp-note');
+    if (respNote) respNote.style.display = (s.ticket_response_minutes === null || s.ticket_response_minutes === undefined) ? '' : 'none';
     hsMinutes('hs-tkres', s.ticket_resolution_minutes);
     var note = document.getElementById('hs-tkres-note');
     if (note) {
@@ -8864,7 +8876,18 @@ async function loadHomeStats() {
     hsNum('hs-fu', s.follow_ups);
 
     hsBars('hs-issues', s.andi_issues, 'Nothing yet. This fills as Andi closes conversations.');
-    hsBars('hs-cats', s.categories, 'No tickets categorized yet.');
+    // v1.90.0: the card's total is every ticket opened in the window (portal 1.82.0), never the sum
+    // of the bars. An older portal sends no tickets_opened, and then the line stays hidden.
+    var catTotal = document.getElementById('hs-cats-total');
+    var tOpened = (typeof s.tickets_opened === 'number') ? s.tickets_opened : null;
+    if (catTotal) {
+      if (tOpened === null) { catTotal.style.display = 'none'; }
+      else {
+        catTotal.textContent = tOpened + ' ticket' + (tOpened === 1 ? '' : 's') + ', ' + hsWindowLabel(s.window || _hsWindow).toLowerCase();
+        catTotal.style.display = '';
+      }
+    }
+    hsBars('hs-cats', s.categories, tOpened === 0 ? 'No tickets in this window.' : 'No tickets categorized yet.');
   } catch (e) {}
 }
 
