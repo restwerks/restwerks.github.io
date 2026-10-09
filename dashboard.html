@@ -1,4 +1,13 @@
-<!-- dashboard.html (Dashboard v1.90.0, 2026-10-06_2215 CT) THE TICKET CARD GETS ITS TOTAL, AND AN EMPTY
+<!-- dashboard.html (Dashboard v1.91.0, 2026-10-08_2300 CT) ON CALL, SHIP 1: THE SETUP (pairs with portal
+v1.83.0; DEPLOY PORTAL FIRST). Nothing in this build texts, pages or posts to anyone. NEW Settings tab, On
+call, visible to every teammate: the switch and the on call hours per day (owner), who is on call right now,
+a twelve week schedule with one tech per week Monday to Sunday, and single day swaps (owner or service
+manager). Only an active teammate with a cell phone on file can be picked, and the tab names anyone who
+still needs a cell. The tech line number shows once it is assigned. The teammate editor gains a Slack member
+ID (so the page can tag the right person later) and a Service manager box (lets a member edit the schedule);
+the Team list shows the service manager beside the role. On portal 1.82.0 the tab says it could not load
+and nothing else changes. DEPLOY SIGNAL: the sidebar reads Dashboard v1.91.0.
+Prior v1.90.0, 2026-10-06_2215 CT THE TICKET CARD GETS ITS TOTAL, AND AN EMPTY
 RESPONSE TIME SAYS WHY (pairs with portal v1.82.0; DEPLOY PORTAL FIRST). Two of Andy's parked items. ONE. Tickets
 by category now carries a line under its title, for example 2 tickets, last 30 days, read from the portal's new
 tickets_opened field, which counts every ticket opened in the page window, categorized or not, so the number is
@@ -1046,6 +1055,35 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .vocab-add { margin-top:0.85rem;display:flex;gap:0.5rem;align-items:center; }
 .set-tabs { display:flex;gap:0.15rem;border-bottom:1px solid var(--border);flex-wrap:wrap;padding:0.85rem 1.5rem 0; }
 .set-tabpanel { display:none; }
+/* v1.91.0: the On call tab */
+.oc-now { font-size:0.86rem;color:var(--ink);background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem;line-height:1.45; }
+.oc-now b { font-weight:700; }
+.oc-switch { display:inline-flex;align-items:center;gap:0.55rem;cursor:pointer;background:none;border:1px solid var(--border);border-radius:999px;padding:0.3rem 0.8rem 0.3rem 0.35rem;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink); }
+.oc-switch[disabled] { cursor:default;opacity:0.75; }
+.oc-knob { width:30px;height:18px;border-radius:999px;background:var(--border);position:relative;transition:background 0.15s;flex:none; }
+.oc-knob::after { content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:white;transition:left 0.15s; }
+.oc-switch.on .oc-knob { background:var(--green); }
+.oc-switch.on .oc-knob::after { left:14px; }
+.oc-days { display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.8rem; }
+.oc-day { display:grid;grid-template-columns:7.5rem 1fr 1fr;gap:0.6rem;align-items:center; }
+.oc-day label { display:flex;align-items:center;gap:0.45rem;font-size:0.82rem;color:var(--ink);cursor:pointer; }
+.oc-day .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem; }
+.oc-day.off .fld-input { opacity:0.4; }
+.oc-ro { font-size:0.82rem;color:var(--ink);padding:0.15rem 0; }
+.oc-week { display:grid;grid-template-columns:9.5rem 1fr;gap:0.6rem;align-items:center;padding:0.35rem 0;border-bottom:1px solid var(--border); }
+.oc-week:last-child { border-bottom:none; }
+.oc-wlabel { font-size:0.82rem;color:var(--ink); }
+.oc-wlabel small { display:block;font-size:0.68rem;color:var(--ink-soft); }
+.oc-week .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem; }
+.oc-warn { font-size:0.72rem;color:#cc7a00;margin-top:0.2rem; }
+.oc-add { display:grid;grid-template-columns:10rem 1fr auto;gap:0.5rem;align-items:center;margin-top:0.6rem; }
+.oc-add .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem; }
+.oc-err { font-size:0.76rem;color:#cc4400;min-height:1em;margin-top:0.35rem; }
+@media (max-width: 640px) {
+  .oc-day { grid-template-columns:6rem 1fr 1fr; }
+  .oc-week { grid-template-columns:1fr; gap:0.3rem; }
+  .oc-add { grid-template-columns:1fr; }
+}
 .set-tabpanel.active { display:block; }
 .set-tabpanel .set-section:first-child { padding-top:1.4rem; }
 .hh-toolbar { display:flex;align-items:center;gap:0.75rem;padding:0.8rem 1rem;border-bottom:1px solid var(--border); }
@@ -1618,7 +1656,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.90.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.91.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2244,6 +2282,8 @@ select.fld-input { appearance:auto;cursor:pointer; }
       </div>
       <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="me-cell" placeholder="555-123-4567" /></div>
       <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
+      <div class="fld"><label style="display:flex;align-items:center;gap:0.5rem;font-size:0.84rem;color:var(--ink);cursor:pointer;"><input type="checkbox" id="me-svcmgr" /> Service manager</label><div class="login-pwhint" style="color:var(--ink-soft);">Can change the on call schedule. Owners always can.</div></div>
+      <div class="fld"><div class="fld-label">Slack member ID</div><input class="fld-input" type="text" id="me-slack" placeholder="U01AB2CD3EF" autocomplete="off" /><div class="login-pwhint" style="color:var(--ink-soft);">So an on call page can tag them in Slack. In Slack: open their profile, the three dots, Copy member ID.</div></div>
       <div class="fld"><div class="fld-label">Bubble color</div>
         <div id="me-palette" class="me-palette" style="margin-bottom:0.6rem;"></div>
         <div class="color-pick"><input type="color" id="me-color-pick" oninput="meSyncCustom('pick')" /><input class="fld-input" type="text" id="me-color-hex" placeholder="#2D7DD2" oninput="meSyncCustom('hex')" /></div>
@@ -3028,6 +3068,7 @@ function renderSettings(c) {
   html += '<button class="hd-tab" data-settab="branding" onclick="setTab(\'branding\')">Branding</button>';
   html += '<button class="hd-tab" data-settab="andi" onclick="setTab(\'andi\')">Andi</button>';
   html += '<button class="hd-tab" data-settab="tickets" onclick="setTab(\'tickets\')">Tickets</button>';
+  html += '<button class="hd-tab" data-settab="oncall" onclick="setTab(\'oncall\');loadOnCall()">On call</button>';
   if (isOwner) html += '<button class="hd-tab" data-settab="conversations" onclick="setTab(\'conversations\');loadThreadAdmin()">Conversations</button>';
   html += '</div>';
 
@@ -3158,6 +3199,10 @@ function renderSettings(c) {
   html += '</div>';
   html += '</div>';
 
+  // ── ON CALL (v1.91.0) ──────────────────────────────────────────────────────
+  // Every teammate can see who is on call. What they may change comes back from the portal.
+  html += '<div class="set-tabpanel" id="settab-oncall"><div id="oncall-body"><div class="set-section"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div></div></div>';
+
   // ── CONVERSATIONS (v1.78.0) ─────────────────────────────────────────────────
   // Named for what it governs, like every other tab in this strip. Settings > Tickets already
   // shares a name with the Tickets panel without confusing anybody. A Data or Privacy tab is
@@ -3232,6 +3277,195 @@ function renderThreadAdmin() {
       + '</div>';
   });
   body.innerHTML = html;
+}
+
+// ── ON CALL (v1.91.0) ────────────────────────────────────────────────────────
+// Setup only. The portal decides who may edit what and who is on call right now; this renders it and
+// re-reads after every write, so the tab always shows what the server stored.
+var OC_DAYS = [['mon','Monday'],['tue','Tuesday'],['wed','Wednesday'],['thu','Thursday'],['fri','Friday'],['sat','Saturday'],['sun','Sunday']];
+var _oc = null;
+
+async function loadOnCall() {
+  var body = document.getElementById('oncall-body');
+  if (!body) return;
+  try {
+    var res = await rwFetch('/api/oncall');
+    if (!res.ok) { body.innerHTML = '<div class="set-section"><div class="set-readonly">Could not load on call.</div></div>'; return; }
+    _oc = await res.json();
+    renderOnCall();
+  } catch (e) { body.innerHTML = '<div class="set-section"><div class="set-readonly">Connection error.</div></div>'; }
+}
+
+function ocName(id) {
+  var u = ((_oc && _oc.team) || []).filter(function(x){ return x.id === id; })[0];
+  return u ? ((u.first_name || '') + ' ' + (u.last_name || '')).trim() : 'Someone';
+}
+function ocDayLabel(ymd, withYear) {
+  var d = new Date(ymd + 'T12:00:00Z');
+  var opts = { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' };
+  if (withYear) opts.year = 'numeric';
+  return d.toLocaleDateString('en-US', opts);
+}
+function ocAddDays(ymd, n) { var d = new Date(ymd + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function ocFmt12(hhmm) {
+  if (!hhmm) return '';
+  var p = hhmm.split(':'), h = Number(p[0]), m = p[1];
+  var ap = h >= 12 ? 'PM' : 'AM'; h = h % 12; if (h === 0) h = 12;
+  return h + ':' + m + ' ' + ap;
+}
+function ocPicker(selected, onchange, disabled) {
+  var eligible = (_oc.team || []).filter(function(u){ return u.eligible; });
+  var h = '<select class="fld-input" onchange="' + onchange + '"' + (disabled ? ' disabled' : '') + '>';
+  h += '<option value="">Nobody</option>';
+  var found = false;
+  eligible.forEach(function(u){
+    var on = u.id === selected; if (on) found = true;
+    h += '<option value="' + u.id + '"' + (on ? ' selected' : '') + '>' + esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim()) + '</option>';
+  });
+  if (selected && !found) h += '<option value="' + selected + '" selected disabled>' + esc(ocName(selected)) + ' (not eligible)</option>';
+  return h + '</select>';
+}
+
+function renderOnCall() {
+  var body = document.getElementById('oncall-body');
+  if (!body || !_oc) return;
+  var c = _oc, edS = c.can_edit_settings, edR = c.can_edit_roster;
+  var html = '';
+
+  // Right now
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Right now</div>';
+  var now = c.now || {};
+  var line;
+  if (!c.enabled) line = 'On call is <b>off</b>. Andi hands every after hours issue to the team the way he does today.';
+  else if (!now.in_hours) line = 'Outside on call hours. Nobody would be paged right now.';
+  else if (now.user_id) line = '<b>' + esc(ocName(now.user_id)) + '</b> is on call' + (now.source === 'override' ? ' (swapped in for today).' : '.');
+  else if (now.assigned_user_id) line = 'In on call hours, but <b>' + esc(ocName(now.assigned_user_id)) + '</b> is scheduled and is ' + (now.unavailable === 'no_cell' ? 'missing a cell phone' : 'no longer on the team') + ', so nobody would be paged.';
+  else line = 'In on call hours, but nobody is scheduled.';
+  html += '<div class="oc-now">' + line + '</div>';
+  html += '<div class="set-section-note" style="margin:0.6rem 0 0;">Setup only for now. Nothing pages anyone yet; Andi starts paging the on call tech in a later update. Slack still gets every handoff once that ships, at any hour.</div>';
+  html += '</div>';
+
+  // Switch and hours
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">On call hours</div>';
+  html += '<div class="set-section-note">The hours a person can be paged, in your time zone (' + esc(c.timezone || '') + '). Andi answers clients at every hour either way. Outside these hours nobody is paged.</div>';
+  html += '<div style="margin-bottom:0.9rem;"><button class="oc-switch' + (c.enabled ? ' on' : '') + '"' + (edS ? ' onclick="ocToggle()"' : ' disabled') + '><span class="oc-knob"></span>' + (c.enabled ? 'On call is on' : 'On call is off') + '</button></div>';
+  var hours = c.hours || {};
+  html += '<div class="oc-days">';
+  OC_DAYS.forEach(function(d){
+    var h = hours[d[0]];
+    if (edS) {
+      html += '<div class="oc-day' + (h ? '' : ' off') + '" id="oc-row-' + d[0] + '">'
+        + '<label><input type="checkbox" id="oc-on-' + d[0] + '"' + (h ? ' checked' : '') + ' onchange="ocDayToggle(\'' + d[0] + '\')" />' + d[1] + '</label>'
+        + '<input class="fld-input" type="time" id="oc-s-' + d[0] + '" value="' + (h ? h.start : '16:30') + '" />'
+        + '<input class="fld-input" type="time" id="oc-e-' + d[0] + '" value="' + (h ? h.end : '22:00') + '" /></div>';
+    } else {
+      html += '<div class="oc-day"><div class="oc-ro">' + d[1] + '</div><div class="oc-ro" style="grid-column:span 2;">' + (h ? ocFmt12(h.start) + ' to ' + ocFmt12(h.end) : '<span style="color:var(--ink-soft);">Not on call</span>') + '</div></div>';
+    }
+  });
+  html += '</div>';
+  if (edS) html += '<div class="set-saverow"><button class="btn-primary" onclick="ocSaveHours()">Save hours</button><span class="set-saved" id="oc-saved-hours">Saved</span></div>';
+  html += '<div class="oc-err" id="oc-err-hours"></div>';
+  html += '<div class="set-section-note" style="margin:0.4rem 0 0;">After hours: nobody is paged. What happens after on call hours end is still being decided.</div>';
+  html += '</div>';
+
+  // Schedule
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Schedule</div>';
+  html += '<div class="set-section-note">One tech per week, Monday through Sunday. ' + (edR ? 'Pick who covers each week; it saves as you pick.' : 'Only an owner or a service manager can change it.') + '</div>';
+  var missing = (c.team || []).filter(function(u){ return u.active && !u.has_cell; });
+  if (missing.length && edS) html += '<div class="oc-warn" style="margin:-0.4rem 0 0.7rem;">No cell phone on file, so they cannot be on call yet: ' + esc(missing.map(function(u){ return ((u.first_name || '') + ' ' + (u.last_name || '')).trim(); }).join(', ')) + '. Add one in Team.</div>';
+  (c.schedule || []).forEach(function(w, i){
+    var end = ocAddDays(w.week_start, 6);
+    html += '<div class="oc-week"><div class="oc-wlabel">' + (i === 0 ? 'This week' : (i === 1 ? 'Next week' : 'Week of ' + ocDayLabel(w.week_start).replace(/^\w+, /, ''))) + '<small>' + ocDayLabel(w.week_start) + ' to ' + ocDayLabel(end) + '</small></div>';
+    html += '<div>' + ocPicker(w.user_id, 'ocSetWeek(\'' + w.week_start + '\', this.value)', !edR);
+    var wu = (c.team || []).filter(function(u){ return u.id === w.user_id; })[0];
+    if (w.user_id && wu && !wu.eligible) html += '<div class="oc-warn">' + esc(ocName(w.user_id)) + (wu.active ? ' has no cell phone on file.' : ' is no longer on the team.') + ' Pick someone else.</div>';
+    html += '</div></div>';
+  });
+  html += '<div class="oc-err" id="oc-err-week"></div>';
+  html += '</div>';
+
+  // Swaps
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Swaps</div>';
+  html += '<div class="set-section-note">A single day covered by someone other than that week\'s tech. A swap wins over the week for that day only.</div>';
+  var ovs = c.overrides || [];
+  if (!ovs.length) html += '<div style="color:var(--ink-soft);font-size:0.8rem;margin-bottom:0.3rem;">No swaps coming up.</div>';
+  ovs.forEach(function(o){
+    html += '<div class="oc-week"><div class="oc-wlabel">' + ocDayLabel(o.day) + (o.day === c.today ? '<small>Today</small>' : '') + '</div>';
+    html += '<div style="display:flex;gap:0.5rem;align-items:center;">' + ocPicker(o.user_id, 'ocSetOverride(\'' + o.day + '\', this.value)', !edR);
+    if (edR) html += '<button class="btn-ghost" title="Remove this swap" onclick="ocSetOverride(\'' + o.day + '\', \'\')">&#10005;</button>';
+    html += '</div></div>';
+  });
+  if (edR) {
+    html += '<div class="oc-add"><input class="fld-input" type="date" id="oc-ov-day" min="' + esc(c.today || '') + '" />' + ocPicker(null, '', false).replace('<select ', '<select id="oc-ov-user" ') + '<button class="btn-primary" onclick="ocAddOverride()">Add swap</button></div>';
+  }
+  html += '<div class="oc-err" id="oc-err-ov"></div>';
+  html += '</div>';
+
+  // Tech line
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Tech line</div>';
+  html += '<div class="set-section-note">The number your team texts to reach Andi from the field, and the number on call pages come from. It goes live in a later update.</div>';
+  html += '<div class="oc-ro">' + (c.tech_line_number ? esc(fmtPhone(c.tech_line_number)) : '<span style="color:var(--ink-soft);">Not assigned yet</span>') + '</div>';
+  html += '</div>';
+
+  body.innerHTML = html;
+}
+
+function ocDayToggle(k) {
+  var row = document.getElementById('oc-row-' + k);
+  if (row) row.classList.toggle('off', !document.getElementById('oc-on-' + k).checked);
+}
+function ocHoursFromForm() {
+  var out = {};
+  OC_DAYS.forEach(function(d){
+    var on = document.getElementById('oc-on-' + d[0]);
+    out[d[0]] = on && on.checked ? { start: document.getElementById('oc-s-' + d[0]).value, end: document.getElementById('oc-e-' + d[0]).value } : null;
+  });
+  return out;
+}
+async function ocPutSettings(payload, errId, savedId) {
+  var err = document.getElementById(errId); if (err) err.textContent = '';
+  try {
+    var res = await rwFetch('/api/oncall/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    var data = await res.json();
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not save.'; return false; }
+    await loadOnCall();
+    if (savedId) flashSaved(savedId);
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
+}
+function ocSaveHours() { return ocPutSettings({ hours: ocHoursFromForm() }, 'oc-err-hours', 'oc-saved-hours'); }
+async function ocToggle() {
+  if (!_oc) return;
+  // Switching on saves whatever hours are on the form in the same call, so a shop that typed hours
+  // and hit the switch without Save does not get told it has none.
+  var payload = { enabled: !_oc.enabled };
+  if (!_oc.enabled) payload.hours = ocHoursFromForm();
+  return ocPutSettings(payload, 'oc-err-hours', null);
+}
+async function ocWrite(url, userId, errId) {
+  var err = document.getElementById(errId); if (err) err.textContent = '';
+  try {
+    var res = await rwFetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId ? Number(userId) : null }) });
+    var data = await res.json();
+    await loadOnCall();
+    if (!res.ok) { var e2 = document.getElementById(errId); if (e2) e2.textContent = data.error || 'Could not save.'; return false; }
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
+}
+function ocSetWeek(weekStart, userId) { return ocWrite('/api/oncall/weeks/' + weekStart, userId, 'oc-err-week'); }
+function ocSetOverride(day, userId) { return ocWrite('/api/oncall/overrides/' + day, userId, 'oc-err-ov'); }
+function ocAddOverride() {
+  var day = (document.getElementById('oc-ov-day') || {}).value;
+  var uid = (document.getElementById('oc-ov-user') || {}).value;
+  var err = document.getElementById('oc-err-ov');
+  if (!day) { if (err) err.textContent = 'Pick a date.'; return; }
+  if (!uid) { if (err) err.textContent = 'Pick who covers it.'; return; }
+  return ocSetOverride(day, uid);
 }
 
 // v1.43.0: settings tab switching (scoped to the settings panel so it never collides with the
@@ -3889,7 +4123,7 @@ function renderTeam(users) {
 
   function rowHtml(u) {
     var name = esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim());
-    var roleLabel = u.role === 'owner' ? 'Owner' : 'Member';
+    var roleLabel = (u.role === 'owner' ? 'Owner' : 'Member') + (u.is_service_manager ? ' \u00b7 Service mgr' : '');
     var statusPill = u.pending
       ? '<span class="team-pill pending">Pending</span>'
       : (u.active ? '' : '<span class="team-pill off">Removed</span>');
@@ -4031,6 +4265,8 @@ function openMemberEdit(id) {
   document.getElementById('me-email').value = u.email || '';
   document.getElementById('me-cell').value = fmtPhone(u.cell_phone || '');
   document.getElementById('me-role').value = u.role === 'owner' ? 'owner' : 'member';
+  document.getElementById('me-svcmgr').checked = u.is_service_manager === true;
+  document.getElementById('me-slack').value = u.slack_member_id || '';
   document.getElementById('me-email-note').style.display = 'none';
   document.getElementById('me-err').textContent = '';
   renderMePalette();
@@ -4148,7 +4384,8 @@ async function submitMemberEdit() {
   try {
     var res = await rwFetch('/api/users/' + _meUser.id, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor, cell_phone: cell })
+      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor, cell_phone: cell,
+        slack_member_id: hhVal('me-slack'), is_service_manager: document.getElementById('me-svcmgr').checked })
     });
     var data = await res.json();
     if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save'; return; }
