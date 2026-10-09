@@ -1,4 +1,13 @@
-<!-- dashboard.html (Dashboard v1.91.0, 2026-10-08_2300 CT) ON CALL, SHIP 1: THE SETUP (pairs with portal
+<!-- dashboard.html (Dashboard v1.92.0, 2026-10-09_0100 CT) ON CALL, SHIP 3: THE PAGE (pairs with portal
+v1.84.0; DEPLOY PORTAL FIRST). The On call tab stops saying setup only. NEW: a Slack section where the owner
+pastes the shop's Slack app bot token and the on call channel ID and presses Connect; the portal checks both
+with Slack and posts a hello before saving, and the tab shows Connected to the channel (the token is never
+shown again) with Disconnect. Everyone else sees whether Slack is connected. NEW: Recent pages, the last 15
+handoffs: when, what, who was paged, and whether the page went out, was acknowledged and reached the client,
+or got the no response nudge. The tech line note says the line is live and how a page is answered. On portal
+1.83.0 the Slack section says it needs the portal update and nothing else changes. DEPLOY SIGNAL: the
+sidebar reads Dashboard v1.92.0.
+Prior v1.91.0, 2026-10-08_2300 CT ON CALL, SHIP 1: THE SETUP (pairs with portal
 v1.83.0; DEPLOY PORTAL FIRST). Nothing in this build texts, pages or posts to anyone. NEW Settings tab, On
 call, visible to every teammate: the switch and the on call hours per day (owner), who is on call right now,
 a twelve week schedule with one tech per week Monday to Sunday, and single day swaps (owner or service
@@ -1079,6 +1088,16 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .oc-add { display:grid;grid-template-columns:10rem 1fr auto;gap:0.5rem;align-items:center;margin-top:0.6rem; }
 .oc-add .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem; }
 .oc-err { font-size:0.76rem;color:#cc4400;min-height:1em;margin-top:0.35rem; }
+/* v1.92.0: Slack and the page log */
+.oc-slack { display:grid;grid-template-columns:1fr 12rem auto;gap:0.5rem;align-items:center; }
+.oc-slack .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem; }
+.oc-page { display:grid;grid-template-columns:7.5rem 1fr auto;gap:0.6rem;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--ink); }
+.oc-page:last-child { border-bottom:none; }
+.oc-page small { display:block;font-size:0.68rem;color:var(--ink-soft); }
+.oc-tag { display:inline-block;font-size:0.68rem;padding:0.08rem 0.45rem;border-radius:999px;border:1px solid var(--border);color:var(--ink-soft);margin-left:0.25rem;white-space:nowrap; }
+.oc-tag.good { color:var(--green);border-color:var(--green); }
+.oc-tag.warn { color:#cc7a00;border-color:#cc7a00; }
+@media (max-width: 640px) { .oc-slack { grid-template-columns:1fr; } .oc-page { grid-template-columns:1fr; } }
 @media (max-width: 640px) {
   .oc-day { grid-template-columns:6rem 1fr 1fr; }
   .oc-week { grid-template-columns:1fr; gap:0.3rem; }
@@ -1656,7 +1675,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.91.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.92.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3343,7 +3362,7 @@ function renderOnCall() {
   else if (now.assigned_user_id) line = 'In on call hours, but <b>' + esc(ocName(now.assigned_user_id)) + '</b> is scheduled and is ' + (now.unavailable === 'no_cell' ? 'missing a cell phone' : 'no longer on the team') + ', so nobody would be paged.';
   else line = 'In on call hours, but nobody is scheduled.';
   html += '<div class="oc-now">' + line + '</div>';
-  html += '<div class="set-section-note" style="margin:0.6rem 0 0;">Setup only for now. Nothing pages anyone yet; Andi starts paging the on call tech in a later update. Slack still gets every handoff once that ships, at any hour.</div>';
+  html += '<div class="set-section-note" style="margin:0.6rem 0 0;">When Andi hands a client to the team during on call hours, the on call tech gets a text from the tech line and a tag in Slack, and the client is told he was notified only after one of them went out. Slack gets every handoff at any hour.</div>';
   html += '</div>';
 
   // Switch and hours
@@ -3405,10 +3424,50 @@ function renderOnCall() {
   html += '<div class="oc-err" id="oc-err-ov"></div>';
   html += '</div>';
 
+  // v1.92.0: Slack
+  html += '<div class="set-section">';
+  html += '<div class="set-section-title">Slack</div>';
+  var sl = c.slack;
+  if (!sl) {
+    html += '<div class="set-section-note">Slack needs the latest portal update.</div>';
+  } else if (sl.connected) {
+    html += '<div class="oc-now">Connected' + (sl.team ? ' to <b>' + esc(sl.team) + '</b>' : '') + ', posting to channel <b>' + esc(sl.channel_id || '') + '</b>. Every handoff posts there at any hour, and the on call tech is tagged during on call hours.</div>';
+    if (edS) html += '<div class="set-saverow" style="margin-top:0.6rem;"><button class="btn-ghost" onclick="ocSlackDisconnect()">Disconnect</button></div>';
+  } else if (edS) {
+    html += '<div class="set-section-note">Paste your Slack app\'s Bot User OAuth Token (it starts with xoxb) and the ID of the channel it should post in (channel details, at the bottom, starts with C). Invite the app to that channel first. RestWerks checks both with Slack and posts a hello before saving.</div>';
+    html += '<div class="oc-slack"><input class="fld-input" type="password" id="oc-slack-token" placeholder="xoxb..." autocomplete="off" /><input class="fld-input" type="text" id="oc-slack-channel" placeholder="Channel ID" autocomplete="off" /><button class="btn-primary" id="oc-slack-go" onclick="ocSlackConnect()">Connect</button></div>';
+  } else {
+    html += '<div class="set-section-note">Slack is not connected. An owner connects it here.</div>';
+  }
+  html += '<div class="oc-err" id="oc-err-slack"></div>';
+  html += '</div>';
+
+  // v1.92.0: Recent pages
+  if (Array.isArray(c.pages)) {
+    html += '<div class="set-section">';
+    html += '<div class="set-section-title">Recent pages</div>';
+    if (!c.pages.length) html += '<div style="color:var(--ink-soft);font-size:0.8rem;">No handoffs yet.</div>';
+    c.pages.forEach(function(pg){
+      var what = pg.ticket_id ? 'Ticket ' + pg.ticket_id : (pg.kind === 'person' ? 'Asked for a person' : 'Follow up');
+      var from = pg.source === 'web_form' ? 'Service page' : 'Text';
+      var when = '';
+      try { when = new Date(pg.paged_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch (e) { when = ''; }
+      var tags = '';
+      if (pg.paged_user_id) tags += '<span class="oc-tag' + (pg.notified ? ' good' : ' warn') + '">' + (pg.notified ? 'Paged ' : 'Page failed ') + esc(ocName(pg.paged_user_id)) + '</span>';
+      else tags += '<span class="oc-tag">Slack only</span>';
+      if (pg.with_client) tags += '<span class="oc-tag good">With the client</span>';
+      else if (pg.acked) tags += '<span class="oc-tag good">Acknowledged</span>';
+      else if (pg.no_response) tags += '<span class="oc-tag warn">No response</span>';
+      if (pg.slack_ok === false) tags += '<span class="oc-tag warn">Slack failed</span>';
+      html += '<div class="oc-page"><div>' + esc(when) + '<small>' + esc(from) + '</small></div><div>' + esc(what) + '</div><div>' + tags + '</div></div>';
+    });
+    html += '</div>';
+  }
+
   // Tech line
   html += '<div class="set-section">';
   html += '<div class="set-section-title">Tech line</div>';
-  html += '<div class="set-section-note">The number your team texts to reach Andi from the field, and the number on call pages come from. It goes live in a later update.</div>';
+  html += '<div class="set-section-note">The number your team texts to reach Andi from the field, and the number pages come from. After a page, text "got it" to take it, and text what you did on the call; it goes on the house record and Slack, never to the client.</div>';
   html += '<div class="oc-ro">' + (c.tech_line_number ? esc(fmtPhone(c.tech_line_number)) : '<span style="color:var(--ink-soft);">Not assigned yet</span>') + '</div>';
   html += '</div>';
 
@@ -3454,6 +3513,28 @@ async function ocWrite(url, userId, errId) {
     var data = await res.json();
     await loadOnCall();
     if (!res.ok) { var e2 = document.getElementById(errId); if (e2) e2.textContent = data.error || 'Could not save.'; return false; }
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
+}
+async function ocSlackConnect() {
+  var err = document.getElementById('oc-err-slack'); if (err) err.textContent = '';
+  var tok = (document.getElementById('oc-slack-token') || {}).value || '';
+  var ch = (document.getElementById('oc-slack-channel') || {}).value || '';
+  var btn = document.getElementById('oc-slack-go'); if (btn) { btn.disabled = true; btn.textContent = 'Checking...'; }
+  try {
+    var res = await rwFetch('/api/oncall/slack', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tok.trim(), channel_id: ch.trim() }) });
+    var data = await res.json();
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not connect.'; if (btn) { btn.disabled = false; btn.textContent = 'Connect'; } return false; }
+    await loadOnCall();
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; if (btn) { btn.disabled = false; btn.textContent = 'Connect'; } return false; }
+}
+async function ocSlackDisconnect() {
+  var err = document.getElementById('oc-err-slack'); if (err) err.textContent = '';
+  try {
+    var res = await rwFetch('/api/oncall/slack', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ disconnect: true }) });
+    if (!res.ok) { var d = await res.json(); if (err) err.textContent = d.error || 'Could not disconnect.'; return false; }
+    await loadOnCall();
     return true;
   } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
 }
