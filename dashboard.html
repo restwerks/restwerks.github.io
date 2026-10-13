@@ -1,4 +1,13 @@
-<!-- dashboard.html (Dashboard v1.92.0, 2026-10-09_0100 CT) ON CALL, SHIP 3: THE PAGE (pairs with portal
+<!-- dashboard.html (Dashboard v1.93.0, 2026-10-12_2310 CT) ON CALL, THE RULES (pairs with portal v1.85.0;
+DEPLOY PORTAL FIRST). The On call tab gains AFTER HOURS (Nobody is paged, or Only critical is paged until a time the
+next morning) and a BACKUP picker (one manager, paged when a page has no got it in 30 minutes or when nobody is on the
+schedule); Right now says who after hours or the backup would page. SLACK, THREE PLACES: the catch all, an On call
+channel for real pages only (saved after the portal posts a hello there), and on each household a Slack channel picked
+from the channels the app can see (a likely match listed first, never picked for you). Recent pages shows why a page
+went out and a backup page. A PAGE LINK (?ticket=N or ?page=N) opens that ticket or thread once the app is signed in,
+then clears itself. On portal 1.84.0 the new controls answer with the portal's error and nothing else changes. DEPLOY
+SIGNAL: the sidebar reads Dashboard v1.93.0.
+Prior v1.92.0, 2026-10-09_0100 CT ON CALL, SHIP 3: THE PAGE (pairs with portal
 v1.84.0; DEPLOY PORTAL FIRST). The On call tab stops saying setup only. NEW: a Slack section where the owner
 pastes the shop's Slack app bot token and the on call channel ID and presses Connect; the portal checks both
 with Slack and posts a hello before saving, and the tab shows Connected to the channel (the token is never
@@ -1097,6 +1106,13 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .oc-tag { display:inline-block;font-size:0.68rem;padding:0.08rem 0.45rem;border-radius:999px;border:1px solid var(--border);color:var(--ink-soft);margin-left:0.25rem;white-space:nowrap; }
 .oc-tag.good { color:var(--green);border-color:var(--green); }
 .oc-tag.warn { color:#cc7a00;border-color:#cc7a00; }
+.oc-sub { font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin:1.1rem 0 0.45rem; }
+.oc-row { display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin-top:0.2rem; }
+.oc-row .fld-input { padding:0.4rem 0.6rem;font-size:0.82rem;width:auto; }
+.oc-row .oc-grow { flex:1 1 12rem;min-width:0; }
+.oc-inline { display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--ink-soft); }
+.hh-slack { display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center; }
+.hh-slack .fld-input { width:auto;flex:1 1 12rem;min-width:0; }
 @media (max-width: 640px) { .oc-slack { grid-template-columns:1fr; } .oc-page { grid-template-columns:1fr; } }
 @media (max-width: 640px) {
   .oc-day { grid-template-columns:6rem 1fr 1fr; }
@@ -1675,7 +1691,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.92.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.93.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3357,12 +3373,13 @@ function renderOnCall() {
   var now = c.now || {};
   var line;
   if (!c.enabled) line = 'On call is <b>off</b>. Andi hands every after hours issue to the team the way he does today.';
+  else if (now.after_hours_active) line = 'After hours. Only a critical problem would page ' + (now.user_id ? '<b>' + esc(ocName(now.user_id)) + '</b>' : (now.backup_user_id ? 'the backup, <b>' + esc(ocName(now.backup_user_id)) + '</b>' : 'nobody (no one scheduled, no backup)')) + ' right now.';
   else if (!now.in_hours) line = 'Outside on call hours. Nobody would be paged right now.';
   else if (now.user_id) line = '<b>' + esc(ocName(now.user_id)) + '</b> is on call' + (now.source === 'override' ? ' (swapped in for today).' : '.');
-  else if (now.assigned_user_id) line = 'In on call hours, but <b>' + esc(ocName(now.assigned_user_id)) + '</b> is scheduled and is ' + (now.unavailable === 'no_cell' ? 'missing a cell phone' : 'no longer on the team') + ', so nobody would be paged.';
-  else line = 'In on call hours, but nobody is scheduled.';
+  else if (now.assigned_user_id) line = 'In on call hours, but <b>' + esc(ocName(now.assigned_user_id)) + '</b> is scheduled and is ' + (now.unavailable === 'no_cell' ? 'missing a cell phone' : 'no longer on the team') + (now.backup_user_id ? ', so pages go to the backup, <b>' + esc(ocName(now.backup_user_id)) + '</b>.' : ', so nobody would be paged.');
+  else line = 'In on call hours, but nobody is scheduled.' + (now.backup_user_id ? ' Pages go to the backup, <b>' + esc(ocName(now.backup_user_id)) + '</b>.' : '');
   html += '<div class="oc-now">' + line + '</div>';
-  html += '<div class="set-section-note" style="margin:0.6rem 0 0;">When Andi hands a client to the team during on call hours, the on call tech gets a text from the tech line and a tag in Slack, and the client is told he was notified only after one of them went out. Slack gets every handoff at any hour.</div>';
+  html += '<div class="set-section-note" style="margin:0.6rem 0 0;">A handoff pages only when it needs help tonight: something critical or high, a client who asks for a call, or a client who answers tonight when Andi asks. A client who says it can wait is never paged. The on call tech gets a text from the tech line with a link to the ticket and a tag in the on call channel, and the client is told he was notified only after one of them went out. Slack gets every ticket at any hour.</div>';
   html += '</div>';
 
   // Switch and hours
@@ -3386,7 +3403,22 @@ function renderOnCall() {
   html += '</div>';
   if (edS) html += '<div class="set-saverow"><button class="btn-primary" onclick="ocSaveHours()">Save hours</button><span class="set-saved" id="oc-saved-hours">Saved</span></div>';
   html += '<div class="oc-err" id="oc-err-hours"></div>';
-  html += '<div class="set-section-note" style="margin:0.4rem 0 0;">After hours: nobody is paged. What happens after on call hours end is still being decided.</div>';
+  // v1.93.0: after hours and the backup
+  var ah = c.after_hours || 'none', until = c.after_hours_until || '07:00';
+  html += '<div class="oc-sub">After hours</div>';
+  if (edS) {
+    html += '<div class="oc-row"><select class="fld-input" id="oc-ah"><option value="none"' + (ah === 'none' ? ' selected' : '') + '>Nobody is paged</option><option value="critical"' + (ah === 'critical' ? ' selected' : '') + '>Only critical is paged</option></select>'
+      + '<label class="oc-inline">until <input class="fld-input" type="time" min="00:00" max="12:00" id="oc-until" value="' + esc(until) + '" /></label>'
+      + '<button class="btn-primary" onclick="ocSaveAfterHours()">Save</button><span class="set-saved" id="oc-saved-ah">Saved</span></div>';
+  } else {
+    html += '<div class="oc-ro">' + (ah === 'critical' ? 'Only critical is paged, from the end of the day until ' + esc(ocFmt12(until)) + ' the next morning.' : 'Nobody is paged after on call hours end.') + '</div>';
+  }
+  html += '<div class="set-section-note" style="margin:0.4rem 0 0;">Critical is water, smoke, a security system that will not arm, and the like. The tech for the evening covers the night it belongs to.</div>';
+  html += '<div class="oc-err" id="oc-err-ah"></div>';
+  html += '<div class="oc-sub">Backup</div>';
+  html += '<div class="set-section-note" style="margin:0 0 0.5rem;">One manager who is paged when a page has no got it in 30 minutes, or straight away when nobody is on the schedule. Any hour.</div>';
+  html += '<div>' + ocPicker(c.backup_user_id || null, 'ocSaveBackup(this.value)', !edS).replace('<option value="">Nobody</option>', '<option value="">No backup</option>') + '</div>';
+  html += '<div class="oc-err" id="oc-err-backup"></div>';
   html += '</div>';
 
   // Schedule
@@ -3431,7 +3463,16 @@ function renderOnCall() {
   if (!sl) {
     html += '<div class="set-section-note">Slack needs the latest portal update.</div>';
   } else if (sl.connected) {
-    html += '<div class="oc-now">Connected' + (sl.team ? ' to <b>' + esc(sl.team) + '</b>' : '') + ', posting to channel <b>' + esc(sl.channel_id || '') + '</b>. Every handoff posts there at any hour, and the on call tech is tagged during on call hours.</div>';
+    html += '<div class="oc-now">Connected' + (sl.team ? ' to <b>' + esc(sl.team) + '</b>' : '') + '. The catch all is <b>' + esc(sl.channel_id || '') + '</b>: every ticket posts there once, at any hour, and everything after it goes in its thread.</div>';
+    // v1.93.0: the on call channel
+    html += '<div class="oc-sub">On call channel</div>';
+    html += '<div class="set-section-note" style="margin:0 0 0.5rem;">Real pages only, with the person tagged, so nobody mutes it. ' + (sl.oncall_channel_id ? 'Pages post in <b>' + esc(sl.oncall_channel_id) + '</b>.' : 'Not set: pages post in the catch all.') + ' Invite the app to the channel first.</div>';
+    if (edS) {
+      html += '<div class="oc-row"><input class="fld-input oc-grow" type="text" id="oc-slack-oncall" placeholder="Channel ID" value="' + esc(sl.oncall_channel_id || '') + '" autocomplete="off" /><button class="btn-primary" id="oc-slack-oc-go" onclick="ocSlackOnCallChannel()">Save</button>'
+        + (sl.oncall_channel_id ? '<button class="btn-ghost" onclick="ocSlackOnCallChannel(true)">Clear</button>' : '') + '</div>';
+      html += '<div class="oc-err" id="oc-err-slack-oc"></div>';
+    }
+    html += '<div class="set-section-note" style="margin:0.6rem 0 0;">A client with their own channel: pick it on the household, and that client\'s tickets post there with a one line pointer in the catch all.</div>';
     if (edS) html += '<div class="set-saverow" style="margin-top:0.6rem;"><button class="btn-ghost" onclick="ocSlackDisconnect()">Disconnect</button></div>';
   } else if (edS) {
     html += '<div class="set-section-note">Paste your Slack app\'s Bot User OAuth Token (it starts with xoxb) and the ID of the channel it should post in (channel details, at the bottom, starts with C). Invite the app to that channel first. RestWerks checks both with Slack and posts a hello before saving.</div>';
@@ -3453,13 +3494,15 @@ function renderOnCall() {
       var when = '';
       try { when = new Date(pg.paged_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch (e) { when = ''; }
       var tags = '';
-      if (pg.paged_user_id) tags += '<span class="oc-tag' + (pg.notified ? ' good' : ' warn') + '">' + (pg.notified ? 'Paged ' : 'Page failed ') + esc(ocName(pg.paged_user_id)) + '</span>';
+      if (pg.paged_user_id) tags += '<span class="oc-tag' + (pg.notified ? ' good' : ' warn') + '">' + (pg.notified ? 'Paged ' : 'Page failed ') + esc(ocName(pg.paged_user_id)) + (pg.target === 'backup' ? ' (backup)' : '') + '</span>';
+      else if (pg.tier) tags += '<span class="oc-tag warn">Nobody to page</span>';
       else tags += '<span class="oc-tag">Slack only</span>';
+      if (pg.backup_user_id) tags += '<span class="oc-tag warn">Backup paged ' + esc(ocName(pg.backup_user_id)) + '</span>';
       if (pg.with_client) tags += '<span class="oc-tag good">With the client</span>';
       else if (pg.acked) tags += '<span class="oc-tag good">Acknowledged</span>';
       else if (pg.no_response) tags += '<span class="oc-tag warn">No response</span>';
       if (pg.slack_ok === false) tags += '<span class="oc-tag warn">Slack failed</span>';
-      html += '<div class="oc-page"><div>' + esc(when) + '<small>' + esc(from) + '</small></div><div>' + esc(what) + '</div><div>' + tags + '</div></div>';
+      html += '<div class="oc-page"><div>' + esc(when) + '<small>' + esc(from) + '</small></div><div>' + esc(what) + (pg.why ? '<small>' + esc(pg.why) + '</small>' : '') + '</div><div>' + tags + '</div></div>';
     });
     html += '</div>';
   }
@@ -3498,6 +3541,23 @@ async function ocPutSettings(payload, errId, savedId) {
   } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
 }
 function ocSaveHours() { return ocPutSettings({ hours: ocHoursFromForm() }, 'oc-err-hours', 'oc-saved-hours'); }
+// v1.93.0
+function ocSaveAfterHours() {
+  return ocPutSettings({ after_hours: (document.getElementById('oc-ah') || {}).value || 'none', after_hours_until: (document.getElementById('oc-until') || {}).value || '' }, 'oc-err-ah', 'oc-saved-ah');
+}
+function ocSaveBackup(v) { return ocPutSettings({ backup_user_id: v ? Number(v) : null }, 'oc-err-backup', null); }
+async function ocSlackOnCallChannel(clear) {
+  var err = document.getElementById('oc-err-slack-oc'); if (err) err.textContent = '';
+  var ch = clear ? null : ((document.getElementById('oc-slack-oncall') || {}).value || '').trim();
+  var btn = document.getElementById('oc-slack-oc-go'); if (btn && !clear) { btn.disabled = true; btn.textContent = 'Checking...'; }
+  try {
+    var res = await rwFetch('/api/oncall/slack', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ oncall_channel_id: ch }) });
+    var data = await res.json();
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not save.'; if (btn) { btn.disabled = false; btn.textContent = 'Save'; } return false; }
+    await loadOnCall();
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; if (btn) { btn.disabled = false; btn.textContent = 'Save'; } return false; }
+}
 async function ocToggle() {
   if (!_oc) return;
   // Switching on saves whatever hours are on the form in the same call, so a shop that typed hours
@@ -4999,6 +5059,53 @@ async function openHouseholdDetail(id) {
   } catch (e) { document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Connection error.</div>'; }
 }
 
+// v1.93.0
+function hdSlackHtml(h) {
+  var cur = h.slack_channel_id ? '<b>#' + esc(h.slack_channel_name || h.slack_channel_id) + '</b>' : 'None. This client\'s tickets post in the catch all.';
+  return '<div style="color:var(--ink-soft);font-size:0.76rem;margin-bottom:0.5rem;">Tickets for this client post in their own channel, with a one line pointer in the catch all. A private channel needs /invite of the app once.</div>' +
+    '<div class="hh-slack" id="hd-slack-row"><span style="font-size:0.84rem;">' + cur + '</span>' +
+    '<button class="btn-ghost" onclick="hdSlackPick()">' + (h.slack_channel_id ? 'Change' : 'Pick a channel') + '</button>' +
+    (h.slack_channel_id ? '<button class="btn-ghost" onclick="hdSlackSave(null, null)">Clear</button>' : '') + '</div><div class="hd-err" id="hd-slack-err"></div>';
+}
+async function hdSlackPick() {
+  var row = document.getElementById('hd-slack-row'), err = document.getElementById('hd-slack-err');
+  if (err) err.textContent = '';
+  if (row) row.innerHTML = '<span style="font-size:0.82rem;color:var(--ink-soft);">Loading channels...</span>';
+  try {
+    var res = await rwFetch('/api/slack/channels');
+    var data = await res.json();
+    if (!res.ok) { if (row) row.innerHTML = ''; if (err) err.textContent = data.error || 'Could not load channels.'; return; }
+    if (!data.connected) { if (row) row.innerHTML = '<span style="font-size:0.82rem;color:var(--ink-soft);">Slack is not connected. An owner connects it in Settings, On call.</span>'; return; }
+    var want = String((_hd && _hd.name) || '').toLowerCase().split(/[^a-z0-9]+/).filter(function(w){ return w.length > 2; });
+    var chans = data.channels || [];
+    // A likely match first (a word of the household name in the channel name), the rest after. Never picked for you.
+    var guess = chans.filter(function(c){ return want.some(function(w){ return c.name.indexOf(w) >= 0; }); });
+    var rest = chans.filter(function(c){ return guess.indexOf(c) < 0; });
+    var opt = function(c){ return '<option value="' + esc(c.id) + '" data-name="' + esc(c.name) + '">#' + esc(c.name) + (c.is_private ? ' (private)' : '') + (c.is_member ? '' : ' (app not in it yet)') + '</option>'; };
+    var h = '<select class="fld-input" id="hd-slack-sel"><option value="">Pick a channel</option>';
+    if (guess.length) h += '<optgroup label="Looks like this client">' + guess.map(opt).join('') + '</optgroup>';
+    h += '<optgroup label="All channels">' + rest.map(opt).join('') + '</optgroup></select>';
+    h += '<button class="btn-primary" onclick="hdSlackSave()">Save</button><button class="btn-ghost" onclick="renderHdSlack()">Cancel</button>';
+    if (row) row.innerHTML = h;
+  } catch (e) { if (row) row.innerHTML = ''; if (err) err.textContent = 'Connection error.'; }
+}
+function renderHdSlack() { var el = document.getElementById('hd-slack'); if (el && _hd) el.innerHTML = hdSlackHtml(_hd); }
+async function hdSlackSave(id, name) {
+  var err = document.getElementById('hd-slack-err'); if (err) err.textContent = '';
+  if (id === undefined) {
+    var sel = document.getElementById('hd-slack-sel');
+    if (!sel || !sel.value) { if (err) err.textContent = 'Pick a channel first.'; return; }
+    id = sel.value; name = sel.options[sel.selectedIndex].getAttribute('data-name');
+  }
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/slack-channel', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel_id: id, channel_name: name }) });
+    var data = await res.json();
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not save.'; return; }
+    _hd.slack_channel_id = data.slack_channel_id; _hd.slack_channel_name = data.slack_channel_name;
+    renderHdSlack();
+  } catch (e) { if (err) err.textContent = 'Connection error.'; }
+}
+
 function hdField(label, id, val) {
   return '<div class="hd-fld"><label>' + label + '</label><input class="hd-input" id="' + id + '" type="text" value="' + esc(val || '') + '" /></div>';
 }
@@ -5030,6 +5137,9 @@ function renderHouseholdDetail() {
   if (!activePeople.length) peopleHtml += '<div class="hd-person-sub" style="padding:0.4rem 0;">No active contacts.</div>';
   activePeople.forEach(function(p) { peopleHtml += personRowHtml(p, false); });
   peopleHtml += '<button class="hd-add-person" onclick="openHpAdd()">+ Add a person</button>';
+  // v1.93.0: the household's own Slack channel. Picked from the channels the shop's app can see; never matched by
+  // itself. This client's tickets then post there, with a one line pointer in the catch all.
+  if (!removed) peopleHtml += '<div class="hd-block-title" style="margin-top:1.3rem;">Slack channel</div><div id="hd-slack">' + hdSlackHtml(h) + '</div>';
   if (removedPeople.length) {
     peopleHtml += '<div style="margin-top:0.6rem;">';
     removedPeople.forEach(function(p) { peopleHtml += personRowHtml(p, true); });
@@ -9384,13 +9494,36 @@ initPwEyes();
     history.replaceState(null, '', location.pathname);
     setTimeout(function(){ if (typeof pushOpenThread === 'function') pushOpenThread(decodeURIComponent(m[1])); }, 250);
   }
+  // v1.93.0: A PAGE LINK. The on call text and the Slack posts link ?ticket=N, or ?page=N when the handoff had no
+  // ticket. Never a phone in the link. Kept through the login (the app only reads it once it is visible), consumed
+  // once, then cleared so a refresh does not reopen it.
+  function consumePageLink(){
+    var q = new URLSearchParams(location.search);
+    var tk = q.get('ticket'), pg = q.get('page');
+    if(!tk && !pg) return;
+    q.delete('ticket'); q.delete('page');
+    var rest = q.toString();
+    history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+    setTimeout(async function(){
+      try {
+        if (tk && /^\d+$/.test(tk) && typeof navToTicket === 'function') { navToTicket(Number(tk)); return; }
+        if (pg && /^\d+$/.test(pg)) {
+          var res = await rwFetch('/api/oncall/pages/' + pg);
+          if (!res.ok) return;
+          var d = await res.json();
+          if (d.ticket_id && typeof navToTicket === 'function') navToTicket(Number(d.ticket_id));
+          else if (d.thread_key && typeof pushOpenThread === 'function') pushOpenThread(d.thread_key);
+        }
+      } catch (e) {}
+    }, 250);
+  }
   var appEl = document.getElementById('app');
   if(appEl){
     var appObs = new MutationObserver(function(){
-      if(appEl.style.display !== 'none'){ setTimeout(mobileLanding, 0); consumeThreadHash(); }
+      if(appEl.style.display !== 'none'){ setTimeout(mobileLanding, 0); consumeThreadHash(); consumePageLink(); }
     });
     appObs.observe(appEl, { attributes:true, attributeFilter:['style'] });
-    if(appEl.style.display !== 'none'){ mobileLanding(); consumeThreadHash(); }
+    if(appEl.style.display !== 'none'){ mobileLanding(); consumeThreadHash(); consumePageLink(); }
   }
 
   // installable app + offline shell
