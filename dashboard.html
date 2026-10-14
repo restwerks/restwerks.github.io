@@ -1,4 +1,16 @@
-<!-- dashboard.html (Dashboard v1.93.0, 2026-10-12_2310 CT) ON CALL, THE RULES (pairs with portal v1.85.0;
+<!-- dashboard.html (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
+180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
+just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
+own thread with My Andi, one thread across the phone and the desktop (each message says Text or Desktop), the same
+Andi answering, a waiting indicator, and "Also text me answers I asked from the desktop" (off by default). A My Andi
+text redraws an open view. (3) SETTINGS, MY ANDI (Owners and Managers): Team threads (the team on the left, a
+person's thread on the right, read only), Code lookups, and Strangers. (4) ROLES: Owner, Manager, Member, one Role
+dropdown on Add and Edit teammate; the Service manager box is gone; what a teammate may change follows the permissions
+the portal sends (an older portal sends none, and then only an owner may, as before); a Manager cannot change an owner.
+(5) Add a teammate takes a cell phone. (6) Follow ups show the client name. (7) "Tech line" reads My Andi wherever a
+person sees it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.0.
+Prior v1.93.0, 2026-10-12_2310 CT ON CALL, THE RULES (pairs with portal v1.85.0;
 DEPLOY PORTAL FIRST). The On call tab gains AFTER HOURS (Nobody is paged, or Only critical is paged until a time the
 next morning) and a BACKUP picker (one manager, paged when a page has no got it in 30 minutes or when nobody is on the
 schedule); Right now says who after hours or the backup would page. SLACK, THREE PLACES: the catch all, an On call
@@ -995,6 +1007,45 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .sb-brandrow { display:flex;align-items:center;gap:0.55rem;min-width:0; }
 .sb-brandrow .sb-logo-img { max-height:32px;max-width:84px;flex-shrink:0; }
 .sb-brandname { font-size:0.92rem;font-weight:600;color:white;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0; }
+/* v1.94.0: the logo owns the top of the bar, centered and large; the name sits under it and wraps; the number centered. */
+.sidebar-logo { text-align:center; }
+.sb-brand { display:flex;flex-direction:column;align-items:center;gap:0.45rem;width:100%;min-width:0; }
+.sb-logo-big { display:block;max-width:180px;width:auto;max-height:70px;height:auto;object-fit:contain;margin:0 auto; }
+.sb-brandname-under { font-size:0.92rem;font-weight:600;color:white;letter-spacing:-0.01em;text-align:center;white-space:normal;overflow-wrap:anywhere;line-height:1.25;max-width:100%; }
+.sidebar-logo .integrator-number { text-align:center;margin-top:0.4rem; }
+/* v1.94.0: MY ANDI, the teammate's own thread, and the team view in Settings. */
+.ma-chrome { display:flex;flex-direction:column; }
+.ma-number { font-size:0.76rem;color:var(--ink-soft); }
+.ma-thread { padding:1rem 1.25rem;overflow-y:auto;max-height:calc(100vh - 290px);min-height:260px;display:flex;flex-direction:column;gap:0.55rem;background:var(--canvas); }
+.ma-row { display:flex;flex-direction:column;max-width:78%; }
+.ma-row.me { align-self:flex-end;align-items:flex-end; }
+.ma-row.andi { align-self:flex-start;align-items:flex-start; }
+.ma-b { padding:0.55rem 0.8rem;border-radius:12px;font-size:0.86rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere; }
+.ma-row.me .ma-b { background:var(--brand);color:#fff;border-bottom-right-radius:4px; }
+.ma-row.andi .ma-b { background:var(--white);color:var(--ink);border:1px solid var(--border);border-bottom-left-radius:4px; }
+.ma-meta { font-size:0.68rem;color:var(--ink-soft);margin-top:0.2rem;padding:0 0.2rem; }
+.ma-typing .ma-b { color:var(--ink-soft);font-style:italic; }
+.ma-older { align-self:center;font-size:0.76rem;color:var(--brand);cursor:pointer;padding:0.2rem 0.6rem; }
+.ma-compose { display:flex;gap:0.6rem;padding:0.8rem 1.25rem;border-top:1px solid var(--border);background:var(--white);align-items:flex-end; }
+.ma-compose textarea { flex:1;resize:none;min-height:42px;max-height:160px;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:8px;background:var(--canvas);color:var(--ink);outline:none; }
+.ma-compose textarea:focus { border-color:var(--brand); }
+.ma-foot { display:flex;flex-wrap:wrap;gap:0.4rem 1rem;align-items:center;padding:0 1.25rem 0.85rem;background:var(--white); }
+.ma-pref { display:flex;align-items:center;gap:0.45rem;font-size:0.78rem;color:var(--ink-mid);cursor:pointer; }
+.ma-pref.off { color:var(--ink-soft);cursor:default; }
+.ma-err { font-size:0.78rem;color:var(--red); }
+.ma-empty { margin:auto;max-width:460px;text-align:center;color:var(--ink-soft);font-size:0.86rem;line-height:1.7;padding:1.5rem 0.5rem; }
+.mat-wrap { display:flex;gap:1rem;flex-wrap:wrap; }
+.mat-list { flex:0 0 220px;min-width:200px;display:flex;flex-direction:column;gap:2px; }
+.mat-person { display:flex;justify-content:space-between;gap:0.5rem;padding:0.5rem 0.65rem;border-radius:8px;cursor:pointer;font-size:0.84rem;color:var(--ink); }
+.mat-person:hover { background:var(--canvas-warm); }
+.mat-person.sel { background:var(--brand-light);color:var(--brand-dark); }
+body.dark .mat-person.sel { background:rgba(29,158,117,0.18);color:var(--ink); }
+.mat-person .mat-sub { font-size:0.7rem;color:var(--ink-soft); }
+.mat-thread { flex:1 1 320px;min-width:0;border:1px solid var(--border);border-radius:10px;overflow:hidden; }
+.mat-thread .ma-thread { max-height:420px;min-height:200px; }
+.mat-table { width:100%;border-collapse:collapse;font-size:0.8rem; }
+.mat-table td, .mat-table th { text-align:left;padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);vertical-align:top; }
+.mat-table th { font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);font-weight:600; }
 .set-section { padding:1.25rem 1.5rem;border-bottom:1px solid var(--border); }
 .set-section:last-child { border-bottom:none; }
 .set-section-title { font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:0.15rem; }
@@ -1668,6 +1719,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
     <nav class="sidebar-nav">
       <div class="nav-group-label m-hide">Overview</div>
       <div class="nav-item active m-hide" onclick="nav('dashboard',this)"><span class="nav-icon">⊞</span> Dashboard</div>
+      <div class="nav-item" onclick="nav('myandi',this)"><span class="nav-icon">✦</span> My Andi</div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Activity</div>
       <div class="nav-item" onclick="nav('conversations',this)"><span class="nav-icon">💬</span> Conversations <span class="nav-badges"><span class="nav-badge green" id="badge-conversations" style="display:none;">0</span></span></div>
       <div class="nav-item" onclick="nav('tickets',this)"><span class="nav-icon">🎫</span> Tickets <span class="nav-badges"><span class="nav-badge" id="badge-tickets" title="Open" style="display:none;">0</span><span class="nav-badge sched" id="badge-tickets-sched" title="Scheduled" style="display:none;">0</span><span class="nav-badge waiting" id="badge-tickets-waiting" title="Waiting" style="display:none;">0</span></span></div>
@@ -1691,7 +1743,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.93.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.94.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1823,6 +1875,21 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div id="ticket-detail-view" style="display:none;">
           <div class="back-btn" onclick="goBack()">← Back</div>
           <div id="ticket-detail-content"></div>
+        </div>
+      </div>
+
+      <div id="panel-myandi" class="panel">
+        <div class="panel-chrome ma-chrome">
+          <div class="panel-chrome-header"><div class="panel-chrome-title">My Andi</div><div class="ma-number" id="ma-number"></div></div>
+          <div class="ma-thread" id="ma-thread"><div class="hh-empty">Loading...</div></div>
+          <div class="ma-compose">
+            <textarea id="ma-input" rows="2" placeholder="Ask about a client, codes, tickets, or what you did" onkeydown="maKey(event)"></textarea>
+            <button class="btn-primary" id="ma-send" onclick="maSend()">Send</button>
+          </div>
+          <div class="ma-foot">
+            <label class="ma-pref" id="ma-pref-wrap"><input type="checkbox" id="ma-text-desktop" onchange="maSavePref(this.checked)" /> Also text me answers I asked from the desktop</label>
+            <span class="ma-err" id="ma-err"></span>
+          </div>
         </div>
       </div>
 
@@ -2288,7 +2355,8 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div><div class="fld-label">Last name</div><input class="fld-input" type="text" id="au-last" placeholder="Last" /></div>
       </div>
       <div class="fld"><div class="fld-label">Email</div><input class="fld-input" type="email" id="au-email" placeholder="them@company.com" /></div>
-      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="au-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
+      <div class="fld"><div class="fld-label">Cell phone <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div><input class="fld-input" type="tel" id="au-cell" placeholder="555-123-4567" /><div class="login-pwhint" style="color:var(--ink-soft);">Used for the on call roster and My Andi by text.</div></div>
+      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="au-role"><option value="member">Member</option><option value="manager">Manager</option><option value="owner">Owner</option></select><div class="login-pwhint" style="color:var(--ink-soft);">Owner: everything. Manager: the team, on call, settings and My Andi for the whole team; everything but owners and billing. Member: their own work.</div></div>
       <div class="wiz-err" id="au-err"></div>
     </div>
     <div class="wiz-foot">
@@ -2316,8 +2384,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
         <div class="login-pwhint" id="me-email-note" style="color:var(--ink-soft);display:none;">Changing the email sends a confirmation link to the new address. It must be confirmed before they can sign in there.</div>
       </div>
       <div class="fld"><div class="fld-label">Cell phone</div><input class="fld-input" type="tel" id="me-cell" placeholder="555-123-4567" /></div>
-      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="owner">Owner</option></select></div>
-      <div class="fld"><label style="display:flex;align-items:center;gap:0.5rem;font-size:0.84rem;color:var(--ink);cursor:pointer;"><input type="checkbox" id="me-svcmgr" /> Service manager</label><div class="login-pwhint" style="color:var(--ink-soft);">Can change the on call schedule. Owners always can.</div></div>
+      <div class="fld"><div class="fld-label">Role</div><select class="fld-input" id="me-role"><option value="member">Member</option><option value="manager">Manager</option><option value="owner">Owner</option></select><div class="login-pwhint" style="color:var(--ink-soft);">Owner: everything. Manager: the team, on call, settings and My Andi for the whole team; everything but owners and billing. Member: their own work.</div><div class="login-pwhint" id="me-role-lock" style="color:var(--ink-soft);display:none;">Only an owner can change an owner.</div></div>
       <div class="fld"><div class="fld-label">Slack member ID</div><input class="fld-input" type="text" id="me-slack" placeholder="U01AB2CD3EF" autocomplete="off" /><div class="login-pwhint" style="color:var(--ink-soft);">So an on call page can tag them in Slack. In Slack: open their profile, the three dots, Copy member ID.</div></div>
       <div class="fld"><div class="fld-label">Bubble color</div>
         <div id="me-palette" class="me-palette" style="margin-bottom:0.6rem;"></div>
@@ -2903,23 +2970,185 @@ function applyCompanyBranding(c) {
   document.documentElement.style.setProperty('--i-brand', accent);
   var avatar = document.getElementById('sb-avatar');
   if (avatar) avatar.style.background = (window._rwUser && window._rwUser.bubble_color) || accent;
-  // Logo / name in the sidebar header, per the user's own sidebar logo preference (v1.43.0).
+  // Logo / name in the sidebar header, per the company's sidebar logo choice (v1.43.0).
   // logo_only shows just the logo, name_only shows just the name, logo_name shows both;
   // a missing logo always falls back to the company name regardless of the choice.
+  // v1.94.0 (Andy): the logo owns the top of the bar, centered and large; the name goes UNDER it, centered, wrapping
+  // instead of cut off ("Admit One Sys..."); the phone number is centered under all of it.
   var nameEl = document.getElementById('sb-name');
   if (nameEl) {
     var layout = c.sidebar_logo_layout || 'logo_name';
     var nameHtml = esc(c.name || '').replace(/(\S+)$/, '<span class="integrator-accent">$1</span>');
     if (c.logo_url && layout === 'logo_only') {
-      nameEl.innerHTML = '<div class="sb-brandrow"><img class="sb-logo-img" src="' + c.logo_url + '" alt="logo" /></div>';
+      nameEl.innerHTML = '<div class="sb-brand"><img class="sb-logo-big" src="' + c.logo_url + '" alt="logo" /></div>';
     } else if (c.logo_url && layout !== 'name_only') {
-      // Logo left, company name right, on one line. Name ellipsizes if long.
-      nameEl.innerHTML = '<div class="sb-brandrow"><img class="sb-logo-img" src="' + c.logo_url + '" alt="logo" />' +
-        '<span class="sb-brandname">' + nameHtml + '</span></div>';
+      nameEl.innerHTML = '<div class="sb-brand"><img class="sb-logo-big" src="' + c.logo_url + '" alt="logo" />' +
+        '<div class="sb-brandname-under">' + nameHtml + '</div></div>';
     } else if (c.name) {
-      nameEl.innerHTML = nameHtml;
+      nameEl.innerHTML = '<div class="sb-brand"><div class="sb-brandname-under">' + nameHtml + '</div></div>';
     }
   }
+}
+
+// ── MY ANDI (v1.94.0) ───────────────────────────────────────────────────────
+// The teammate's own thread with My Andi: texts to the shop's My Andi number and questions asked here are one thread.
+// The portal hands a question to the same Andi that answers a text; nothing here decides anything.
+var _ma = { messages: [], hasMore: false, sending: false, info: null, pendingSince: 0 };
+function maBubble(m, showWho) {
+  var mine = m.direction === 'in';
+  var meta = [m.channel === 'dashboard' ? 'Desktop' : 'Text', fmtConvTime(m.created_at)];
+  if (m.household_name) meta.push(m.household_name);
+  if (showWho && mine) meta.unshift(showWho);
+  return '<div class="ma-row ' + (mine ? 'me' : 'andi') + '"><div class="ma-b">' + esc(m.body || '') + '</div>' +
+    '<div class="ma-meta">' + esc(meta.filter(Boolean).join(' · ')) + '</div></div>';
+}
+function maEmpty(info) {
+  var num = info && info.number ? fmtPhone(info.number) : null;
+  return '<div class="ma-empty">Ask Andi about any client: a name, a street or a phone number finds the house. Then ask for codes, open tickets, equipment, or what was noted there. Tell him what you did and it goes on the house record for the team, never to the client.' +
+    (num ? '<br><br>The same Andi answers when you text <span style="white-space:nowrap;">' + esc(num) + '</span>.' : '') + '</div>';
+}
+function maRender(stick) {
+  var box = document.getElementById('ma-thread'); if (!box) return;
+  var atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+  var html = '';
+  if (_ma.hasMore) html += '<div class="ma-older" onclick="maOlder()">Show earlier</div>';
+  if (!_ma.messages.length && !_ma.sending) html += maEmpty(_ma.info);
+  _ma.messages.forEach(function (m) { html += maBubble(m); });
+  if (_ma.sending) html += '<div class="ma-row andi ma-typing"><div class="ma-b">Andi is looking...</div></div>';
+  box.innerHTML = html;
+  if (stick !== false || atBottom) box.scrollTop = box.scrollHeight;
+}
+async function loadMyAndi(keep) {
+  var err = document.getElementById('ma-err'); if (err && !keep) err.textContent = '';
+  try {
+    var res = await rwFetch('/api/myandi');
+    var data = await res.json();
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not load My Andi.'; return; }
+    _ma.info = data; _ma.messages = data.messages || []; _ma.hasMore = !!data.has_more;
+    // a question that timed out is answered when an answer newer than it shows up; until then Send stays locked
+    if (_ma.pendingSince) {
+      var lastM = _ma.messages[_ma.messages.length - 1];
+      if ((lastM && lastM.direction === 'out' && new Date(lastM.created_at).getTime() >= _ma.pendingSince - 5000) || Date.now() - _ma.pendingSince > 120000) {
+        _ma.pendingSince = 0; var sb = document.getElementById('ma-send'); if (sb) sb.disabled = false; if (err) err.textContent = '';
+      }
+    }
+    var num = document.getElementById('ma-number'); if (num) num.textContent = data.number ? 'Text ' + fmtPhone(data.number) : '';
+    var cb = document.getElementById('ma-text-desktop'), wrap = document.getElementById('ma-pref-wrap');
+    var can = !!(data.has_cell && data.number);
+    if (cb) { cb.checked = !!data.text_desktop; cb.disabled = !can; }
+    if (wrap) { wrap.classList.toggle('off', !can); wrap.title = can ? '' : (data.has_cell ? 'Your shop has no My Andi number yet.' : 'Add your cell phone in your profile first.'); }
+    if (!data.connected && err) err.textContent = 'My Andi on the desktop is not connected yet. Texting still works.';
+    maRender(true);
+  } catch (e) { if (err) err.textContent = 'Connection error.'; }
+}
+async function maOlder() {
+  if (!_ma.messages.length) return;
+  try {
+    var res = await rwFetch('/api/myandi?before=' + _ma.messages[0].id);
+    var data = await res.json(); if (!res.ok) return;
+    _ma.messages = (data.messages || []).concat(_ma.messages); _ma.hasMore = !!data.has_more;
+    var box = document.getElementById('ma-thread'); var h = box ? box.scrollHeight : 0;
+    maRender(false); if (box) box.scrollTop = box.scrollHeight - h;
+  } catch (e) { /* the next open tries again */ }
+}
+function maKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); maSend(); } }
+async function maSend() {
+  var input = document.getElementById('ma-input'), err = document.getElementById('ma-err'), btn = document.getElementById('ma-send');
+  var text = (input.value || '').trim();
+  if (!text || _ma.sending) return;
+  err.textContent = '';
+  _ma.sending = true; btn.disabled = true;
+  _ma.messages.push({ id: 0, direction: 'in', body: text, channel: 'dashboard', created_at: new Date().toISOString() });
+  input.value = '';
+  maRender(true);
+  try {
+    var res = await rwFetch('/api/myandi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text }) });
+    var data = await res.json().catch(function () { return {}; });
+    if (res.status === 504 && data.pending) { err.textContent = data.error; _ma.pendingSince = Date.now(); setTimeout(function () { loadMyAndi(true); }, 15000); }
+    else if (!res.ok) { err.textContent = data.error || 'Andi is not reachable right now.'; input.value = text; _ma.messages.pop(); }
+  } catch (e) { err.textContent = 'Connection error.'; input.value = text; _ma.messages.pop(); }
+  _ma.sending = false; btn.disabled = !!_ma.pendingSince;
+  await loadMyAndi(true);
+  // the question may have reached Andi even though no answer came back: if the thread already holds it, never offer it again
+  var lastIn = null;
+  for (var i = _ma.messages.length - 1; i >= 0; i--) { if (_ma.messages[i].direction === 'in') { lastIn = _ma.messages[i]; break; } }
+  if (input.value === text && lastIn && lastIn.body === text && Date.now() - new Date(lastIn.created_at).getTime() < 120000) {
+    input.value = ''; err.textContent = 'Andi got your question but could not answer it. Try asking another way.';
+  }
+  input.focus();
+}
+async function maSavePref(on) {
+  var err = document.getElementById('ma-err'); err.textContent = '';
+  try {
+    var res = await rwFetch('/api/me/myandi', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text_desktop: !!on }) });
+    if (!res.ok) { var d = await res.json().catch(function () { return {}; }); err.textContent = d.error || 'Could not save.'; document.getElementById('ma-text-desktop').checked = !on; }
+  } catch (e) { err.textContent = 'Connection error.'; document.getElementById('ma-text-desktop').checked = !on; }
+}
+
+// Settings, My Andi (Owners and Managers): the team's threads, the code lookup log, strangers. Read only.
+var _mat = { team: [], sel: null, number: null };
+async function loadMyAndiTeam() {
+  var body = document.getElementById('myandi-team-body'); if (!body) return;
+  try {
+    var res = await rwFetch('/api/myandi/team'); var data = await res.json();
+    if (!res.ok) { body.innerHTML = '<div class="set-section"><div class="set-readonly">' + esc(data.error || 'Could not load.') + '</div></div>'; return; }
+    _mat.team = data.team || []; _mat.number = data.number || null;
+    var html = '<div class="set-section"><div class="set-section-title">Team threads</div>';
+    html += '<div class="set-section-note">Everyone\'s conversations with My Andi, newest first, by text' + (_mat.number ? ' to ' + esc(fmtPhone(_mat.number)) : '') + ' and on the desktop. Read only.</div>';
+    html += '<div class="mat-wrap"><div class="mat-list" id="mat-list">';
+    _mat.team.forEach(function (u) {
+      var nm = ((u.first_name || '') + ' ' + (u.last_name || '')).trim() || 'Teammate';
+      var sub = u.count ? u.count + ' message' + (u.count === 1 ? '' : 's') + ' · ' + fmtConvTime(u.last_at) : 'No messages yet';
+      if (!u.active) sub = 'Removed · ' + sub;
+      html += '<div class="mat-person' + (_mat.sel === u.id ? ' sel' : '') + '" onclick="matPick(' + u.id + ')"><div><div>' + esc(nm) + '</div><div class="mat-sub">' + esc(sub) + '</div></div><div class="mat-sub">' + esc(u.role_label || '') + '</div></div>';
+    });
+    if (!_mat.team.length) html += '<div class="mat-sub">Nobody on the team yet.</div>';
+    html += '</div><div class="mat-thread"><div class="ma-thread" id="mat-thread"><div class="ma-empty">Pick a teammate to read their thread.</div></div></div></div></div>';
+    html += '<div class="set-section"><div class="set-section-title">Code lookups</div><div class="set-section-note">Who asked My Andi for which house\'s codes, and when. If a phone is lost, this is the list.</div><div id="mat-codes"><div class="mat-sub">Loading...</div></div></div>';
+    html += '<div class="set-section"><div class="set-section-title">Strangers</div><div class="set-section-note">Numbers that are not on your team that texted My Andi in the last 60 days. Each got one standard reply a day, and nothing else.</div><div id="mat-strangers"><div class="mat-sub">Loading...</div></div></div>';
+    body.innerHTML = html;
+    if (_mat.sel) matPick(_mat.sel, true);
+    matLoadCodes(); matLoadStrangers();
+  } catch (e) { body.innerHTML = '<div class="set-section"><div class="set-readonly">Connection error.</div></div>'; }
+}
+async function matPick(id, keep) {
+  _mat.sel = id;
+  document.querySelectorAll('#mat-list .mat-person').forEach(function (el) { el.classList.toggle('sel', el.getAttribute('onclick') === 'matPick(' + id + ')'); });
+  var box = document.getElementById('mat-thread'); if (!box) return;
+  if (!keep) box.innerHTML = '<div class="ma-empty">Loading...</div>';
+  try {
+    var res = await rwFetch('/api/myandi/team/' + id); var data = await res.json();
+    if (!res.ok) { box.innerHTML = '<div class="ma-empty">' + esc(data.error || 'Could not load.') + '</div>'; return; }
+    var u = (_mat.team || []).filter(function (x) { return x.id === id; })[0] || {};
+    var who = (u.first_name || '').trim();
+    var msgs = data.messages || [];
+    box.innerHTML = msgs.length ? msgs.map(function (m) { return maBubble(m, who); }).join('') : '<div class="ma-empty">No messages with My Andi yet.</div>';
+    box.scrollTop = box.scrollHeight;
+  } catch (e) { box.innerHTML = '<div class="ma-empty">Connection error.</div>'; }
+}
+async function matLoadCodes() {
+  var el = document.getElementById('mat-codes'); if (!el) return;
+  try {
+    var res = await rwFetch('/api/myandi/codes'); var data = await res.json();
+    var rows = (data && data.lookups) || [];
+    if (!res.ok) { el.innerHTML = '<div class="mat-sub">' + esc(data.error || 'Could not load.') + '</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="mat-sub">No code lookups yet.</div>'; return; }
+    el.innerHTML = '<table class="mat-table"><tr><th>When</th><th>Who</th><th>House</th><th>Codes</th></tr>' + rows.map(function (r) {
+      return '<tr><td>' + esc(fmtTime(r.created_at)) + '</td><td>' + esc(((r.first_name || '') + ' ' + (r.last_name || '')).trim()) + '</td><td>' + esc(r.household_name || '') + '</td><td>' + esc(String(r.fields || '').split(',').join(', ')) + '</td></tr>';
+    }).join('') + '</table>';
+  } catch (e) { el.innerHTML = '<div class="mat-sub">Connection error.</div>'; }
+}
+async function matLoadStrangers() {
+  var el = document.getElementById('mat-strangers'); if (!el) return;
+  try {
+    var res = await rwFetch('/api/myandi/strangers'); var data = await res.json();
+    var rows = (data && data.strangers) || [];
+    if (!res.ok) { el.innerHTML = '<div class="mat-sub">' + esc(data.error || 'Could not load.') + '</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="mat-sub">Nobody outside the team has texted My Andi.</div>'; return; }
+    el.innerHTML = '<table class="mat-table"><tr><th>Number</th><th>Texts</th><th>Last</th><th>Last text</th></tr>' + rows.map(function (r) {
+      return '<tr><td>' + esc(fmtPhone(r.from_number || '')) + '</td><td>' + esc(String(r.n)) + '</td><td>' + esc(fmtTime(r.last_at)) + '</td><td>' + esc(String(r.last_body || '').slice(0, 140)) + '</td></tr>';
+    }).join('') + '</table>';
+  } catch (e) { el.innerHTML = '<div class="mat-sub">Connection error.</div>'; }
 }
 
 // ── SETUP WIZARD ─────────────────────────────────────────────────────────────
@@ -3070,7 +3299,8 @@ async function loadSettings() {
 }
 
 function renderSettings(c) {
-  var isOwner = window._rwUser && window._rwUser.role === 'owner';
+  // v1.94.0: by permission. isOwner keeps its name and now means may change the company settings (Owner or Manager).
+  var isOwner = rwCan('company.settings'), canTeam = rwCan('team.manage'), canThreads = rwCan('threads.admin'), canMyAndiTeam = rwCan('myandi.team');
   var ro = isOwner ? '' : ' disabled';
   var status = (c.status || 'preview');
   var slot = document.getElementById('set-status-slot');
@@ -3104,7 +3334,8 @@ function renderSettings(c) {
   html += '<button class="hd-tab" data-settab="andi" onclick="setTab(\'andi\')">Andi</button>';
   html += '<button class="hd-tab" data-settab="tickets" onclick="setTab(\'tickets\')">Tickets</button>';
   html += '<button class="hd-tab" data-settab="oncall" onclick="setTab(\'oncall\');loadOnCall()">On call</button>';
-  if (isOwner) html += '<button class="hd-tab" data-settab="conversations" onclick="setTab(\'conversations\');loadThreadAdmin()">Conversations</button>';
+  if (canMyAndiTeam) html += '<button class="hd-tab" data-settab="myandi" onclick="setTab(\'myandi\');loadMyAndiTeam()">My Andi</button>';
+  if (canThreads) html += '<button class="hd-tab" data-settab="conversations" onclick="setTab(\'conversations\');loadThreadAdmin()">Conversations</button>';
   html += '</div>';
 
   // ── INFO ────────────────────────────────────────────────────────────────────
@@ -3188,7 +3419,7 @@ function renderSettings(c) {
     html += '<button class="btn-primary" onclick="vocabAddStatus()">Add</button></div>';
     html += '<div class="hd-err" id="vocab-status-err" style="margin-top:0.4rem;"></div>';
   } else {
-    html += '<div class="set-readonly">Only owners can change the status list.</div>';
+    html += '<div class="set-readonly">Only an owner or a manager can change the status list.</div>';
   }
   html += '</div>';
   html += '<div class="set-section">';
@@ -3201,7 +3432,7 @@ function renderSettings(c) {
     html += '<button class="btn-primary" onclick="vocabAddPriority()">Add</button></div>';
     html += '<div class="hd-err" id="vocab-prio-err" style="margin-top:0.4rem;"></div>';
   } else {
-    html += '<div class="set-readonly">Only owners can change the urgency list.</div>';
+    html += '<div class="set-readonly">Only an owner or a manager can change the urgency list.</div>';
   }
   html += '</div>';
   // ── CATEGORIES (v1.76.0) ──────────────────────────────────────────────────
@@ -3216,7 +3447,7 @@ function renderSettings(c) {
     html += '<div id="vocab-cat-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
     html += '<div class="hd-err" id="vocab-cat-err" style="margin-top:0.4rem;"></div>';
   } else {
-    html += '<div class="set-readonly">Only owners can change the category list.</div>';
+    html += '<div class="set-readonly">Only an owner or a manager can change the category list.</div>';
   }
   html += '</div>';
   html += '</div>';
@@ -3225,11 +3456,11 @@ function renderSettings(c) {
   html += '<div class="set-section">';
   html += '<div class="set-section-title">Team</div>';
   html += '<div class="set-section-note">People who can log in to this dashboard. The envelope is the morning summary, click it to toggle a teammate. Use Also send to for emails that are not logins, like a shared inbox.</div>';
-  if (isOwner) {
+  if (canTeam) {
     html += '<div id="team-body"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div>';
     html += '<div style="margin-top:0.85rem;"><button class="btn-primary" onclick="openAddUser()">+ Add teammate</button></div>';
   } else {
-    html += '<div class="set-readonly">Only owners can manage the team.</div>';
+    html += '<div class="set-readonly">Only an owner or a manager can manage the team.</div>';
   }
   html += '</div>';
   html += '</div>';
@@ -3245,7 +3476,11 @@ function renderSettings(c) {
   // threads and the learning pool rather than living in any one of them.
   // Owner only, and the tab is not rendered at all for a member rather than rendered
   // disabled: a control nobody may use should not be visible to them.
-  if (isOwner) {
+  // v1.94.0: SETTINGS, MY ANDI. Owners and Managers: the team's threads, the code lookup log, strangers. Read only.
+  if (canMyAndiTeam) {
+    html += '<div class="set-tabpanel" id="settab-myandi"><div id="myandi-team-body"><div class="set-section"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div></div></div>';
+  }
+  if (canThreads) {
     html += '<div class="set-tabpanel" id="settab-conversations">';
     html += '<div class="set-section">';
     html += '<div class="set-section-title">Conversations</div>';
@@ -3260,7 +3495,8 @@ function renderSettings(c) {
     setVal('set-street', p.street); setVal('set-city', p.city);
     setVal('set-state', p.state); setVal('set-zip', p.zip);
   }, { fillInput: false });
-  if (isOwner) { loadTeam(); loadSummaryRecipients(c); loadQuickSettings(); renderVocabEditors(); }
+  if (canTeam) { loadTeam(); loadSummaryRecipients(c); }
+  if (isOwner) { loadQuickSettings(); renderVocabEditors(); }
 }
 
 // ── THREAD ADMIN (v1.78.0) ───────────────────────────────────────────────────
@@ -3424,7 +3660,7 @@ function renderOnCall() {
   // Schedule
   html += '<div class="set-section">';
   html += '<div class="set-section-title">Schedule</div>';
-  html += '<div class="set-section-note">One tech per week, Monday through Sunday. ' + (edR ? 'Pick who covers each week; it saves as you pick.' : 'Only an owner or a service manager can change it.') + '</div>';
+  html += '<div class="set-section-note">One tech per week, Monday through Sunday. ' + (edR ? 'Pick who covers each week; it saves as you pick.' : 'Only an owner or a manager can change it.') + '</div>';
   var missing = (c.team || []).filter(function(u){ return u.active && !u.has_cell; });
   if (missing.length && edS) html += '<div class="oc-warn" style="margin:-0.4rem 0 0.7rem;">No cell phone on file, so they cannot be on call yet: ' + esc(missing.map(function(u){ return ((u.first_name || '') + ' ' + (u.last_name || '')).trim(); }).join(', ')) + '. Add one in Team.</div>';
   (c.schedule || []).forEach(function(w, i){
@@ -3507,10 +3743,10 @@ function renderOnCall() {
     html += '</div>';
   }
 
-  // Tech line
+  // My Andi (v1.94.0: the tech line's name wherever a person reads it)
   html += '<div class="set-section">';
-  html += '<div class="set-section-title">Tech line</div>';
-  html += '<div class="set-section-note">The number your team texts to reach Andi from the field, and the number pages come from. After a page, text "got it" to take it, and text what you did on the call; it goes on the house record and Slack, never to the client.</div>';
+  html += '<div class="set-section-title">My Andi</div>';
+  html += '<div class="set-section-note">The number your team texts to reach Andi from the field, and the number pages come from. The same Andi answers in My Andi on the desktop. After a page, text "got it" to take it, and text what you did on the call; it goes on the house record and Slack, never to the client.</div>';
   html += '<div class="oc-ro">' + (c.tech_line_number ? esc(fmtPhone(c.tech_line_number)) : '<span style="color:var(--ink-soft);">Not assigned yet</span>') + '</div>';
   html += '</div>';
 
@@ -4264,7 +4500,7 @@ function renderTeam(users) {
 
   function rowHtml(u) {
     var name = esc(((u.first_name || '') + ' ' + (u.last_name || '')).trim());
-    var roleLabel = (u.role === 'owner' ? 'Owner' : 'Member') + (u.is_service_manager ? ' \u00b7 Service mgr' : '');
+    var roleLabel = rwRoleLabel(u);
     var statusPill = u.pending
       ? '<span class="team-pill pending">Pending</span>'
       : (u.active ? '' : '<span class="team-pill off">Removed</span>');
@@ -4405,8 +4641,14 @@ function openMemberEdit(id) {
   document.getElementById('me-last').value = u.last_name || '';
   document.getElementById('me-email').value = u.email || '';
   document.getElementById('me-cell').value = fmtPhone(u.cell_phone || '');
-  document.getElementById('me-role').value = u.role === 'owner' ? 'owner' : 'member';
-  document.getElementById('me-svcmgr').checked = u.is_service_manager === true;
+  document.getElementById('me-role').value = ['owner', 'manager', 'member'].indexOf(u.role) >= 0 ? u.role : 'member';
+  // v1.94.0: a Manager runs the team but not the owners: an owner cannot be changed, and nobody can be made one.
+  var ownLock = !rwCan('team.owners');
+  var meRole = document.getElementById('me-role');
+  meRole.querySelector('option[value="owner"]').disabled = ownLock && u.role !== 'owner';
+  meRole.disabled = ownLock && u.role === 'owner';
+  document.getElementById('me-role-lock').style.display = ownLock && u.role === 'owner' ? '' : 'none';
+  document.getElementById('me-save-btn').disabled = ownLock && u.role === 'owner';
   document.getElementById('me-slack').value = u.slack_member_id || '';
   document.getElementById('me-email-note').style.display = 'none';
   document.getElementById('me-err').textContent = '';
@@ -4501,6 +4743,7 @@ function renderMeActions() {
   var wrap = document.getElementById('me-actions');
   var u = _meUser;
   var html = '';
+  if (u.role === 'owner' && !rwCan('team.owners')) { wrap.innerHTML = ''; return; }
   if (u.pending) {
     html += '<button class="team-action" onclick="resendMember(' + u.id + ',this)">Resend invite</button>';
     if (!u.is_self) html += '<button class="team-action danger" onclick="revokeMember(' + u.id + ')">Revoke invite</button>';
@@ -4526,7 +4769,7 @@ async function submitMemberEdit() {
     var res = await rwFetch('/api/users/' + _meUser.id, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, bubble_color: _meColor, cell_phone: cell,
-        slack_member_id: hhVal('me-slack'), is_service_manager: document.getElementById('me-svcmgr').checked })
+        slack_member_id: hhVal('me-slack') })
     });
     var data = await res.json();
     if (!res.ok) { err.textContent = data.error || 'Could not save.'; btn.disabled = false; btn.textContent = 'Save'; return; }
@@ -4582,8 +4825,9 @@ async function removeMember(id) {
 }
 
 function openAddUser() {
-  ['au-first','au-last','au-email'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  ['au-first','au-last','au-email','au-cell'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
   document.getElementById('au-role').value = 'member';
+  document.getElementById('au-role').querySelector('option[value="owner"]').disabled = !rwCan('team.owners');
   document.getElementById('au-err').textContent = '';
   document.getElementById('au-overlay').classList.add('show');
   setTimeout(function(){ var n=document.getElementById('au-first'); if(n) n.focus(); }, 50);
@@ -4601,7 +4845,7 @@ async function submitAddUser() {
   try {
     var res = await rwFetch('/api/users', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role })
+      body: JSON.stringify({ first_name: first, last_name: last, email: email, role: role, cell_phone: hhVal('au-cell') })
     });
     var data = await res.json();
     if (!res.ok) { err.textContent = data.error || 'Could not add teammate.'; btn.disabled = false; btn.textContent = 'Send invite'; return; }
@@ -5942,6 +6186,14 @@ function startSSE() {
     _sseEverConnected = true;
   });
   _sseSource.addEventListener('ping', _sseBeat);
+  // v1.94.0: a My Andi text arrived. The event carries nothing; an open view redraws from its own read.
+  _sseSource.addEventListener('myandi', function() {
+    _sseBeat();
+    var act = document.querySelector('.panel.active');
+    if (act && act.id === 'panel-myandi' && !_ma.sending) loadMyAndi(true);
+    var tp = document.getElementById('settab-myandi');
+    if (tp && tp.classList.contains('active') && _mat.sel) matPick(_mat.sel, true);
+  });
   _sseSource.addEventListener('new_message', function(e) {
     _sseBeat();
     var data = JSON.parse(e.data);
@@ -7564,7 +7816,12 @@ document.addEventListener('click', function(e) {
 });
 
 // ── NAV ──────────────────────────────────────────────────────────────────────
-var panelTitles = { dashboard:'Dashboard',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',proactive:'Proactive Outreach',analytics:'Analytics',settings:'Settings',flagged:'Flagged for Andi' };
+var panelTitles = { dashboard:'Dashboard',myandi:'My Andi',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',proactive:'Proactive Outreach',analytics:'Analytics',settings:'Settings',flagged:'Flagged for Andi' };
+// v1.94.0: ROLES. What the signed in teammate may change comes from the portal: the permissions on their role (Owner,
+// Manager, Member). An older portal sends none, and then only an owner may, exactly as before.
+function rwCan(p) { var u = window._rwUser; if (!u) return false; if (Array.isArray(u.permissions)) return u.permissions.indexOf(p) >= 0; return u.role === 'owner'; }
+function rwSeesAll() { var u = window._rwUser; return !!u && (u.role === 'owner' || u.role === 'manager'); }
+function rwRoleLabel(u) { return (u && u.role_label) || (u && u.role === 'owner' ? 'Owner' : (u && u.role === 'manager' ? 'Manager' : 'Member')); }
 function navItem(name) { return document.querySelector('[onclick="nav(\'' + name + '\',this)"]'); }
 // ── UNIVERSAL BACK ───────────────────────────────────────────────────────────
 // One back stack for the whole app. Entering any detail (from a list or via a cross jump) records
@@ -7636,6 +7893,7 @@ function nav(name, el) {
   if (name === 'analytics') loadAnalytics();
   if (name === 'settings') loadSettings();
   if (name === 'flagged') loadFlags();
+  if (name === 'myandi') loadMyAndi();
 }
 
 // ── DEMO CONV DATA ───────────────────────────────────────────────────────────
@@ -7786,7 +8044,7 @@ function ticketClientName(t) {
 var _ticketRows = [];
 var _tkFilter = null;
 function tkDefaultFilter() {
-  var owner = window._rwUser && window._rwUser.role === 'owner';
+  var owner = rwSeesAll();
   return { status: 'active', mine: !owner, group: false };
 }
 async function loadTickets() {
@@ -8706,7 +8964,7 @@ var _followups = [];
 function fuTypeLabel(t){ return t==='sales'?'Sales reach out':(t==='other'?'Other':'Schedule a tech'); }
 var _fuFilter = null;
 function fuDefaultFilter() {
-  var owner = window._rwUser && window._rwUser.role === 'owner';
+  var owner = rwSeesAll();
   return { status: 'active', mine: !owner, group: !!owner };
 }
 async function loadFollowups() {
@@ -8746,7 +9004,7 @@ function renderFollowups() {
   el.innerHTML = tb + body;
 }
 function followupRowHtml(f, done) {
-  var who = f.client_name || fmtPhone(f.phone_number) || 'Client';
+  var who = f.display_name || f.client_name || fmtPhone(f.phone_number) || 'Client';
   var typeChip = '<span class="hh-project">' + esc(fuTypeLabel(f.type)) + '</span>';
   var meta = 'Flagged by ' + esc(f.flagged_by || 'Andi') + (f.assigned_name ? ' · for ' + esc(f.assigned_name) : '') + (f.created_at ? ' · ' + esc(fmtTime(f.created_at)) : '') + (f.due_date ? ' · due ' + esc(fmtDueDate(f.due_date)) : '');
   var check = done ? '<div class="followup-check checked"></div>' : '<div class="followup-check" onclick="doResolveFollowup(' + f.id + ')"></div>';
