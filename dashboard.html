@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.95.0, 2026-10-16_0300 CT) THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -947,6 +947,12 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .conv-card.unread .conv-name { font-weight:700; }
 .conv-time { font-size:0.72rem;color:var(--ink-soft);flex-shrink:0; }
 .conv-household { font-size:0.75rem;color:var(--ink-soft);font-weight:400;margin-left:0.5rem; }
+/* v1.95.0: a removed person's row: their name stays, the house is gone. */
+.conv-nohouse { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);border:1px solid var(--line, rgba(128,128,128,0.35));border-radius:100px;padding:1px 8px;margin-left:0.5rem;vertical-align:middle; }
+.sms-removal { text-align:center;font-size:0.7rem;color:var(--ink-soft);padding:0.5rem 1rem;user-select:none;font-weight:600; }
+.rm-forget { display:flex;gap:0.55rem;align-items:flex-start;margin-top:0.4rem;cursor:pointer;font-size:0.85rem;line-height:1.35; }
+.rm-forget input { margin-top:0.2rem; }
+.rm-forget-note { display:block;font-size:0.75rem;color:var(--ink-soft);margin-top:0.2rem; }
 
 .conv-card-bottom { display:flex;align-items:flex-end;justify-content:space-between;margin-top:0.25rem;gap:0.5rem; }
 .conv-preview { font-size:0.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;flex:1;min-width:0; }
@@ -1744,7 +1750,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.94.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.95.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3535,7 +3541,8 @@ function renderThreadAdmin() {
     if (full) sub.push(key);
     if (t.household_name) sub.push(t.household_name);
     sub.push((t.message_count || 0) + ' message' + (Number(t.message_count) === 1 ? '' : 's'));
-    if (!t.attached) sub.push(t.phone_number ? 'unknown number' : 'unknown address');
+    if (t.removed) sub.push('no household');
+    else if (!t.attached) sub.push(t.phone_number ? 'unknown number' : 'unknown address');
     if (t.archived) sub.push('archived');
     html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border);">'
       + '<div style="min-width:0;">'
@@ -5819,20 +5826,55 @@ async function submitHpModal() {
   btn.disabled = false; btn.textContent = 'Save';
 }
 
-async function removePerson(clientId) {
-  if (!confirm('Remove this person from the household? They move to removed and can be restored.')) return;
+// v1.95.0 (Andy, Oct 15): REMOVE ASKS ONCE ABOUT FORGETTING. Removing always cuts the person off from the house (no
+// equipment, notes, codes, WiFi or tickets). Forget also makes Andi stop reading their past messages from this house.
+// Nothing is deleted and Restore undoes both. The removed person is never told.
+function removePerson(clientId) {
+  var p = (_hd.people || []).filter(function(x) { return x.client_id === clientId; })[0] || {};
+  var who = ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || 'this person';
+  var old = document.getElementById('rm-overlay'); if (old) old.remove();
+  var ov = document.createElement('div');
+  ov.id = 'rm-overlay'; ov.className = 'wiz-overlay show';
+  ov.onclick = function(ev) { if (ev.target === ov) ov.remove(); };
+  ov.innerHTML =
+    '<div class="wiz-card">' +
+      '<div class="wiz-head"><div class="wiz-title">Remove ' + esc(who) + '?</div>' +
+        '<div class="wiz-sub">They lose access to this house right away: Andi will not share its equipment, notes, codes, WiFi or tickets with them. Their conversation stays for your team, and you can restore them later.</div></div>' +
+      '<div class="wiz-body">' +
+        '<label class="rm-forget"><input type="checkbox" id="rm-forget" />' +
+          '<span>Forget their household info<span class="rm-forget-note">Andi also stops reading their past messages from this house. Nothing is deleted, and Restore brings it back.</span></span></label>' +
+        '<div class="wiz-err" id="rm-err"></div>' +
+      '</div>' +
+      '<div class="wiz-foot">' +
+        '<button class="btn-ghost" onclick="document.getElementById(\'rm-overlay\').remove()">Cancel</button>' +
+        '<button class="btn-primary" id="rm-go" style="background:#b42318;border-color:#b42318;" onclick="confirmRemovePerson(' + clientId + ')">Remove</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+}
+async function confirmRemovePerson(clientId) {
+  var btn = document.getElementById('rm-go'), err = document.getElementById('rm-err');
+  var forget = !!(document.getElementById('rm-forget') || {}).checked;
+  if (btn) { btn.disabled = true; btn.textContent = 'Removing'; }
   try {
-    var res = await rwFetch('/api/households/' + _hd.id + '/clients/' + clientId + '/deactivate', { method: 'POST' });
+    var res = await rwFetch('/api/households/' + _hd.id + '/clients/' + clientId + '/deactivate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ forget: forget })
+    });
     var data = await res.json();
-    if (!res.ok) { alert(data.error || 'Could not remove.'); return; }
+    if (!res.ok) { if (err) err.textContent = data.error || 'Could not remove.'; if (btn) { btn.disabled = false; btn.textContent = 'Remove'; } return; }
+    var ov = document.getElementById('rm-overlay'); if (ov) ov.remove();
     await refreshDetail();
-  } catch (e) { alert('Connection error.'); }
+  } catch (e) { if (err) err.textContent = 'Connection error.'; if (btn) { btn.disabled = false; btn.textContent = 'Remove'; } }
 }
 async function reactivatePerson(clientId) {
   try {
     var res = await rwFetch('/api/households/' + _hd.id + '/clients/' + clientId + '/reactivate', { method: 'POST' });
     var data = await res.json();
     if (!res.ok) { alert(data.error || 'Could not restore.'); return; }
+    // v1.95.0: a number that moved to someone else after the removal stays with them.
+    if (data.phones_not_restored && data.phones_not_restored.length) {
+      alert('Restored. ' + data.phones_not_restored.map(fmtPhone).join(', ') + (data.phones_not_restored.length === 1 ? ' is' : ' are') + ' now on someone else, so it stayed with them.');
+    }
     await refreshDetail();
   } catch (e) { alert('Connection error.'); }
 }
@@ -6424,7 +6466,9 @@ function renderConvList(threads) {
     // chip so these threads read as a worklist. Falls back to name absence when the portal has
     // not shipped the attached flag yet.
     var unattached = (t.attached === false) || (t.attached === undefined && !t.first_name && !t.household_name);
-    if (unattached) householdHtml += '<span class="conv-unknown">Unknown</span>';
+    // v1.95.0: a REMOVED person is not a stranger: the name stays and the tag says No household.
+    if (t.removed) householdHtml += '<span class="conv-nohouse">No household</span>';
+    else if (unattached) householdHtml += '<span class="conv-unknown">Unknown</span>';
     // v1.85.0: the KEY opens the thread, not the phone. No portal change needed for this:
     // /api/thread has compared its parameter against thread_key since portal 1.75.0.
     var ep = encodeURIComponent(threadKey);
@@ -6777,7 +6821,7 @@ function buildThreadHTML(messages, clientName) {
   // v1.79.0: is this thread MIXED? The per bubble channel marker is drawn only when the answer
   // is yes. Marking every bubble on a thread that has only ever been texts would add noise to
   // every conversation in the account to solve a problem exactly one of them has.
-  var EML_MARKER_ROLES = { summary:1, handback:1, send_marker:1, ticket_marker:1 };
+  var EML_MARKER_ROLES = { summary:1, handback:1, send_marker:1, ticket_marker:1, removal_marker:1 };
   var sawSms = false, sawEmail = false;
   for (var ci = 0; ci < messages.length; ci++) {
     if (EML_MARKER_ROLES[messages[ci].role]) continue;
@@ -6877,6 +6921,12 @@ function buildThreadHTML(messages, clientName) {
       // v1.19.0: a member-send completion marker. History only, never an SMS to this client,
       // so it must never read as a bubble the client received. Same quiet treatment as handback.
       html += '<div class="sms-system">' + esc(m.message) + '</div>';
+      continue;
+    }
+    if (m.role === 'removal_marker') {
+      // v1.95.0: where a person was removed from (or restored to) a house. Drawn from client_removals by the portal,
+      // never stored as a message.
+      html += '<div class="sms-removal">' + esc(m.message) + '</div>';
       continue;
     }
     if (m.role === 'ticket_marker') {
