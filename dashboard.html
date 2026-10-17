@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.95.0, 2026-10-16_0300 CT) THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -1750,7 +1750,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.95.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.96.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -2897,6 +2897,7 @@ async function doLogin() {
     document.getElementById('app').style.display = 'block';
     loadRealConversations();
     startSSE();
+    stampLoadedScreen();
   } catch (err) {
     errEl.textContent = 'Connection error. Please try again.'; btn.textContent = 'Sign in'; btn.disabled = false;
   }
@@ -2912,13 +2913,15 @@ async function tryAutoLogin() {
     var res = await fetch(PORTAL_URL + '/auth/me', {
       headers: { 'Authorization': 'Bearer ' + token }, credentials: 'include'
     });
-    if (!res.ok) { localStorage.removeItem('rw-token'); return; }
+    // v1.96.0: only a refused sign in clears the token; a portal blip (503, 500) leaves you signed in for the next try.
+    if (!res.ok) { if (res.status === 401 || res.status === 403) localStorage.removeItem('rw-token'); return; }
     var data = await res.json();
     applyIntegratorContext(data);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadRealConversations();
     startSSE();
+    stampLoadedScreen();
   } catch (err) {}
 }
 // Declared here, ABOVE the tryAutoLogin() call, so the set-password token captured
@@ -2927,6 +2930,7 @@ var _setpwToken = null;
 tryAutoLogin();
 
 function applyIntegratorContext(user) {
+  window._rwUserId = user.id || null; // v1.96.0: the history stamps carry it
   var accent = user.integrator_brand_color || user.bubble_color || '#1D9E75';
   var name = user.integrator_name || 'RestWerks';
   var number = user.telnyx_number ? user.telnyx_number.replace('+1','').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
@@ -5059,6 +5063,9 @@ async function pushMute(mode) {
 function pushOpenThread(phone) {
   if (!phone) return;
   try {
+    // v1.96.0: a push tap or a link records where you were, so Back returns there.
+    var dest = { kind:'conversation', phone: encodeURIComponent(phone), name: '' };
+    if (typeof currentViewOrList === 'function') { var cur = currentViewOrList(); if (!sameNav(cur, dest)) recordStep(cur, dest); }
     if (typeof nav === 'function' && typeof navItem === 'function') nav('conversations', navItem('conversations'));
     openRealConv(encodeURIComponent(phone), '');
   } catch (e) {}
@@ -5290,6 +5297,7 @@ function hdTabDrop(e){
 var _hpClientId = null;  // person being edited in the person modal, null = adding
 
 function backToHouseholds() {
+  window._hdOpening = null; // v1.96.0: a house still loading is abandoned
   var lv = document.getElementById('hh-list-view');
   var dv = document.getElementById('hh-detail-view');
   if (lv) lv.style.display = '';
@@ -5304,9 +5312,13 @@ async function openHouseholdDetail(id) {
   document.getElementById('hd-removed-tag').style.display = 'none';
   document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Loading...</div>';
   try {
+    window._hdOpening = id;
     var res = await rwFetch('/api/households/' + id);
+    if (window._hdOpening !== id) return; // v1.96.0: another house was opened (or Back pressed) while this one loaded
     if (!res.ok) { document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Could not load this household.</div>'; return; }
-    _hd = await res.json();
+    var hdData = await res.json();
+    if (window._hdOpening !== id) return;
+    _hd = hdData;
     renderHouseholdDetail();
   } catch (e) { document.getElementById('hd-body').innerHTML = '<div class="hh-empty">Connection error.</div>'; }
 }
@@ -5599,8 +5611,8 @@ function personRowHtml(p, removed) {
 
 function textPerson(enc, fallbackName) {
   var name = fallbackName || decodeURIComponent(enc);
-  var cur = currentViewOrList();
-  if (!sameNav(cur, { kind:'conversation', phone: enc })) pushBack(cur);
+  var cur = currentViewOrList(), dest = { kind:'conversation', phone: enc, name: name };
+  if (!sameNav(cur, dest)) recordStep(cur, dest);
   var ce = document.querySelector('.nav-item[onclick*="conversations"]');
   nav('conversations', ce);
   openRealConv(enc, name);
@@ -6107,6 +6119,7 @@ function enterDashboard(data) {
   document.getElementById('app').style.display = 'block';
   loadRealConversations();
   startSSE();
+  stampLoadedScreen();
 }
 
 async function doSignup() {
@@ -6307,7 +6320,12 @@ function startSSE() {
     _sseSource.close(); _sseSource = null;
     var wait = _sseRetryMs;
     _sseRetryMs = Math.min(_sseRetryMs * 2, 30000); // 5s -> 10 -> 20 -> 30 cap
-    setTimeout(startSSE, wait);
+    // v1.96.0: ask once whether this sign in still stands. A 401 (removed, or signed out elsewhere) stops the retries
+    // and shows the sign in; anything else (a blip) retries as before.
+    rwFetch('/auth/me').then(function(r) {
+      if (r.status === 401) { try { localStorage.removeItem('rw-token'); } catch (e) {} location.reload(); return; }
+      setTimeout(startSSE, wait);
+    }).catch(function() { setTimeout(startSSE, wait); });
   };
 }
 // Watchdog: the server pings every 25s. No beat for 65s means the pipe died without firing
@@ -6703,8 +6721,10 @@ async function openRealConv(encodedPhone, name) {
   loadRealConversations();
   try {
     var res = await rwFetch('/api/thread?phone=' + encodedPhone);
+    if (window._currentPhone !== encodedPhone) return; // v1.96.0: another thread was opened (or Back pressed) while this one loaded
     if (!res.ok) throw new Error('Status ' + res.status);
     var data = await res.json();
+    if (window._currentPhone !== encodedPhone) return;
     var messages = Array.isArray(data) ? data : (data.messages || []);
     window._threadMsgs = messages; // v1.21.0: flag modal builds its snapshot from this
     // v1.84.0: whether THIS PORTAL can send an email at all. Offered by portal 1.74.0 off its own
@@ -7908,25 +7928,117 @@ function pushBack(d) {
   if (top && sameNav(top, d)) return;
   _backStack.push(d);
 }
+// v1.96.0 (Andy, Oct 17): THE MOUSE BACK BUTTON. The browser's history holds the Back arrow's steps. Every entry this
+// dashboard writes carries the screen it shows (view) and the arrow's stack as it stood on that screen (rwStack). A step
+// first stamps the entry you are leaving with the screen you were on, then adds an entry for where you went. Browser
+// Back or Forward lands on an entry, and that entry alone decides what you see and what the arrow holds, so a reload, a
+// long press jump or a quick double press can never leave the two out of step. The arrow goes through history.back()
+// whenever this entry's stack is the arrow's stack, so arrow and mouse use up the same step. An entry with no stamp
+// (written before 1.96.0 or by a page load that never took a step) closes to the list, like the arrow with nothing
+// recorded. Review pass: the first build kept only a depth, and after a reload Back opened screens out of order.
+var _histOn = !!(window.history && typeof history.pushState === 'function' && typeof history.replaceState === 'function');
+var _navSeq = 0;
+function navCopy(d) { return d ? { kind: d.kind, panel: d.panel, phone: d.phone, name: d.name, id: d.id } : null; }
+function stackCopy(s) { return (s || []).map(navCopy); }
+// Review pass 2: every stamp names the signed in teammate, so after a sign out and a sign in as someone else, Back
+// never opens the last person's tickets or houses. The screen a fresh load shows is stamped once the app is up.
+function histUser() { return window._rwUserId || null; }
+// Each entry also carries its own position (i), so a popup closed on Back moves the browser exactly back to the entry
+// it sat on (review gate: two entries can hold stacks of the same length).
+function histPos() { var s = history.state; return (s && typeof s.i === 'number') ? s.i : history.length - 1; }
+function histStamped() { var s = history.state; return !!(s && Array.isArray(s.rwStack) && s.u === histUser()); }
+// Review pass 3: Chrome skips, on Back, any entry a page adds when nobody just clicked or tapped. So a step only becomes
+// a browser history entry when a person made it (navigator.userActivation.isActive). A step nobody tapped (a ticket
+// link opening, a push tap arriving) lives on the entry already showing, marked soft: the arrow still steps back
+// through it, and the mouse Back leaves it the way Chrome would anyway. Browsers without userActivation push as before.
+function recordStep(origin, dest) {
+  var before = _backStack.length, prior = stackCopy(_backStack);
+  pushBack(origin);
+  if (!_histOn || _backStack.length === before) return;
+  var ua = window.navigator.userActivation;
+  try {
+    var at = histPos();
+    if (!ua || ua.isActive) {
+      history.replaceState({ rwStack: prior, view: navCopy(origin), u: histUser(), i: at }, '', location.href);
+      history.pushState({ rwStack: stackCopy(_backStack), view: navCopy(dest), u: histUser(), i: at + 1 }, '', location.href);
+    } else {
+      history.replaceState({ rwStack: stackCopy(_backStack), view: navCopy(dest), u: histUser(), soft: true, i: at }, '', location.href);
+    }
+    _shownState = history.state;
+  } catch (e) {}
+}
+function stampLoadedScreen() {
+  if (!_histOn) return;
+  try { history.replaceState({ rwStack: stackCopy(_backStack), view: navCopy(currentViewOrList()), u: histUser(), i: histPos() }, '', location.href); _shownState = history.state; } catch (e) {}
+}
+// Review pass 2: Back with a popup or a drawer open closes it and stays put, the way a phone's Back does. Each popup
+// closes through its own close handler. The browser has already moved one entry, so the dashboard moves it straight
+// back with history.go (never a new entry, which Chrome could skip) and ignores the popstate that brings.
+function closeOpenPopups() {
+  var closed = false;
+  // The setup wizard is never dismissed by Back (review pass 3): it is the owner's first sign in.
+  document.querySelectorAll('.wiz-overlay.show').forEach(function(o) { if (o.id === 'wiz-overlay') return; try { o.click(); } catch (e) {} if (!o.classList.contains('show') || !document.body.contains(o)) closed = true; });
+  // The equipment popups close through their own handlers, so a changed match list reloads as it does on Done.
+  var eqClose = { 'eq-edit-modal': 'eqCloseModal', 'eq-room-modal': 'eqCloseRoomModal', 'eq-roomedit-modal': 'eqCloseRoomEdit', 'eq-match-modal': 'eqCloseMatches' };
+  document.querySelectorAll('.eq-modal-bg.show').forEach(function(o) { var f = window[eqClose[o.id]]; try { if (typeof f === 'function') f(); else o.classList.remove('show'); } catch (e) { o.classList.remove('show'); } closed = true; });
+  document.querySelectorAll('.photo-lightbox').forEach(function(o) { o.remove(); closed = true; });
+  ['m-nav-open', 'm-rail-open'].forEach(function(c) { if (document.body.classList.contains(c)) { document.body.classList.remove(c); closed = true; } });
+  return closed;
+}
+var _shownState = null, _ignorePops = 0;
+function applyNav(d) {
+  _navSeq++;
+  if (!d) { closeConv(); closeTicket(); backToHouseholds(); return; }
+  if (d.kind === 'list') { var el = document.querySelector('.nav-item[onclick*="' + d.panel + '"]'); nav(d.panel, el); }
+  else if (d.kind === 'conversation') { var ce = document.querySelector('.nav-item[onclick*="conversations"]'); nav('conversations', ce); openRealConv(d.phone, d.name); }
+  else if (d.kind === 'ticket') { navToTicket(d.id); }
+  else if (d.kind === 'household') { navToHousehold(d.id); }
+}
+if (_histOn) {
+  window.addEventListener('popstate', function(e) {
+    if (_ignorePops > 0) { _ignorePops--; return; }
+    var s = e.state;
+    if (closeOpenPopups()) {
+      // stay on the screen the popup sat on: move the browser back to the entry that was showing
+      var from = _shownState;
+      if (from && typeof from.i === 'number') {
+        // an entry the dashboard never stamped sits before its first one, so the browser stepped back once
+        var delta = from.i - ((s && typeof s.i === 'number') ? s.i : from.i - 1);
+        if (delta !== 0) {
+          _ignorePops = 1;
+          setTimeout(function() { _ignorePops = 0; }, 1500);
+          history.go(delta);
+          return;
+        }
+      }
+    }
+    if (s && Array.isArray(s.rwStack) && s.u === histUser()) { _backStack = stackCopy(s.rwStack); _shownState = s; applyNav(s.view); }
+    else { _backStack = []; _shownState = s; applyNav(null); }
+  });
+}
 // Entry wrappers: record origin, then open. Used by list rows and cross jumps.
-function enterConversation(ep, name) { var cur = currentViewOrList(); if (!sameNav(cur, { kind:'conversation', phone: ep })) pushBack(cur); openRealConv(ep, name); }
-function enterTicket(id) { var cur = currentViewOrList(); if (!sameNav(cur, { kind:'ticket', id: id })) pushBack(cur); navToTicket(id); }
-function enterHousehold(id) { var cur = currentViewOrList(); if (!sameNav(cur, { kind:'household', id: id })) pushBack(cur); navToHousehold(id); }
+function enterConversation(ep, name) { var cur = currentViewOrList(), dest = { kind:'conversation', phone: ep, name: name }; if (!sameNav(cur, dest)) recordStep(cur, dest); openRealConv(ep, name); }
+function enterTicket(id) { var cur = currentViewOrList(), dest = { kind:'ticket', id: id }; if (!sameNav(cur, dest)) recordStep(cur, dest); navToTicket(id); }
+function enterHousehold(id) { var cur = currentViewOrList(), dest = { kind:'household', id: id }; if (!sameNav(cur, dest)) recordStep(cur, dest); navToHousehold(id); }
 function navToTicket(id) {
   var el = document.querySelector('.nav-item[onclick*="tickets"]'); nav('tickets', el);
-  loadTickets().then(function() { openTicket(id); });
+  // v1.96.0: a Back pressed while the list loads wins; the ticket does not pop open over where Back took you.
+  var seq = ++_navSeq;
+  loadTickets().then(function() { if (seq === _navSeq) openTicket(id); });
 }
 function navToHousehold(id) {
   var el = document.querySelector('.nav-item[onclick*="households"]'); nav('households', el);
   openHouseholdDetail(id);
 }
 function goBack() {
+  // v1.96.0: when this browser entry holds the arrow's own stack, go through the browser so both use up the same step.
+  // A soft step (nobody tapped it) has no entry of its own, so the arrow steps back in place and restamps this entry.
+  if (_histOn && _backStack.length > 0 && histStamped() && !history.state.soft && history.state.rwStack.length === _backStack.length) { history.back(); return; }
   var d = _backStack.pop();
-  if (!d) { closeConv(); closeTicket(); backToHouseholds(); return; }
-  if (d.kind === 'list') { var el = document.querySelector('.nav-item[onclick*="' + d.panel + '"]'); nav(d.panel, el); }
-  else if (d.kind === 'conversation') { var ce = document.querySelector('.nav-item[onclick*="conversations"]'); nav('conversations', ce); openRealConv(d.phone, d.name); }
-  else if (d.kind === 'ticket') { navToTicket(d.id); }
-  else if (d.kind === 'household') { navToHousehold(d.id); }
+  applyNav(d);
+  if (_histOn && histStamped()) {
+    try { history.replaceState({ rwStack: stackCopy(_backStack), view: navCopy(d || currentViewOrList()), u: histUser(), soft: !!history.state.soft, i: histPos() }, '', location.href); _shownState = history.state; } catch (e) {}
+  }
 }
 
 function nav(name, el) {
@@ -9718,7 +9830,8 @@ initPwEyes();
     if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4){
       if(swTarget === 'rail' && dx > 0) closeRail();
       if(swTarget === 'nav'  && dx < 0) closeNav();
-      if(swTarget === 'back' && dx > 0 && typeof goBack === 'function') goBack();
+      // v1.96.0: a browser tab and Android already step back natively through the same history; doing it here too went back twice.
+      if(swTarget === 'back' && dx > 0 && typeof goBack === 'function' && window.navigator.standalone === true) goBack();
     }
     swTarget = null;
   }, { passive:true });
@@ -9815,12 +9928,12 @@ initPwEyes();
     history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
     setTimeout(async function(){
       try {
-        if (tk && /^\d+$/.test(tk) && typeof navToTicket === 'function') { navToTicket(Number(tk)); return; }
+        if (tk && /^\d+$/.test(tk) && typeof enterTicket === 'function') { enterTicket(Number(tk)); return; }
         if (pg && /^\d+$/.test(pg)) {
           var res = await rwFetch('/api/oncall/pages/' + pg);
           if (!res.ok) return;
           var d = await res.json();
-          if (d.ticket_id && typeof navToTicket === 'function') navToTicket(Number(d.ticket_id));
+          if (d.ticket_id && typeof enterTicket === 'function') enterTicket(Number(d.ticket_id));
           else if (d.thread_key && typeof pushOpenThread === 'function') pushOpenThread(d.thread_key);
         }
       } catch (e) {}

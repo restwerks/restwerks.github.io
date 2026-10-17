@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <!--
   RestWerks Ops Dash
-  Version: 0.1.2 — 2026-06-14_2032 CT
+  Version: 0.2.0 — 2026-10-17_1015 CT
+  0.2.0 (Andy, Oct 17 2026): ops keeps its OWN sign in. It stores its token under rw-ops-token (never the dashboard's
+  rw-token), signs in with session: false so the portal sets no login cookie, and sends every request without cookies
+  (credentials omit). Signing into ops, its expiry and Sign out never touch a dashboard tab in the same browser. Sign
+  out cancels the ops token on the portal too.
+  Needs portal 1.88.0. The version shows beside the title.
   Internal RestWerks operator god view (read-only). restwerks.com/ops, NOT linked from the site.
   Pairs with portal v1.35.0 (/api/ops/* + requireSuperadmin). Disposable down-and-dirty slice 1.
 -->
@@ -91,7 +96,7 @@
 
 <div id="app" style="display:none">
   <header>
-    <h1>RestWerks <span>Ops</span></h1>
+    <h1>RestWerks <span>Ops</span> <small style="font-size:12px;font-weight:400;opacity:.6">v0.2.0</small></h1>
     <div class="meta" id="genMeta"></div>
     <div class="right">
       <button id="refreshBtn">Refresh</button>
@@ -116,20 +121,29 @@
 const PORTAL_URL = 'https://restwerks-portal-production.up.railway.app';
 const $ = id => document.getElementById(id);
 
-function token() { return localStorage.getItem('rw-token'); }
+// 0.2.0: ops has its own key. It never reads, writes or removes the dashboard's rw-token.
+const OPS_TOKEN_KEY = 'rw-ops-token';
+function token() { try { return localStorage.getItem(OPS_TOKEN_KEY); } catch (e) { return null; } }
+function setToken(v) { try { localStorage.setItem(OPS_TOKEN_KEY, v); } catch (e) {} }
+function clearToken() { try { localStorage.removeItem(OPS_TOKEN_KEY); } catch (e) {} }
 
 async function api(path) {
   let res;
   try {
     res = await fetch(PORTAL_URL + path, {
       headers: { 'Authorization': 'Bearer ' + token() },
-      credentials: 'include'
+      credentials: 'omit'
     });
   } catch (netErr) {
     throw new Error('Network error reaching the portal (' + netErr.message + ').');
   }
-  if (res.status === 401) { localStorage.removeItem('rw-token'); showLogin('Session expired, sign in again.'); throw new Error('unauth'); }
-  if (res.status === 403) { showLogin('Signed in, but this account is not a RestWerks operator. Check SUPERADMIN_EMAILS matches your login email exactly, then redeploy the portal.'); throw new Error('forbidden'); }
+  if (res.status === 401) { clearToken(); showLogin('Session expired, sign in again.'); throw new Error('unauth'); }
+  if (res.status === 403) {
+    // 0.2.0: an account that is not an operator does not keep an ops sign in
+    const tk = token();
+    if (tk) fetch(PORTAL_URL + '/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + tk }, credentials: 'omit' }).catch(() => {});
+    clearToken();
+    showLogin('Signed in, but this account is not a RestWerks operator. Check SUPERADMIN_EMAILS matches your login email exactly, then redeploy the portal.'); throw new Error('forbidden'); }
   if (!res.ok) {
     let body = '';
     try { body = (await res.json()).detail || (await res.text()); } catch (e) { try { body = await res.text(); } catch (e2) {} }
@@ -157,12 +171,12 @@ async function doLogin() {
     const res = await fetch(PORTAL_URL + '/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password: pw })
+      credentials: 'omit',
+      body: JSON.stringify({ email, password: pw, rememberMe: true, session: false })
     });
     const data = await res.json();
     if (!res.ok) { $('loginErr').textContent = data.error || 'Sign in failed.'; return; }
-    if (data.auth_token) localStorage.setItem('rw-token', data.auth_token);
+    if (data.auth_token) setToken(data.auth_token);
     showApp();
     load();
   } catch (e) {
@@ -318,11 +332,16 @@ function esc(s) {
 $('loginBtn').onclick = doLogin;
 $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 $('refreshBtn').onclick = load;
-$('logoutBtn').onclick = () => { localStorage.removeItem('rw-token'); closeDrawer(); showLogin(); };
+// 0.2.0: Sign out also cancels the token on the portal (review pass), then forgets it here.
+$('logoutBtn').onclick = () => {
+  const tk = token();
+  if (tk) fetch(PORTAL_URL + '/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + tk }, credentials: 'omit' }).catch(() => {});
+  clearToken(); closeDrawer(); showLogin();
+};
 $('closeDrawer').onclick = closeDrawer;
 $('overlay').onclick = closeDrawer;
 
-// boot: if a token is already in this browser (e.g. signed into the dashboard), try straight in
+// boot: only ops' own token opens ops straight away; the dashboard's sign in is never borrowed
 if (token()) { showApp(); load().catch(()=>{}); }
 else showLogin();
 </script>
