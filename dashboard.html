@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -1035,6 +1035,8 @@ body.dark input[type="date"], body.dark input[type="datetime-local"], body.dark 
 .ma-compose { display:flex;gap:0.6rem;padding:0.8rem 1.25rem;border-top:1px solid var(--border);background:var(--white);align-items:flex-end; }
 .ma-compose textarea { flex:1;resize:none;min-height:42px;max-height:160px;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:8px;background:var(--canvas);color:var(--ink);outline:none; }
 .ma-compose textarea:focus { border-color:var(--brand); }
+.ma-fixes { overflow-y:auto;max-height:calc(100vh - 160px);background:var(--white); }
+.mat-held { color:var(--ink-soft);font-size:0.78rem; }
 .ma-foot { display:flex;flex-wrap:wrap;gap:0.4rem 1rem;align-items:center;padding:0 1.25rem 0.85rem;background:var(--white); }
 .ma-pref { display:flex;align-items:center;gap:0.45rem;font-size:0.78rem;color:var(--ink-mid);cursor:pointer; }
 .ma-pref.off { color:var(--ink-soft);cursor:default; }
@@ -1750,7 +1752,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.96.0</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.97.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1887,7 +1889,8 @@ select.fld-input { appearance:auto;cursor:pointer; }
 
       <div id="panel-myandi" class="panel">
         <div class="panel-chrome ma-chrome">
-          <div class="panel-chrome-header"><div class="panel-chrome-title">My Andi</div><div class="ma-number" id="ma-number"></div></div>
+          <div class="panel-chrome-header"><div class="panel-chrome-title">My Andi</div><div class="ma-number" id="ma-number"></div><button class="btn-ghost" id="ma-fixes-btn" style="margin-left:auto;font-size:0.8rem;padding:0.25rem 0.7rem;" onclick="maToggleFixes()">Fixes learned</button></div>
+          <div class="ma-fixes" id="ma-fixes" style="display:none;"><div class="set-section-note" style="padding:0.85rem 1.25rem 0;">Fixes your team taught My Andi. A fix is what a teammate tried; it may not fix every case. If one came back, mark it Didn't hold and say what happened. Nothing is ever deleted. They stay with your team.</div><div id="mat-fixes" style="padding:0.6rem 1.25rem 1rem;"><div class="mat-sub">Loading...</div></div></div>
           <div class="ma-thread" id="ma-thread"><div class="hh-empty">Loading...</div></div>
           <div class="ma-compose">
             <textarea id="ma-input" rows="2" placeholder="Ask about a client, codes, tickets, or what you did" onkeydown="maKey(event)"></textarea>
@@ -3031,6 +3034,7 @@ function maRender(stick) {
 }
 async function loadMyAndi(keep) {
   var err = document.getElementById('ma-err'); if (err && !keep) err.textContent = '';
+  if (!keep) maToggleFixes(false); // v1.97.0: coming back to My Andi opens on the chat, never a stale list
   try {
     var res = await rwFetch('/api/myandi');
     var data = await res.json();
@@ -3104,6 +3108,7 @@ async function loadMyAndiTeam() {
     var res = await rwFetch('/api/myandi/team'); var data = await res.json();
     if (!res.ok) { body.innerHTML = '<div class="set-section"><div class="set-readonly">' + esc(data.error || 'Could not load.') + '</div></div>'; return; }
     _mat.team = data.team || []; _mat.number = data.number || null;
+    // v1.97.0: Fixes learned lives on the My Andi page, for the whole team (Andy, Oct 17 night).
     var html = '<div class="set-section"><div class="set-section-title">Team threads</div>';
     html += '<div class="set-section-note">Everyone\'s conversations with My Andi, newest first, by text' + (_mat.number ? ' to ' + esc(fmtPhone(_mat.number)) : '') + ' and on the desktop. Read only.</div>';
     html += '<div class="mat-wrap"><div class="mat-list" id="mat-list">';
@@ -3136,6 +3141,50 @@ async function matPick(id, keep) {
     box.innerHTML = msgs.length ? msgs.map(function (m) { return maBubble(m, who); }).join('') : '<div class="ma-empty">No messages with My Andi yet.</div>';
     box.scrollTop = box.scrollHeight;
   } catch (e) { box.innerHTML = '<div class="ma-empty">Connection error.</div>'; }
+}
+// v1.97.0 FIXES LEARNED on the My Andi page. Nothing is ever deleted: Didn't hold (with a reason) or Hide.
+function maToggleFixes(force) {
+  var f = document.getElementById('ma-fixes'), b = document.getElementById('ma-fixes-btn'); if (!f || !b) return;
+  var show = typeof force === 'boolean' ? force : f.style.display === 'none';
+  f.style.display = show ? '' : 'none';
+  ['ma-thread'].forEach(function (id) { var e = document.getElementById(id); if (e) e.style.display = show ? 'none' : ''; });
+  document.querySelectorAll('#panel-myandi .ma-compose, #panel-myandi .ma-foot').forEach(function (e) { e.style.display = show ? 'none' : ''; });
+  b.textContent = show ? 'Back to chat' : 'Fixes learned';
+  if (show) matLoadFixes();
+}
+async function matLoadFixes() {
+  var el = document.getElementById('mat-fixes'); if (!el) return;
+  try {
+    var res = await rwFetch('/api/myandi/fixes'); var data = await res.json();
+    var rows = (data && data.fixes) || [];
+    if (!res.ok) { el.innerHTML = '<div class="mat-sub">' + esc(data.error || 'Could not load.') + '</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="mat-sub">No fixes yet. A tech teaches one by texting My Andi, for example "remember: Sonos Arc drops after the update, a factory reset fixes it".</div>'; return; }
+    el.innerHTML = '<table class="mat-table"><tr><th>When</th><th>Who</th><th>Problem</th><th>Fix</th><th>Held?</th><th></th></tr>' + rows.map(function (r) {
+      var held = r.didnt_hold_at ? '<span class="mat-held">Didn\'t hold' + (r.didnt_hold_by ? ' (' + esc(r.didnt_hold_by) + ', ' + esc(fmtTime(r.didnt_hold_at)) + ')' : '') + (r.didnt_hold_reason ? ': ' + esc(String(r.didnt_hold_reason).slice(0, 300)) : '') + '</span>' : '<span class="mat-held">Not proven yet</span>';
+      return '<tr><td>' + esc(fmtTime(r.created_at)) + '</td><td>' + esc(r.taught_by || '') + '</td><td>' + esc(String(r.problem || '').slice(0, 300)) + '</td><td>' + esc(String(r.fix || '').slice(0, 400)) + '</td><td>' + held + '</td><td style="white-space:nowrap;">' +
+        (r.can_mark ? '<button class="btn-ghost" style="font-size:0.75rem;padding:0.2rem 0.5rem;" onclick="matDidntHold(' + Number(r.id) + ')">Didn\'t hold</button> ' : '') +
+        (r.can_hide ? '<button class="btn-ghost" style="font-size:0.75rem;padding:0.2rem 0.5rem;" onclick="matHideFix(' + Number(r.id) + ')">Hide</button>' : '') + '</td></tr>';
+    }).join('') + '</table>';
+  } catch (e) { el.innerHTML = '<div class="mat-sub">Connection error.</div>'; }
+}
+async function matDidntHold(id) {
+  var reason = prompt('What happened? For example: came back a week later at the house.');
+  if (reason === null) return;
+  reason = String(reason).trim();
+  if (!reason) { alert('Say what happened, so the next tech knows.'); return; }
+  try {
+    var res = await rwFetch('/api/myandi/fixes/' + Number(id) + '/didnt-hold', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason }) });
+    if (!res.ok) { var d = await res.json().catch(function () { return {}; }); alert(d.error || 'Could not mark it.'); }
+  } catch (e) { alert('Connection error.'); }
+  matLoadFixes();
+}
+async function matHideFix(id) {
+  if (!confirm('Hide this fix? Andi stops using it. It stays on record.')) return;
+  try {
+    var res = await rwFetch('/api/myandi/fixes/' + Number(id) + '/hide', { method: 'POST' });
+    if (!res.ok) { var d = await res.json().catch(function () { return {}; }); alert(d.error || 'Could not hide it.'); }
+  } catch (e) { alert('Connection error.'); }
+  matLoadFixes();
 }
 async function matLoadCodes() {
   var el = document.getElementById('mat-codes'); if (!el) return;
