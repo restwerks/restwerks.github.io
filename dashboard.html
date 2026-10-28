@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.97.2, 2026-10-18_0830 CT) GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.98.0, 2026-10-27_2215 CT) SOURCES AND THE CLIENT DATA DRY RUN (Andy, Oct 27; pairs with portal 1.92.0, DEPLOY PORTAL FIRST): Settings gains a Sources tab for Owners and Managers (the imports permission): Connect Microsoft 365 and add the sites Andi may read (each shows Granted or the grant command), Connect Slack (the one RestWerks app, also used by on call), upload the iPoint and OvrC exports, then a Dry run on one household, which shows what it WOULD add (people, phones, emails, addresses, equipment by room, masked codes, the history, preferences, gaps and what to review) and changes nothing. Rough on purpose; shaped in the refresh. Coming back from Microsoft or Slack (?sources=) opens Settings, Sources with the result. Prior v1.97.2, 2026-10-18_0830 CT GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -1059,6 +1059,22 @@ body.dark .mat-person.sel { background:rgba(29,158,117,0.18);color:var(--ink); }
 .set-section:last-child { border-bottom:none; }
 .set-section-title { font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:0.15rem; }
 .set-section-note { font-size:0.76rem;color:var(--ink-soft);margin-bottom:0.9rem;line-height:1.45; }
+.src-card { border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.8rem; }
+.src-head { display:flex;gap:0.6rem;align-items:baseline;margin-bottom:0.4rem;font-size:0.9rem; }
+.src-state, .src-sub { color:var(--ink-soft);font-size:0.78rem; }
+.src-note { color:var(--ink-mid);font-size:0.8rem;margin-bottom:0.5rem; }
+.src-row { display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin:0.35rem 0;font-size:0.84rem; }
+.src-row .fld-input { flex:1;min-width:10rem; }
+.src-cmd { background:var(--canvas);border:1px solid var(--border);border-radius:6px;padding:0.4rem 0.6rem;font-size:0.74rem;overflow-x:auto;margin:0.2rem 0 0.4rem; }
+.src-cmd code { white-space:pre; }
+.src-tag { font-size:0.7rem;border-radius:999px;padding:0.1rem 0.5rem;border:1px solid var(--border);color:var(--ink-mid); }
+.src-tag.ok { color:var(--ink-mid); } .src-tag.new { border-color:var(--brand);color:var(--brand); } .src-tag.wait { border-color:#c98a1b;color:#c98a1b; }
+.src-runs { margin:0.6rem 0; } .src-run { padding:0.45rem 0.6rem;border-radius:8px;cursor:pointer;font-size:0.84rem; }
+.src-run:hover, .src-run.sel { background:var(--canvas); }
+.src-prev { border-top:1px solid var(--border);margin-top:0.6rem;padding-top:0.6rem; } .src-ph { font-weight:600;font-size:0.95rem; }
+.src-ps { margin-top:0.9rem; } .src-pt { font-weight:600;font-size:0.84rem;margin-bottom:0.3rem; }
+.src-pr { font-size:0.82rem;padding:0.35rem 0;border-bottom:1px dashed var(--border);word-break:break-word; } .src-pr.rev { color:var(--ink); }
+.src-pr a { color:var(--brand); }
 .set-readonly { font-size:0.86rem;color:var(--ink-mid);background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem; }
 .set-saverow { display:flex;align-items:center;gap:0.9rem;margin-top:0.4rem; }
 .set-saved { font-size:0.78rem;color:var(--green);opacity:0;transition:opacity 0.2s; }
@@ -1752,7 +1768,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.97.2</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.98.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3360,7 +3376,7 @@ async function loadSettings() {
 
 function renderSettings(c) {
   // v1.94.0: by permission. isOwner keeps its name and now means may change the company settings (Owner or Manager).
-  var isOwner = rwCan('company.settings'), canTeam = rwCan('team.manage'), canThreads = rwCan('threads.admin'), canMyAndiTeam = rwCan('myandi.team');
+  var isOwner = rwCan('company.settings'), canTeam = rwCan('team.manage'), canThreads = rwCan('threads.admin'), canMyAndiTeam = rwCan('myandi.team'), canSources = rwCan('imports');
   var ro = isOwner ? '' : ' disabled';
   var status = (c.status || 'preview');
   var slot = document.getElementById('set-status-slot');
@@ -3396,6 +3412,7 @@ function renderSettings(c) {
   html += '<button class="hd-tab" data-settab="oncall" onclick="setTab(\'oncall\');loadOnCall()">On call</button>';
   if (canMyAndiTeam) html += '<button class="hd-tab" data-settab="myandi" onclick="setTab(\'myandi\');loadMyAndiTeam()">My Andi</button>';
   if (canThreads) html += '<button class="hd-tab" data-settab="conversations" onclick="setTab(\'conversations\');loadThreadAdmin()">Conversations</button>';
+  if (canSources) html += '<button class="hd-tab" data-settab="sources" onclick="setTab(\'sources\');loadSources()">Sources</button>';
   html += '</div>';
 
   // ── INFO ────────────────────────────────────────────────────────────────────
@@ -3550,6 +3567,9 @@ function renderSettings(c) {
     html += '</div>';
   }
 
+  // v1.98.0: SOURCES, Owners and Managers.
+  if (canSources) html += '<div class="set-tabpanel" id="settab-sources"><div id="sources-body"><div class="set-section"><div style="color:var(--ink-soft);font-size:0.8rem;">Loading...</div></div></div></div>';
+
   document.getElementById('settings-body').innerHTML = html;
   wireAddressAutocomplete('set-street', function(p) {
     setVal('set-street', p.street); setVal('set-city', p.city);
@@ -3557,6 +3577,212 @@ function renderSettings(c) {
   }, { fillInput: false });
   if (canTeam) { loadTeam(); loadSummaryRecipients(c); }
   if (isOwner) { loadQuickSettings(); renderVocabEditors(); }
+}
+
+
+// ── SOURCES AND THE CLIENT DATA DRY RUN (v1.98.0, Andy Oct 27: rough on purpose, shaped in the refresh) ──────────
+// Owners and Managers (the imports permission). Connect Microsoft 365 and pick the sites, connect Slack, upload the
+// iPoint and OvrC exports, then run a dry run on one household and read what it WOULD do. Nothing here writes a house.
+var _src = { data: null, runs: [], houses: null, poll: null, open: null };
+function srcFmtDate(d) { if (!d) return ''; var t = new Date(d); return isNaN(t) ? '' : t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+// A date in the preview is a day (from a file name, a document or a message), stored as midnight UTC; shown as that
+// day, never shifted into the evening before by the browser's time zone. Found in the first screenshot (Jul 14 for 7.15.26).
+function srcFmtDay(d) { if (!d) return ''; var t = new Date(d); return isNaN(t) ? '' : t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); }
+function srcMsg(text, bad) { var el = document.getElementById('src-msg'); if (el) { el.textContent = text || ''; el.style.color = bad ? 'var(--red, #c0392b)' : 'var(--ink-mid)'; } }
+async function loadSources() {
+  var body = document.getElementById('sources-body'); if (!body) return;
+  try {
+    var res = await rwFetch('/api/sources'); var d = await res.json();
+    if (!res.ok) { body.innerHTML = '<div class="set-section"><div class="set-readonly">' + esc(d.error || 'Could not load.') + '</div></div>'; return; }
+    _src.data = d;
+    var rr = await rwFetch('/api/imports/client-data/runs'); _src.runs = rr.ok ? await rr.json() : [];
+    if (!_src.houses) { var hr = await rwFetch('/api/households'); _src.houses = hr.ok ? await hr.json() : []; }
+    renderSources();
+    if (_src.runs.some(function (r) { return r.status === 'running'; })) srcStartPoll();
+  } catch (e) { body.innerHTML = '<div class="set-section"><div class="set-readonly">Could not load sources.</div></div>'; }
+}
+function renderSources() {
+  var d = _src.data, body = document.getElementById('sources-body'); if (!d || !body) return;
+  var h = '<div class="set-section"><div class="set-section-title">Sources</div>';
+  h += '<div class="set-section-note">What Andi may read about your clients. Andi only reads: nothing in these systems is changed, except that in Slack the RestWerks app joins a public job channel so it can read it, and the channel shows that it joined. It never posts there for a dry run. Nothing reaches a client.</div>';
+  h += '<div id="src-msg" style="font-size:0.82rem;min-height:1.1em;margin-bottom:0.5rem;"></div>';
+  // Microsoft 365
+  var ms = d.microsoft;
+  h += '<div class="src-card"><div class="src-head"><b>Microsoft 365</b> <span class="src-state">' + (ms.connected ? 'Connected' + (ms.connected_by ? ' by ' + esc(ms.connected_by) : '') + (ms.connected_at ? ', ' + srcFmtDate(ms.connected_at) : '') : 'Not connected') + '</span></div>';
+  if (!ms.app_ready) h += '<div class="set-readonly">The RestWerks Microsoft app is not set up on the server yet.</div>';
+  else if (!ms.connected) h += '<div class="src-note">An admin of your Microsoft 365 approves the RestWerks app. It can read only the sites you grant it next.</div><button class="btn-primary" onclick="srcConnect(\'microsoft\')">Connect Microsoft 365</button>';
+  else {
+    h += '<div class="src-note">Sites Andi may read. A site shows Granted once your admin has run the grant command for it.</div>';
+    (ms.sites || []).forEach(function (s) {
+      h += '<div class="src-row"><span><b>' + esc(s.label) + '</b> ' + esc(s.url) + '</span><span class="src-tag ' + (s.granted ? 'ok' : 'wait') + '">' + (s.granted ? 'Granted' : 'Not granted yet') + '</span>' +
+        '<button class="btn-ghost" data-url="' + esc(s.url) + '" onclick="srcSite({remove:this.getAttribute(\'data-url\')})">Remove</button></div>';
+      if (!s.granted && s.grant_command) h += '<div class="src-cmd"><code>' + esc(s.grant_command) + '</code></div>';
+    });
+    h += '<div class="src-row"><input class="fld-input" id="src-site-label" placeholder="Name, like Install" style="max-width:9rem;" />' +
+      '<input class="fld-input" id="src-site-url" placeholder="https://yourcompany.sharepoint.com/sites/Install" />' +
+      '<button class="btn-primary" onclick="srcAddSite()">Add site</button></div>';
+    if ((ms.sites || []).some(function (s) { return !s.granted; })) h += '<button class="btn-ghost" onclick="srcSite({check:true})">Check again</button>';
+    h += '<button class="btn-ghost" onclick="srcDisconnect(\'microsoft\')">Disconnect</button>';
+  }
+  h += '</div>';
+  // Slack
+  var sl = d.slack;
+  h += '<div class="src-card"><div class="src-head"><b>Slack</b> <span class="src-state">' + (sl.connected ? 'Connected' + (sl.team ? ' to ' + esc(sl.team) : '') + (sl.connected_by ? ' by ' + esc(sl.connected_by) : '') : 'Not connected') + '</span></div>';
+  if (!sl.app_ready) h += '<div class="set-readonly">The RestWerks Slack app is not set up on the server yet.</div>';
+  else if (!sl.connected || !sl.by_install) h += '<div class="src-note">Installs the RestWerks app in your Slack. It reads your client job channels and their canvases, joins a channel to read it, reads private channels only where someone invites it, never reads DMs, and posts on call pages.' + (sl.connected ? ' Your on call connection moves to it; invite the app to your on call channels after.' : '') + '</div><button class="btn-primary" onclick="srcConnect(\'slack\')">' + (sl.connected ? 'Reinstall with the RestWerks app' : 'Connect Slack') + '</button>';
+  else h += '<div class="src-note">Reads client job channels (i-) and their canvases, joining a channel to read it. Also used by on call.</div>' +
+    (sl.warnings || []).map(function (w) { return '<div class="set-readonly" style="margin-bottom:0.4rem;">' + esc(w) + '</div>'; }).join('') +
+    '<button class="btn-ghost" onclick="srcDisconnect(\'slack\')">Disconnect</button>';
+  h += '</div>';
+  // Uploads
+  h += '<div class="src-card"><div class="src-head"><b>Uploads</b></div><div class="src-note">Exports from systems Andi does not connect to. The newest file of each kind is the one Andi reads.</div>';
+  [['ipoint', 'iPoint customers'], ['ovrc', 'OvrC customers']].forEach(function (u) {
+    var b = d.uploads[u[0]];
+    h += '<div class="src-row"><span><b>' + u[1] + '</b> ' + (b ? esc(b.filename) + ', ' + srcFmtDate(b.created_at) : 'none yet') + '</span>' +
+      '<input type="file" id="src-up-' + u[0] + '" accept=".csv,.xlsx" style="display:none;" onchange="srcUpload(\'' + u[0] + '\', this)" />' +
+      '<button class="btn-ghost" onclick="document.getElementById(\'src-up-' + u[0] + '\').click()">' + (b ? 'Replace' : 'Upload') + '</button></div>';
+  });
+  h += '</div></div>';
+  // Dry run
+  h += '<div class="set-section"><div class="set-section-title">Dry run</div><div class="set-section-note">Reads every source about one household and shows what it would add. It changes nothing.</div>';
+  h += '<div class="src-row"><input class="fld-input" id="src-house-q" placeholder="Find a household" oninput="srcHouseFilter()" style="max-width:14rem;" />' +
+    '<select class="fld-input" id="src-house" style="max-width:20rem;">' + srcHouseOptions('') + '</select>' +
+    '<button class="btn-primary" onclick="srcDryRun()">Run</button></div>';
+  h += '<div class="src-runs">';
+  (_src.runs || []).forEach(function (r) {
+    var st = r.status === 'running' ? 'Running' + (r.progress_note ? ': ' + esc(r.progress_note) : '') : r.status === 'done' ? 'Done' : r.status === 'failed' ? 'Failed' + (r.error ? ': ' + esc(r.error) : '') : esc(r.status);
+    h += '<div class="src-run' + (_src.open === r.id ? ' sel' : '') + '" onclick="srcOpenRun(' + r.id + ')"><b>' + esc(r.household_name || ('Household ' + r.household_id)) + '</b> <span class="src-sub">' + srcFmtDate(r.created_at) + ' by ' + esc(r.started_by || '') + '</span><div class="src-sub">' + st + '</div></div>';
+  });
+  if (!(_src.runs || []).length) h += '<div class="src-sub">No dry runs yet.</div>';
+  h += '</div><div id="src-preview"></div></div>';
+  body.innerHTML = h;
+  if (_src.open) srcOpenRun(_src.open, true);
+}
+function srcHouseOptions(q) {
+  q = String(q || '').toLowerCase();
+  var list = (_src.houses || []).filter(function (x) { return !q || String(x.name || '').toLowerCase().indexOf(q) >= 0; })
+    .sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || '')); }).slice(0, 300);
+  return list.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name || ('Household ' + x.id)) + '</option>'; }).join('');
+}
+function srcHouseFilter() { var q = document.getElementById('src-house-q'), s = document.getElementById('src-house'); if (q && s) s.innerHTML = srcHouseOptions(q.value); }
+async function srcConnect(kind) {
+  try { var res = await rwFetch('/api/sources/' + kind + '/connect'); var d = await res.json(); if (!res.ok) return srcMsg(d.error || 'Could not start.', true); window.location.href = d.url; }
+  catch (e) { srcMsg('Could not start. Try again.', true); }
+}
+async function srcDisconnect(kind) {
+  var q = kind === 'slack' ? 'Disconnect Slack? Andi stops reading it, and on call stops posting to Slack.' : 'Disconnect Microsoft 365? Andi stops reading your sites.';
+  if (!confirm(q)) return;
+  var res = await rwFetch('/api/sources/' + kind, { method: 'DELETE' }); var d = await res.json().catch(function () { return {}; });
+  srcMsg(d.note || (res.ok ? 'Disconnected.' : (d.error || 'Could not disconnect.')), !res.ok); loadSources();
+}
+async function srcAddSite() {
+  var url = (document.getElementById('src-site-url') || {}).value || '', label = (document.getElementById('src-site-label') || {}).value || '';
+  await srcSite({ url: url.trim(), label: label.trim() });
+}
+async function srcSite(body) {
+  srcMsg('Working…');
+  var res = await rwFetch('/api/sources/microsoft/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  var d = await res.json().catch(function () { return {}; });
+  if (!res.ok) return srcMsg(d.error || 'Could not save.', true);
+  srcMsg(''); loadSources();
+}
+async function srcUpload(source, input) {
+  var f = input.files && input.files[0]; if (!f) return;
+  var fd = new FormData(); fd.append('file', f); fd.append('source', source); fd.append('kind', 'customers');
+  srcMsg('Uploading ' + f.name + '…');
+  var res = await rwFetch('/api/imports/upload', { method: 'POST', body: fd }); var d = await res.json().catch(function () { return {}; });
+  input.value = '';
+  if (!res.ok) return srcMsg(d.error || 'Upload failed.', true);
+  srcMsg('Uploaded ' + f.name + '.'); loadSources();
+}
+async function srcDryRun() {
+  var sel = document.getElementById('src-house'); if (!sel || !sel.value) return srcMsg('Pick a household.', true);
+  var res = await rwFetch('/api/imports/client-data/dry-run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ household_id: Number(sel.value) }) });
+  var d = await res.json().catch(function () { return {}; });
+  if (!res.ok) { srcMsg(d.error || 'Could not start.', true); if (d.run_id) { _src.open = d.run_id; } return loadSources(); }
+  _src.open = d.run_id; srcMsg('Dry run started. It reads every source, so it can take a while; this page updates on its own.');
+  loadSources();
+}
+function srcStartPoll() {
+  if (_src.poll) return;
+  _src.poll = setInterval(async function () {
+    if (!document.getElementById('sources-body')) { clearInterval(_src.poll); _src.poll = null; return; }
+    try {
+      var rr = await rwFetch('/api/imports/client-data/runs'); if (!rr.ok) return;
+      _src.runs = await rr.json();
+      var running = _src.runs.some(function (r) { return r.status === 'running'; });
+      var list = document.querySelector('#sources-body .src-runs');
+      if (list) renderSources();
+      if (!running) { clearInterval(_src.poll); _src.poll = null; }
+    } catch (e) { /* the next tick tries again */ }
+  }, 4000);
+}
+function srcSrcList(arr) {
+  return (arr || []).map(function (s) {
+    var t = esc(s.label) + (s.ref ? ': ' + esc(s.ref) : '') + (s.date ? ' (' + srcFmtDay(s.date) + ')' : '') + (s.from_pdf ? ' [read from a PDF]' : '');
+    return s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + t + '</a>' : t;
+  }).join('<br>');
+}
+async function srcOpenRun(id, quiet) {
+  _src.open = id;
+  var el = document.getElementById('src-preview'); if (!el) return;
+  if (!quiet) el.innerHTML = '<div class="src-sub">Loading…</div>';
+  var res = await rwFetch('/api/imports/client-data/runs/' + id); var r = await res.json().catch(function () { return {}; });
+  if (!res.ok) { el.innerHTML = '<div class="set-readonly">' + esc(r.error || 'Could not load.') + '</div>'; return; }
+  if (r.status === 'running') { el.innerHTML = '<div class="set-readonly">Still running: ' + esc(r.progress_note || r.stage || '') + '</div>'; srcStartPoll(); return; }
+  if (!r.preview) { el.innerHTML = '<div class="set-readonly">' + esc(r.error || 'No preview.') + '</div>'; return; }
+  var p = r.preview, h = '<div class="src-prev">';
+  h += '<div class="src-ph">' + esc(r.household_name || '') + (p.house && p.house.address ? ' · ' + esc(p.house.address) : '') + '</div>';
+  h += '<div class="src-sub">Sources: ' + Object.keys(p.sources || {}).map(function (k) { return esc(k) + ': ' + esc(p.sources[k]); }).join(' · ') + '</div>';
+  var sec = function (title, rows) { h += '<div class="src-ps"><div class="src-pt">' + title + '</div>' + (rows || '<div class="src-sub">Nothing found.</div>') + '</div>'; };
+  sec('To review (' + (p.review || []).length + ')', (p.review || []).map(function (x) { return '<div class="src-pr rev"><div>' + esc(x.text) + '</div><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  sec('People', (p.people || []).map(function (x) { return '<div class="src-pr"><b>' + esc((x.first || '') + ' ' + (x.last || '')) + '</b>' + (x.role ? ' · ' + esc(x.role) : '') + ' <span class="src-tag ' + (x.status === 'new' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  sec('Phones', (p.phones || []).map(function (x) { return '<div class="src-pr"><b>' + esc(x.phone) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + (x.label ? ' · ' + esc(x.label) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span> <span class="src-sub">' + esc(x.why) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  sec('Emails', (p.emails || []).map(function (x) { return '<div class="src-pr"><b>' + esc(x.email) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  sec('Addresses', (p.addresses || []).map(function (x) { return '<div class="src-pr"><b>' + esc([x.street, x.city, x.state, x.zip].filter(Boolean).join(', ')) + '</b> <span class="src-tag ' + (x.status === 'matches' ? 'ok' : 'wait') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  var rooms = {};
+  (p.equipment || []).forEach(function (e) { (rooms[e.room || 'House'] = rooms[e.room || 'House'] || []).push(e); });
+  sec('Equipment (' + (p.equipment || []).length + ')', Object.keys(rooms).sort().map(function (rm) {
+    return '<div class="src-pr"><b>' + esc(rm) + '</b>' + rooms[rm].map(function (e) { return '<div>' + esc([e.qty > 1 ? e.qty + 'x' : '', e.manufacturer, e.model, e.kind ? '(' + e.kind + ')' : ''].filter(Boolean).join(' ')) + ' <span class="src-tag ' + (e.status === 'new' ? 'new' : 'ok') + '">' + esc(e.status) + '</span> <span class="src-sub">' + esc(e.origin) + '</span></div>'; }).join('') + '</div>';
+  }).join(''));
+  sec('Codes (masked; never stored by a dry run)', (p.credentials || []).map(function (c) { return '<div class="src-pr"><b>' + esc(c.what) + '</b>' + c.values.map(function (v) { return '<div>' + (v.username ? esc(v.username) + ' / ' : '') + esc(v.masked) + ' <span class="src-sub">' + srcSrcList(v.sources) + '</span></div>'; }).join('') + '</div>'; }).join(''));
+  sec('History', (p.history || []).map(function (x) { return '<div class="src-pr">' + (x.date ? srcFmtDay(x.date) + ' · ' : '') + esc(x.text) + (x.from_names ? ' <span class="src-sub">from file names</span>' : '') + '</div>'; }).join(''));
+  sec('How they like to be handled', (p.preferences || []).map(function (x) { return '<div class="src-pr">' + esc(x.text) + '<div class="src-sub">' + srcSrcList([x.source]) + '</div></div>'; }).join(''));
+  sec('Active', (p.active || []).map(function (x) { return '<div class="src-pr">OvrC: ' + esc(x.name || '') + (x.status ? ' · ' + esc(x.status) : '') + '</div>'; }).join('') + (p.last_slack_activity ? '<div class="src-pr">Last job channel message: ' + srcFmtDay(p.last_slack_activity) + '</div>' : ''));
+  sec('Gaps in the documents', (p.gaps || []).map(function (x) { return '<div class="src-pr">' + esc(x.text) + '<div class="src-sub">' + srcSrcList([x.source]) + '</div></div>'; }).join(''));
+  if ((p.notes || []).length) sec('Notes from the run', '<div class="src-sub">' + p.notes.map(esc).join('<br>') + '</div>');
+  h += '</div>';
+  el.innerHTML = h;
+}
+// Coming back from Microsoft or Slack: ?sources=<result> opens Settings, Sources, and says what happened.
+var SRC_RESULTS = {
+  microsoft_ok: 'Microsoft 365 is connected. Add the sites Andi may read.', microsoft_refused: 'Microsoft 365 was not approved.',
+  microsoft_failed: 'Microsoft 365 could not be confirmed. Try again.', microsoft_expired: 'That link expired. Start the connect again.',
+  microsoft_denied: 'Only an owner or a manager can connect sources.', slack_ok: 'Slack is connected.', slack_refused: 'Slack was not approved.',
+  slack_failed: 'Slack could not be connected. Try again.', slack_expired: 'That link expired. Start the connect again.', slack_denied: 'Only an owner or a manager can connect Slack.',
+  microsoft_not_admin: 'Sign in with a Microsoft 365 admin account of your own company (Global Administrator or Application Administrator).'
+};
+function consumeSourcesLink() {
+  var q = new URLSearchParams(location.search); var v = q.get('sources'); if (!v) return;
+  var c = q.get('c');
+  q.delete('sources'); q.delete('c'); var rest = q.toString();
+  history.replaceState(history.state, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+  setTimeout(async function () {
+    try {
+      var el = document.querySelector('.nav-item[onclick*="nav(\'settings\'"]');
+      nav('settings', el);
+      for (var i = 0; i < 40 && !document.querySelector('[data-settab="sources"]'); i++) await new Promise(function (r) { setTimeout(r, 150); });
+      if (!document.querySelector('[data-settab="sources"]')) return;
+      setTab('sources');
+      // A connect saves only when the teammate who started it confirms it here, signed in (review 1).
+      if (v === 'confirm' && c) {
+        var res = await rwFetch('/api/sources/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ c: c }) });
+        var d = await res.json().catch(function () { return {}; });
+        await loadSources(); srcMsg(res.ok ? (d.message || 'Connected.') : (d.error || 'Could not connect.'), !res.ok); return;
+      }
+      await loadSources(); srcMsg(SRC_RESULTS[v] || '', /refused|failed|expired|denied|not_admin/.test(v));
+    } catch (e) { /* the page still works */ }
+  }, 300);
 }
 
 // ── THREAD ADMIN (v1.78.0) ───────────────────────────────────────────────────
@@ -10090,10 +10316,10 @@ initPwEyes();
   var appEl = document.getElementById('app');
   if(appEl){
     var appObs = new MutationObserver(function(){
-      if(appEl.style.display !== 'none'){ setTimeout(mobileLanding, 0); consumeThreadHash(); consumePageLink(); }
+      if(appEl.style.display !== 'none'){ setTimeout(mobileLanding, 0); consumeThreadHash(); consumePageLink(); consumeSourcesLink(); }
     });
     appObs.observe(appEl, { attributes:true, attributeFilter:['style'] });
-    if(appEl.style.display !== 'none'){ mobileLanding(); consumeThreadHash(); consumePageLink(); }
+    if(appEl.style.display !== 'none'){ mobileLanding(); consumeThreadHash(); consumePageLink(); consumeSourcesLink(); }
   }
 
   // installable app + offline shell
