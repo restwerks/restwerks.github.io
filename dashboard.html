@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.98.1, 2026-10-28_0200 CT) DRY RUN DATES IN YOUR OWN TIME (Andy, Oct 28: an upload made Tuesday night read Oct 28); pairs with portal 1.92.2. Prior v1.98.0, 2026-10-27_2215 CT SOURCES AND THE CLIENT DATA DRY RUN (Andy, Oct 27; pairs with portal 1.92.0, DEPLOY PORTAL FIRST): Settings gains a Sources tab for Owners and Managers (the imports permission): Connect Microsoft 365 and add the sites Andi may read (each shows Granted or the grant command), Connect Slack (the one RestWerks app, also used by on call), upload the iPoint and OvrC exports, then a Dry run on one household, which shows what it WOULD add (people, phones, emails, addresses, equipment by room, masked codes, the history, preferences, gaps and what to review) and changes nothing. Rough on purpose; shaped in the refresh. Coming back from Microsoft or Slack (?sources=) opens Settings, Sources with the result. Prior v1.97.2, 2026-10-18_0830 CT GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.98.2, 2026-10-28_2300 CT) THE REAL RUN (Andy, Oct 28 night; pairs with portal 1.92.3, DEPLOY PORTAL FIRST): the dry run preview gets a checkbox on every item it would add, each history line says whether the client can hear it (flip it there), Add the checked items to the household, then Undo this import or Looks good; every history line shows its source and a year only date stays a year; replaced gear is struck through with what replaced it; merged rooms are listed; a device with no model reads model not known; codes stay masked in the preview and land in full on the house. The household gains History and Codes tabs (codes in full for the team with their file and date; Remove and the client or team flip for owners and managers). Prior v1.98.1, 2026-10-28_0200 CT DRY RUN DATES IN YOUR OWN TIME (Andy, Oct 28: an upload made Tuesday night read Oct 28); pairs with portal 1.92.2. Prior v1.98.0, 2026-10-27_2215 CT SOURCES AND THE CLIENT DATA DRY RUN (Andy, Oct 27; pairs with portal 1.92.0, DEPLOY PORTAL FIRST): Settings gains a Sources tab for Owners and Managers (the imports permission): Connect Microsoft 365 and add the sites Andi may read (each shows Granted or the grant command), Connect Slack (the one RestWerks app, also used by on call), upload the iPoint and OvrC exports, then a Dry run on one household, which shows what it WOULD add (people, phones, emails, addresses, equipment by room, masked codes, the history, preferences, gaps and what to review) and changes nothing. Rough on purpose; shaped in the refresh. Coming back from Microsoft or Slack (?sources=) opens Settings, Sources with the result. Prior v1.97.2, 2026-10-18_0830 CT GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -1075,6 +1075,8 @@ body.dark .mat-person.sel { background:rgba(29,158,117,0.18);color:var(--ink); }
 .src-ps { margin-top:0.9rem; } .src-pt { font-weight:600;font-size:0.84rem;margin-bottom:0.3rem; }
 .src-pr { font-size:0.82rem;padding:0.35rem 0;border-bottom:1px dashed var(--border);word-break:break-word; } .src-pr.rev { color:var(--ink); }
 .src-pr a { color:var(--brand); }
+.hd-code-row, .hd-hist-row { display:flex;justify-content:space-between;gap:0.6rem;padding:0.45rem 0;border-bottom:1px solid var(--border);font-size:0.84rem;word-break:break-word; } .hd-code-val { font-family:ui-monospace,Menlo,monospace; } .hd-hist-row.team { opacity:0.8; } .hd-hist-row a, .hd-code-row a { color:var(--brand); }
+.src-chk { margin-right:0.35rem;vertical-align:middle; } .src-old { color:var(--ink-soft);text-decoration:line-through; } .src-old .src-tag { text-decoration:none; } .src-pr.team { opacity:0.8; } .src-aud { font-size:0.72rem;margin-left:0.3rem; } .src-ct { margin-top:0.15rem; } .src-apply { margin:0.6rem 0;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.84rem; }
 .set-readonly { font-size:0.86rem;color:var(--ink-mid);background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.8rem; }
 .set-saverow { display:flex;align-items:center;gap:0.9rem;margin-top:0.4rem; }
 .set-saved { font-size:0.78rem;color:var(--green);opacity:0;transition:opacity 0.2s; }
@@ -1768,7 +1770,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.98.1</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.98.2</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -3583,7 +3585,7 @@ function renderSettings(c) {
 // ── SOURCES AND THE CLIENT DATA DRY RUN (v1.98.0, Andy Oct 27: rough on purpose, shaped in the refresh) ──────────
 // Owners and Managers (the imports permission). Connect Microsoft 365 and pick the sites, connect Slack, upload the
 // iPoint and OvrC exports, then run a dry run on one household and read what it WOULD do. Nothing here writes a house.
-var _src = { data: null, runs: [], houses: null, poll: null, open: null };
+var _src = { data: null, runs: [], batches: [], houses: null, poll: null, open: null, canApply: false };
 function srcFmtDate(d) { if (!d) return ''; var t = new Date(d); return isNaN(t) ? '' : t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 // A date in the preview is a day (from a file name, a document or a message), stored as midnight UTC; shown as that
 // day, never shifted into the evening before by the browser's time zone. Found in the first screenshot (Jul 14 for 7.15.26).
@@ -3597,6 +3599,7 @@ async function loadSources() {
     if (!res.ok) { body.innerHTML = '<div class="set-section"><div class="set-readonly">' + esc(d.error || 'Could not load.') + '</div></div>'; return; }
     _src.data = d;
     var rr = await rwFetch('/api/imports/client-data/runs'); _src.runs = rr.ok ? await rr.json() : [];
+    var br = await rwFetch('/api/imports/client-data/batches'); _src.batches = br.ok ? await br.json() : [];
     if (!_src.houses) { var hr = await rwFetch('/api/households'); _src.houses = hr.ok ? await hr.json() : []; }
     renderSources();
     if (_src.runs.some(function (r) { return r.status === 'running'; })) srcStartPoll();
@@ -3645,13 +3648,15 @@ function renderSources() {
   });
   h += '</div></div>';
   // Dry run
-  h += '<div class="set-section"><div class="set-section-title">Dry run</div><div class="set-section-note">Reads every source about one household and shows what it would add. It changes nothing.</div>';
+  h += '<div class="set-section"><div class="set-section-title">Dry run</div><div class="set-section-note">Reads every source about one household and shows what it would add. It changes nothing until you tick items and add them; an import can be undone as a whole.</div>';
   h += '<div class="src-row"><input class="fld-input" id="src-house-q" placeholder="Find a household" oninput="srcHouseFilter()" style="max-width:14rem;" />' +
     '<select class="fld-input" id="src-house" style="max-width:20rem;">' + srcHouseOptions('') + '</select>' +
     '<button class="btn-primary" onclick="srcDryRun()">Run</button></div>';
   h += '<div class="src-runs">';
   (_src.runs || []).forEach(function (r) {
     var st = r.status === 'running' ? 'Running' + (r.progress_note ? ': ' + esc(r.progress_note) : '') : r.status === 'done' ? 'Done' : r.status === 'failed' ? 'Failed' + (r.error ? ': ' + esc(r.error) : '') : esc(r.status);
+    var bt = r.applied_batch_id ? (_src.batches || []).filter(function (b) { return b.id === r.applied_batch_id; })[0] : null;
+    if (bt) st += ' · ' + (bt.status === 'applied' ? 'added to the house (undo available)' : bt.status === 'kept' ? 'added to the house' : bt.status === 'undone' ? 'added, then undone' : esc(bt.status));
     h += '<div class="src-run' + (_src.open === r.id ? ' sel' : '') + '" onclick="srcOpenRun(' + r.id + ')"><b>' + esc(r.household_name || ('Household ' + r.household_id)) + '</b> <span class="src-sub">' + srcFmtDate(r.created_at) + ' by ' + esc(r.started_by || '') + '</span><div class="src-sub">' + st + '</div></div>';
   });
   if (!(_src.runs || []).length) h += '<div class="src-sub">No dry runs yet.</div>';
@@ -3724,7 +3729,60 @@ function srcSrcList(arr) {
     return s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + t + '</a>' : t;
   }).join('<br>');
 }
+// v1.98.2: a history date as precise as its source said it (a year stays a year).
+function srcFmtHist(d, p) {
+  if (!d) return '';
+  var t = new Date(d); if (isNaN(t)) return '';
+  if (p === 'year') return String(t.getUTCFullYear());
+  if (p === 'month') return t.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return srcFmtDay(d);
+}
+// v1.98.2 (portal 1.92.3): THE REAL RUN. Every item the run would add has a checkbox; history lines can be flipped
+// between client and team; "Add the checked items to the household" writes exactly the ticked ids.
+var _srcPick = {}, _srcAud = {};
+function srcBox(item) {
+  if (!item || !item.id || !_src.canApply) return '';
+  if (_srcPick[item.id] === undefined) _srcPick[item.id] = !!item.pick;
+  return '<input type="checkbox" class="src-chk" data-id="' + esc(item.id) + '"' + (_srcPick[item.id] ? ' checked' : '') + ' onclick="event.stopPropagation();_srcPick[this.getAttribute(\'data-id\')]=this.checked;srcCount()" /> ';
+}
+function srcCount() {
+  var n = Object.keys(_srcPick).filter(function (k) { return _srcPick[k]; }).length;
+  var b = document.getElementById('src-apply-n'); if (b) b.textContent = n;
+}
+function srcAudSel(h) {
+  if (!_src.canApply) return '<span class="src-tag ' + (h.audience === 'client' ? 'new' : 'ok') + '">' + (h.audience === 'client' ? 'client' : 'team') + '</span>';
+  var a = _srcAud[h.id] || h.audience;
+  return '<select class="src-aud" data-id="' + esc(h.id) + '" onchange="_srcAud[this.getAttribute(\'data-id\')]=this.value;srcHistRow(this)">' +
+    '<option value="client"' + (a === 'client' ? ' selected' : '') + '>Client can hear</option><option value="team"' + (a === 'team' ? ' selected' : '') + '>Team only</option></select>';
+}
+function srcHistRow(sel) { var row = sel.closest('.src-pr'); if (row) row.classList.toggle('team', sel.value === 'team'); }
+async function srcApply(runId) {
+  var picks = Object.keys(_srcPick).filter(function (k) { return _srcPick[k]; });
+  if (!picks.length) return srcMsg('Tick at least one item to add.', true);
+  if (!confirm('Add ' + picks.length + ' checked item' + (picks.length === 1 ? '' : 's') + ' to this household? You can undo this import afterward.')) return;
+  var btn = document.getElementById('src-apply-btn'); if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
+  var res = await rwFetch('/api/imports/client-data/runs/' + runId + '/apply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ picks: picks, audience: _srcAud }) });
+  var d = await res.json().catch(function () { return {}; });
+  if (!res.ok) { if (btn) { btn.disabled = false; btn.textContent = 'Add the checked items to the household'; } return srcMsg(d.error || 'Could not add.', true); }
+  var c = d.counts || {};
+  srcMsg('Added: ' + [['people', c.people], ['phones', c.phones], ['emails', c.emails], ['rooms', c.rooms], ['devices', c.equipment], ['codes', c.codes], ['fields', c.fields], ['history lines', c.history]].filter(function (x) { return x[1]; }).map(function (x) { return x[1] + ' ' + x[0]; }).join(', ') +
+    ((d.skipped || []).length ? '. Not added: ' + d.skipped.join(' ') : '.'));
+  _srcPick = {}; _srcAud = {};
+  loadSources();
+}
+async function srcUndo(batchId) {
+  if (!confirm('Undo this import? Everything it added to the household is removed. Anything a person changed or added by hand stays, and conversations stay.')) return;
+  var res = await rwFetch('/api/imports/client-data/batches/' + batchId + '/undo', { method: 'POST' }); var d = await res.json().catch(function () { return {}; });
+  var kept = res.ok && d.removed && d.removed.kept_changed ? d.removed.kept_changed : 0;
+  srcMsg(res.ok ? 'Import undone.' + (kept ? ' ' + kept + (kept === 1 ? ' item was' : ' items were') + ' changed by hand since, so ' + (kept === 1 ? 'it stays' : 'they stay') + ' on the house.' : '') : (d.error || 'Could not undo.'), !res.ok); loadSources();
+}
+async function srcKeep(batchId) {
+  if (!confirm('Mark this import as looks good? After this it can no longer be undone as a batch.')) return;
+  var res = await rwFetch('/api/imports/client-data/batches/' + batchId + '/keep', { method: 'POST' }); var d = await res.json().catch(function () { return {}; });
+  srcMsg(res.ok ? 'Marked looks good.' : (d.error || 'Could not mark it.'), !res.ok); loadSources();
+}
 async function srcOpenRun(id, quiet) {
+  if (_src.open !== id) { _srcPick = {}; _srcAud = {}; }
   _src.open = id;
   var el = document.getElementById('src-preview'); if (!el) return;
   if (!quiet) el.innerHTML = '<div class="src-sub">Loading…</div>';
@@ -3733,27 +3791,58 @@ async function srcOpenRun(id, quiet) {
   if (r.status === 'running') { el.innerHTML = '<div class="set-readonly">Still running: ' + esc(r.progress_note || r.stage || '') + '</div>'; srcStartPoll(); return; }
   if (!r.preview) { el.innerHTML = '<div class="set-readonly">' + esc(r.error || 'No preview.') + '</div>'; return; }
   var p = r.preview, h = '<div class="src-prev">';
+  var batch = r.applied_batch_id ? (_src.batches || []).filter(function (b) { return b.id === r.applied_batch_id; })[0] : null;
+  _src.canApply = !r.applied_batch_id && p.version && p.version >= '0.3.0';
   h += '<div class="src-ph">' + esc(r.household_name || '') + (p.house && p.house.address ? ' · ' + esc(p.house.address) : '') + '</div>';
   h += '<div class="src-sub">Sources: ' + Object.keys(p.sources || {}).map(function (k) { return esc(k) + ': ' + esc(p.sources[k]); }).join(' · ') + '</div>';
+  if (r.applied_batch_id) {
+    h += '<div class="src-apply"><b>Added to the household</b>' + (r.applied_at ? ' ' + srcFmtDate(r.applied_at) : '') + (r.applied_by ? ' by ' + esc(r.applied_by) : '') + '. ';
+    if (batch && batch.status === 'applied') h += '<button class="btn-ghost" onclick="srcUndo(' + batch.id + ')">Undo this import</button> <button class="btn-ghost" onclick="srcKeep(' + batch.id + ')">Looks good</button>';
+    else if (batch) h += '<span class="src-sub">' + (batch.status === 'kept' ? 'Marked looks good.' : batch.status === 'undone' ? 'This import was undone.' : esc(batch.status)) + '</span>';
+    h += '</div>';
+  } else if (!_src.canApply) {
+    h += '<div class="set-readonly" style="margin:0.5rem 0;">This dry run is from an older version. Run it again to add items to the household.</div>';
+  } else {
+    h += '<div class="src-apply">Tick what to add, then <button class="btn-primary" id="src-apply-btn" onclick="srcApply(' + r.id + ')">Add the checked items to the household</button> <span class="src-sub"><span id="src-apply-n">0</span> ticked. Nothing a person entered is changed; you can undo the whole import.</span></div>';
+  }
   var sec = function (title, rows) { h += '<div class="src-ps"><div class="src-pt">' + title + '</div>' + (rows || '<div class="src-sub">Nothing found.</div>') + '</div>'; };
   sec('To review (' + (p.review || []).length + ')', (p.review || []).map(function (x) { return '<div class="src-pr rev"><div>' + esc(x.text) + '</div><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
-  sec('People', (p.people || []).map(function (x) { return '<div class="src-pr"><b>' + esc((x.first || '') + ' ' + (x.last || '')) + '</b>' + (x.role ? ' · ' + esc(x.role) : '') + ' <span class="src-tag ' + (x.status === 'new' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
-  sec('Phones', (p.phones || []).map(function (x) { return '<div class="src-pr"><b>' + esc(x.phone) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + (x.label ? ' · ' + esc(x.label) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span> <span class="src-sub">' + esc(x.why) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
-  sec('Emails', (p.emails || []).map(function (x) { return '<div class="src-pr"><b>' + esc(x.email) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  var pickable = function (x, ok) { return ok ? srcBox(x) : ''; };
+  sec('People', (p.people || []).map(function (x) { return '<div class="src-pr">' + pickable(x, x.status === 'new') + '<b>' + esc((x.first || '') + ' ' + (x.last || '')) + '</b>' + (x.role ? ' · ' + esc(x.role) : '') + ' <span class="src-tag ' + (x.status === 'new' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
+  sec('Phones', (p.phones || []).map(function (x) { return '<div class="src-pr">' + pickable(x, x.status === 'confirmed') + '<b>' + esc(x.phone) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + (x.label ? ' · ' + esc(x.label) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span> <span class="src-sub">' + esc(x.why) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join('') +
+    (_src.canApply ? '<div class="src-sub">A number added here is never texted. It lets Andi know who it is when that person texts in.</div>' : ''));
+  sec('Emails', (p.emails || []).map(function (x) { return '<div class="src-pr">' + pickable(x, x.status === 'confirmed') + '<b>' + esc(x.email) + '</b>' + (x.whose ? ' · ' + esc(x.whose) : '') + ' <span class="src-tag ' + (x.status === 'review' ? 'wait' : x.status === 'confirmed' ? 'new' : 'ok') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
   sec('Addresses', (p.addresses || []).map(function (x) { return '<div class="src-pr"><b>' + esc([x.street, x.city, x.state, x.zip].filter(Boolean).join(', ')) + '</b> <span class="src-tag ' + (x.status === 'matches' ? 'ok' : 'wait') + '">' + esc(x.status) + '</span><div class="src-sub">' + srcSrcList(x.sources) + '</div></div>'; }).join(''));
   var rooms = {};
   (p.equipment || []).forEach(function (e) { (rooms[e.room || 'House'] = rooms[e.room || 'House'] || []).push(e); });
-  sec('Equipment (' + (p.equipment || []).length + ')', Object.keys(rooms).sort().map(function (rm) {
-    return '<div class="src-pr"><b>' + esc(rm) + '</b>' + rooms[rm].map(function (e) { return '<div>' + esc([e.qty > 1 ? e.qty + 'x' : '', e.manufacturer, e.model, e.kind ? '(' + e.kind + ')' : ''].filter(Boolean).join(' ')) + ' <span class="src-tag ' + (e.status === 'new' ? 'new' : 'ok') + '">' + esc(e.status) + '</span> <span class="src-sub">' + esc(e.origin) + '</span></div>'; }).join('') + '</div>';
+  var merges = (p.room_merges || []).filter(function (m) { return m.names && m.names.length; });
+  sec('Equipment (' + (p.equipment || []).length + ')', (merges.length ? '<div class="src-sub" style="margin-bottom:0.3rem;">Rooms merged: ' + merges.map(function (m) { return esc(m.names.join(', ')) + ' as <b>' + esc(m.room) + '</b>'; }).join('; ') + '. A wrong merge can be split or merged again on the house.</div>' : '') +
+    Object.keys(rooms).sort().map(function (rm) {
+      return '<div class="src-pr"><b>' + esc(rm) + '</b>' + rooms[rm].map(function (e) {
+        var what = [e.qty > 1 ? e.qty + 'x' : '', e.manufacturer, e.model, e.kind ? (e.model || e.manufacturer ? '(' + e.kind + ')' : e.kind) : ''].filter(Boolean).join(' ') + (e.model ? '' : ', model not known');
+        var tag = e.status === 'replaced' ? '<span class="src-tag ok">replaced by ' + esc(e.replaced_by || 'newer gear') + '</span>' : '<span class="src-tag ' + (e.status === 'new' ? 'new' : 'ok') + '">' + esc(e.status) + '</span>';
+        return '<div class="' + (e.status === 'replaced' ? 'src-old' : '') + '">' + pickable(e, e.status === 'new') + esc(what) + ' ' + tag + (e.pair ? ' <span class="src-tag wait">check: older and newer models</span>' : '') + ' <span class="src-sub">' + esc(e.origin) + '</span></div>';
+      }).join('') + '</div>';
+    }).join(''));
+  var fills = p.fills || [];
+  sec('Codes' + (_src.canApply ? ' (shown masked here; added in full to the house for your team)' : ' (masked)'),
+    fills.map(function (f) { return '<div class="src-pr">' + pickable(f, true) + 'Fill the house\'s empty <b>' + (f.field === 'garage_code' ? 'garage code' : 'WiFi password') + '</b> with ' + esc(f.from) + ' ' + esc(f.masked) + (f.network ? ' (network ' + esc(f.network) + ')' : '') + '</div>'; }).join('') +
+    (p.credentials || []).map(function (c) { return '<div class="src-pr"><b>' + esc(c.what) + '</b>' + c.values.map(function (v) { return '<div>' + (v.sealed_ok ? pickable(v, true) : '') + (v.username ? esc(v.username) + ' / ' : '') + esc(v.masked) + (v.sealed_ok || !_src.canApply ? '' : ' <span class="src-tag wait">run again to add</span>') + ' <span class="src-sub">' + srcSrcList(v.sources) + '</span></div>'; }).join('') + (c.values.length > 1 ? '<div class="src-sub">Different values in different files, newest first. Tick the one that is current.</div>' : '') + '</div>'; }).join('') +
+    (p.alarm_codes_left_out ? '<div class="src-sub">' + p.alarm_codes_left_out + ' alarm code' + (p.alarm_codes_left_out === 1 ? ' was' : 's were') + ' left out. Alarm codes are never kept in RestWerks.</div>' : ''));
+  var hearer = (function () { var m = String(r.household_name || '').match(/,\s*([A-Za-z'\-]+)/); return m ? m[1] : 'The client'; })();
+  sec('History (each line: what the client can hear, or team only)', (p.history || []).map(function (x) {
+    var a = _srcAud[x.id] || x.audience;
+    var src = x.from_names ? 'from file names' : (x.source ? esc(x.source.label) + (x.source.ref ? ': ' + esc(x.source.ref) : '') : '');
+    return '<div class="src-pr' + (a === 'team' ? ' team' : '') + '">' + pickable(x, true) + (x.date ? srcFmtHist(x.date, x.precision) + ' · ' : '') + esc(x.text) + ' <span class="src-sub">' + src + '</span> ' + srcAudSel(x) +
+      (x.client_changed && x.client_text ? '<div class="src-sub src-ct">' + esc(hearer) + ' hears: ' + esc(x.client_text) + '</div>' : '') + '</div>';
   }).join(''));
-  sec('Codes (masked; never stored by a dry run)', (p.credentials || []).map(function (c) { return '<div class="src-pr"><b>' + esc(c.what) + '</b>' + c.values.map(function (v) { return '<div>' + (v.username ? esc(v.username) + ' / ' : '') + esc(v.masked) + ' <span class="src-sub">' + srcSrcList(v.sources) + '</span></div>'; }).join('') + '</div>'; }).join(''));
-  sec('History', (p.history || []).map(function (x) { return '<div class="src-pr">' + (x.date ? srcFmtDay(x.date) + ' · ' : '') + esc(x.text) + (x.from_names ? ' <span class="src-sub">from file names</span>' : '') + '</div>'; }).join(''));
   sec('How they like to be handled', (p.preferences || []).map(function (x) { return '<div class="src-pr">' + esc(x.text) + '<div class="src-sub">' + srcSrcList([x.source]) + '</div></div>'; }).join(''));
   sec('Active', (p.active || []).map(function (x) { return '<div class="src-pr">OvrC: ' + esc(x.name || '') + (x.status ? ' · ' + esc(x.status) : '') + '</div>'; }).join('') + (p.last_slack_activity ? '<div class="src-pr">Last job channel message: ' + srcFmtDay(p.last_slack_activity) + '</div>' : ''));
   sec('Gaps in the documents', (p.gaps || []).map(function (x) { return '<div class="src-pr">' + esc(x.text) + '<div class="src-sub">' + srcSrcList([x.source]) + '</div></div>'; }).join(''));
   if ((p.notes || []).length) sec('Notes from the run', '<div class="src-sub">' + p.notes.map(esc).join('<br>') + '</div>');
   h += '</div>';
   el.innerHTML = h;
+  srcCount();
 }
 // Coming back from Microsoft or Slack: ?sources=<result> opens Settings, Sources, and says what happened.
 var SRC_RESULTS = {
@@ -5554,7 +5643,7 @@ async function submitAddHousehold() {
 // ── HOUSEHOLD DETAIL / EDIT (v1.9.0) ───────────────────────────────────────────
 var _hd = null;          // the loaded household record
 var _hdTab = 'system'; // active household detail tab (#7); v1.22.0 System leads
-var _hdTabOrder = ['system','people','activity','photos','files','andi']; // session-only drag order
+var _hdTabOrder = ['system','people','activity','history','codes','photos','files','andi']; // session-only drag order
 var _hdDragTab = null;
 function hdTabDragStart(e){ _hdDragTab = e.target.getAttribute('data-tab'); e.target.classList.add('dragging'); try{ e.dataTransfer.effectAllowed='move'; }catch(x){} }
 function hdTabDragOver(e){ e.preventDefault(); try{ e.dataTransfer.dropEffect='move'; }catch(x){} }
@@ -5748,7 +5837,9 @@ function renderHouseholdDetail() {
     { id: 'activity', label: 'Activity', html: activityHtml },
     { id: 'photos',   label: 'Photos',   html: photosHtml },
     { id: 'files',    label: 'Files',    html: filesHtml },
-    { id: 'andi',     label: 'Andi remembers', html: andiHtml }
+    { id: 'andi',     label: 'Andi remembers', html: andiHtml },
+    { id: 'history',  label: 'History',  html: hdHistoryHtml() },
+    { id: 'codes',    label: 'Codes',    html: hdCodesHtml() }
   ];
   // session-only drag order (persistence parked with the preferences cluster)
   tabs.sort(function(a,b){ return _hdTabOrder.indexOf(a.id) - _hdTabOrder.indexOf(b.id); });
@@ -5767,7 +5858,65 @@ function renderHouseholdDetail() {
   _hdTab = active;
   loadDetailPhotos();
   if (_hd) loadDocs(_hd.id, 'hd-docs-list');
+  if (_hd) { hdLoadCodes(); hdLoadHistory(); }
 }
+
+// v1.98.2 (portal 1.92.3): the house's Codes and History tabs. Codes show in full for the team, with the file and date
+// each came from (Andy: the techs can open the As Built anyway); every read is logged on the portal. Alarm codes are
+// never kept. History lines say whether the client can hear them.
+function hdCodesHtml() { return '<div class="hd-block-title">Codes</div><div style="color:var(--ink-soft);font-size:0.76rem;margin-bottom:0.6rem;">Logins and codes from this house\'s files, for your team. Client Andi never sees this list. Alarm codes are never kept here.</div><div id="hd-codes"><div class="hd-person-sub">Loading…</div></div>' +
+  '<div class="hd-grid" style="margin-top:0.8rem;"><div class="hd-fld"><label>What it is</label><input class="hd-input" id="hd-code-what" placeholder="Router admin" /></div><div class="hd-fld"><label>Username</label><input class="hd-input" id="hd-code-user" /></div><div class="hd-fld"><label>Password or code</label><input class="hd-input" id="hd-code-secret" /></div></div>' +
+  '<div class="hd-save-bar"><button class="hd-save" onclick="hdAddCode()">Add code</button><span class="hd-err" id="hd-code-err"></span></div>'; }
+function hdHistoryHtml() { return '<div class="hd-block-title">History</div><div style="color:var(--ink-soft);font-size:0.76rem;margin-bottom:0.6rem;">What has been done at this house. Client lines are what Andi may tell the client, briefly, with brands and models if they ask; team lines stay with your team.</div><div id="hd-history"><div class="hd-person-sub">Loading…</div></div>'; }
+async function hdLoadCodes() {
+  var el = document.getElementById('hd-codes'); if (!el || !_hd) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/codes'); var rows = await res.json();
+    if (!res.ok) { el.innerHTML = '<div class="hd-person-sub">' + esc(rows.error || 'Could not load.') + '</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="hd-person-sub">No codes on file yet.</div>'; return; }
+    var canDel = rwCan('imports');
+    el.innerHTML = rows.map(function (c) {
+      var src = [c.source_label, c.source_ref ? String(c.source_ref).split('/').pop() : '', c.source_date ? srcFmtDay(c.source_date) : ''].filter(Boolean).join(' · ');
+      return '<div class="hd-code-row"><div><b>' + esc(c.what) + '</b>' + (c.username ? ' · ' + esc(c.username) : '') + ' · <span class="hd-code-val">' + esc(c.secret) + '</span>' +
+        '<div class="hd-person-sub">' + (c.source_url ? '<a href="' + esc(c.source_url) + '" target="_blank" rel="noopener">' + esc(src) + '</a>' : esc(src)) + '</div></div>' +
+        (canDel ? '<button class="btn-ghost" onclick="hdDelCode(' + c.id + ')">Remove</button>' : '') + '</div>';
+    }).join('');
+  } catch (e) { el.innerHTML = '<div class="hd-person-sub">Connection error.</div>'; }
+}
+async function hdAddCode() {
+  var err = document.getElementById('hd-code-err'); if (err) err.textContent = '';
+  var body = { what: hhVal('hd-code-what'), username: hhVal('hd-code-user'), secret: hhVal('hd-code-secret') };
+  if (!body.what || !body.secret) { if (err) err.textContent = 'Say what it is and the code.'; return; }
+  var res = await rwFetch('/api/households/' + _hd.id + '/codes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  var d = await res.json().catch(function () { return {}; });
+  if (!res.ok) { if (err) err.textContent = d.error || 'Could not add.'; return; }
+  ['hd-code-what', 'hd-code-user', 'hd-code-secret'].forEach(function (i) { setVal(i, ''); });
+  hdLoadCodes();
+}
+async function hdDelCode(id) {
+  if (!confirm('Remove this code from the house?')) return;
+  var res = await rwFetch('/api/households/' + _hd.id + '/codes/' + id, { method: 'DELETE' });
+  if (res.ok) hdLoadCodes();
+}
+async function hdLoadHistory() {
+  var el = document.getElementById('hd-history'); if (!el || !_hd) return;
+  try {
+    var res = await rwFetch('/api/households/' + _hd.id + '/history'); var rows = await res.json();
+    if (!res.ok) { el.innerHTML = '<div class="hd-person-sub">' + esc(rows.error || 'Could not load.') + '</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="hd-person-sub">No history yet. A dry run in Settings, Sources can add it from your files and Slack.</div>'; return; }
+    var canEdit = rwCan('imports');
+    el.innerHTML = rows.map(function (x) {
+      var src = x.from_names ? 'from file names' : [x.source_label, x.source_ref].filter(Boolean).join(': ');
+      return '<div class="hd-hist-row' + (x.audience === 'team' ? ' team' : '') + '"><div>' + (x.happened_at ? '<b>' + esc(srcFmtHist(x.happened_at, x.date_precision)) + '</b> · ' : '') + esc(x.text) +
+        (x.audience === 'client' && x.client_text && x.client_text !== x.text ? '<div class="hd-person-sub">Client hears: ' + esc(x.client_text) + '</div>' : '') +
+        '<div class="hd-person-sub">' + (x.source_url ? '<a href="' + esc(x.source_url) + '" target="_blank" rel="noopener">' + esc(src) + '</a>' : esc(src)) + '</div></div>' +
+        (canEdit ? '<div style="display:flex;gap:0.3rem;align-items:flex-start;"><select class="src-aud" onchange="hdHistFlip(' + x.id + ', this.value)"><option value="client"' + (x.audience === 'client' ? ' selected' : '') + '>Client can hear</option><option value="team"' + (x.audience === 'team' ? ' selected' : '') + '>Team only</option></select><button class="btn-ghost" onclick="hdHistDel(' + x.id + ')">Remove</button></div>'
+          : '<span class="src-tag ' + (x.audience === 'client' ? 'new' : 'ok') + '">' + (x.audience === 'client' ? 'client' : 'team') + '</span>') + '</div>';
+    }).join('');
+  } catch (e) { el.innerHTML = '<div class="hd-person-sub">Connection error.</div>'; }
+}
+async function hdHistFlip(id, a) { await rwFetch('/api/households/' + _hd.id + '/history/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audience: a }) }); hdLoadHistory(); }
+async function hdHistDel(id) { if (!confirm('Remove this line from the house history?')) return; await rwFetch('/api/households/' + _hd.id + '/history/' + id, { method: 'DELETE' }); hdLoadHistory(); }
 
 // Header inline edit (pencil): project name + address together, saved through the existing PUT.
 function hdEditHead() {
