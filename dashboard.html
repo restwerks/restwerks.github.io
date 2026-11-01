@@ -1,4 +1,4 @@
-<!-- dashboard.html (Dashboard v1.98.3, 2026-10-30_0215 CT) LOGINS IN THE SIDEBAR (Andy, Oct 30: "how hard would it be to add the login info to the system right side bar?" then "could you do it now?"): the conversation sidebar's System tab gets a Logins section under System. It starts closed; Show logins reads the house Codes list once (the portal logs the read, as on the Codes tab) and lists each login with Copy buttons and its file and date. Private IP addresses found in the logins and the house notes are links that open the device page in a new tab, with the note that it works on the VPN to the house. Teammates only, as before; client Andi never reads this. No portal change. Prior: (Dashboard v1.98.2, 2026-10-28_2300 CT) THE REAL RUN (Andy, Oct 28 night; pairs with portal 1.92.3, DEPLOY PORTAL FIRST): the dry run preview gets a checkbox on every item it would add, each history line says whether the client can hear it (flip it there), Add the checked items to the household, then Undo this import or Looks good; every history line shows its source and a year only date stays a year; replaced gear is struck through with what replaced it; merged rooms are listed; a device with no model reads model not known; codes stay masked in the preview and land in full on the house. The household gains History and Codes tabs (codes in full for the team with their file and date; Remove and the client or team flip for owners and managers). Prior v1.98.1, 2026-10-28_0200 CT DRY RUN DATES IN YOUR OWN TIME (Andy, Oct 28: an upload made Tuesday night read Oct 28); pairs with portal 1.92.2. Prior v1.98.0, 2026-10-27_2215 CT SOURCES AND THE CLIENT DATA DRY RUN (Andy, Oct 27; pairs with portal 1.92.0, DEPLOY PORTAL FIRST): Settings gains a Sources tab for Owners and Managers (the imports permission): Connect Microsoft 365 and add the sites Andi may read (each shows Granted or the grant command), Connect Slack (the one RestWerks app, also used by on call), upload the iPoint and OvrC exports, then a Dry run on one household, which shows what it WOULD add (people, phones, emails, addresses, equipment by room, masked codes, the history, preferences, gaps and what to review) and changes nothing. Rough on purpose; shaped in the refresh. Coming back from Microsoft or Slack (?sources=) opens Settings, Sources with the result. Prior v1.97.2, 2026-10-18_0830 CT GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
+<!-- dashboard.html (Dashboard v1.99.0, 2026-10-31 CT) THE CLIENT INDEX (Andy, Oct 31; pairs with portal 1.93.0, DEPLOY PORTAL FIRST): a new Client Index page under Clients for teammates with the imports permission, with a Needs you badge in the sidebar. Five tiles (Needs you, All clients, Load, John reviews, Ignore), a search, and one row per client with its status, the reasons and where it was found. A client opens like a household: collapsible sections (where it came from, needs you, sold documents, presale documents, control files, punch lists, noted, unrecognized, photos) with a count of what needs a person. Review clients is one card at a time for a phone: Not a client, Not sure, Yes, load, or whose it is when two clients share a name. Questions for you lists patterns the index did not know; each answer is a rule for the next index. Run full rescan shows the fee note in the page and asks to confirm (no popup). Slack join is closed until opened: one channel by name (the #i-lenk test) or every live public job channel, with a confirm. Phase 1 reads names and dates only and changes no household. FIXED: the household Slack picker gets a search box and the full deduped channel list. Prior: dashboard.html (Dashboard v1.98.3, 2026-10-30_0215 CT) LOGINS IN THE SIDEBAR (Andy, Oct 30: "how hard would it be to add the login info to the system right side bar?" then "could you do it now?"): the conversation sidebar's System tab gets a Logins section under System. It starts closed; Show logins reads the house Codes list once (the portal logs the read, as on the Codes tab) and lists each login with Copy buttons and its file and date. Private IP addresses found in the logins and the house notes are links that open the device page in a new tab, with the note that it works on the VPN to the house. Teammates only, as before; client Andi never reads this. No portal change. Prior: (Dashboard v1.98.2, 2026-10-28_2300 CT) THE REAL RUN (Andy, Oct 28 night; pairs with portal 1.92.3, DEPLOY PORTAL FIRST): the dry run preview gets a checkbox on every item it would add, each history line says whether the client can hear it (flip it there), Add the checked items to the household, then Undo this import or Looks good; every history line shows its source and a year only date stays a year; replaced gear is struck through with what replaced it; merged rooms are listed; a device with no model reads model not known; codes stay masked in the preview and land in full on the house. The household gains History and Codes tabs (codes in full for the team with their file and date; Remove and the client or team flip for owners and managers). Prior v1.98.1, 2026-10-28_0200 CT DRY RUN DATES IN YOUR OWN TIME (Andy, Oct 28: an upload made Tuesday night read Oct 28); pairs with portal 1.92.2. Prior v1.98.0, 2026-10-27_2215 CT SOURCES AND THE CLIENT DATA DRY RUN (Andy, Oct 27; pairs with portal 1.92.0, DEPLOY PORTAL FIRST): Settings gains a Sources tab for Owners and Managers (the imports permission): Connect Microsoft 365 and add the sites Andi may read (each shows Granted or the grant command), Connect Slack (the one RestWerks app, also used by on call), upload the iPoint and OvrC exports, then a Dry run on one household, which shows what it WOULD add (people, phones, emails, addresses, equipment by room, masked codes, the history, preferences, gaps and what to review) and changes nothing. Rough on purpose; shaped in the refresh. Coming back from Microsoft or Slack (?sources=) opens Settings, Sources with the result. Prior v1.97.2, 2026-10-18_0830 CT GLOBAL BACK (Andy, Oct 18 morning, one question at a time: "I only want the mouse button to be able to go back. I don't want a back on the website any more than it is now"). The mouse and browser Back now walk back through every move: sidebar sections, a thread, ticket or household, the tabs inside a page (Settings, a household, a conversation's side panel) and Learned Resolutions back to the chat. A list comes back as you left it: the same scroll, search, Active or Archived, and ticket filters. Popups still close first, Forward works, a reload keeps the trail, with nothing left Back leaves. The Back arrow on screen is unchanged and keeps its own job. Dashboard only; pairs with portal 1.89.1 and webhook 9.49.1. Prior v1.97.1: (Dashboard v1.97.1, 2026-10-18_0045 CT) LEARNED RESOLUTIONS (Andy, Oct 18: "Resolutions is better", consistent everywhere; pairs with portal v1.89.1 and webhook 9.49.1; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The button, the list, its note and every prompt say resolution; the 0110 number sits at the right again beside the button. Nothing else moved. Prior v1.97.0: (Dashboard v1.97.0, 2026-10-17_1600 CT) FIXES LEARNED (Andy, Oct 17 2026; pairs with portal v1.89.0 and webhook 9.49.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). The My Andi page gains Fixes learned (a button beside the title, for the whole team): every fix a teammate taught My Andi, newest first (when, who, the problem, the fix, whether it held). NOTHING IS EVER DELETED (Andy, Oct 17 night): Didn't hold marks a fix that came back, with a reason (the teammate who taught it, an Owner or a Manager); techs still see it labeled and client Andi never uses it. Hide (Owner or Manager) puts away a fix entered by mistake; it stays on record. Fixes stay with the team that taught them. Nothing else moved. Prior v1.96.0: (Dashboard v1.96.0, 2026-10-17_1015 CT) THE MOUSE BACK BUTTON (Andy, Oct 17 2026; pairs with portal v1.88.0 and ops 0.2.0; DEPLOY PORTAL FIRST). The mouse and browser Back do exactly what the Back arrow does: every step the arrow records (a thread, ticket or household opened from where you were) is also a browser history step, Back runs the arrow's own logic, and pressing the arrow uses up the same step, so the two never drift. Forward reopens what Back closed. With nothing left to step back through, Back leaves the page like any site. A ticket or page link, a push tap and Text from a household now record where you were, so Back returns there. Sidebar section changes are not steps (the arrow never counted them). The portal sign in is unchanged; after the portal 1.88.0 deploy, a tab that an older ops sign in had switched needs one sign in again. Prior v1.95.0, 2026-10-16_0300 CT: THE REMOVAL FIX (Andy, Oct 15 and 16; pairs with portal v1.87.0 and webhook 9.48.0; DEPLOY PORTAL, THEN DASHBOARD, THEN WEBHOOK). (1) Remove a person opens a small screen with a Forget checkbox: Andi stops reading their past messages from this house (nothing is deleted; Restore undoes it). (2) A removed person's conversation keeps their name with a No household tag, and the side panel offers + Add to household (the portal now resolves them to no house). (3) The thread shows a divider where they were removed or restored. (4) Restore says which numbers stayed with someone else. DEPLOY SIGNAL: the sidebar reads Dashboard v1.95.0. Prior: (Dashboard v1.94.1, 2026-10-14_0855 CT) v1.94.1 (Andy, Oct 14 morning, first look): in Settings, My Andi, the team thread fills its box as tall as the teammate list and scrolls inside it. DEPLOY SIGNAL: the sidebar reads Dashboard v1.94.1. Prior: (Dashboard v1.94.0, 2026-10-14_0000 CT) THE UI PASS (Andy, Oct 13 night; pairs with portal v1.86.0 and
 webhook 9.47.0; DEPLOY WEBHOOK, THEN PORTAL, THEN DASHBOARD). (1) THE LOGO OWNS THE TOP OF THE BAR: centered, up to
 180 px wide and 70 px tall; Logo and name puts the name under it, centered and wrapping, never cut off; Logo only shows
 just the logo; the phone number is centered under it in every mode. (2) MY ANDI, right under Dashboard: the teammate's
@@ -1642,6 +1642,48 @@ select.fld-input { appearance:auto;cursor:pointer; }
   .conv-card-body { padding:0.55rem 1rem 0.55rem 0.5rem; }
   .household-grid { grid-template-columns:1fr; padding:0.8rem; }
 }
+/* v1.99.0 THE CLIENT INDEX */
+.cx-head { display:flex;flex-wrap:wrap;gap:0.8rem;align-items:flex-end;justify-content:space-between;margin-bottom:0.9rem; }
+.cx-sub { font-size:0.76rem;color:var(--ink-soft);line-height:1.4; }
+.cx-tiles { display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0.6rem;margin-bottom:0.9rem; }
+.cx-tile { display:flex;flex-direction:column;gap:0.15rem;align-items:flex-start;text-align:left;padding:0.8rem;border-radius:10px;border:1px solid var(--border);background:var(--canvas);color:var(--ink);cursor:pointer;font-family:inherit;min-height:84px; }
+.cx-tile.on { border:2px solid var(--brand);background:var(--brand-light); }
+body.dark .cx-tile.on { background:var(--canvas-warm); }
+.cx-tl { font-size:0.74rem;color:var(--ink-mid); } .cx-tn { font-size:1.5rem;font-weight:700; } .cx-th { font-size:0.68rem;color:var(--ink-soft); }
+.cx-chip { display:inline-block;padding:2px 9px;border-radius:999px;font-size:0.7rem;font-weight:600;white-space:nowrap; }
+.cx-load { background:var(--green-bg);color:var(--green); } .cx-review { background:#fdf1dc;color:#9a5a00; } .cx-ignore { background:var(--canvas-warm);color:var(--ink-soft);border:1px solid var(--border); }
+body.dark .cx-review { background:#3b2c12;color:#f5cf8e; }
+.cx-need { display:inline-flex;min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;align-items:center;justify-content:center;border-radius:11px;background:var(--red);color:#fff;font-size:0.72rem;font-weight:700; }
+.cx-search { display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin:0.4rem 0 0.7rem; } .cx-search .fld-input { flex:1 1 16rem; }
+.cx-list { border:1px solid var(--border);border-radius:10px;overflow:hidden; }
+.cx-row { display:grid;grid-template-columns:minmax(0,2fr) minmax(0,0.9fr) minmax(0,2.6fr) minmax(0,1.3fr) 70px;gap:0.8rem;padding:0.7rem 0.9rem;border-top:1px solid var(--border);align-items:center;cursor:pointer; }
+.cx-row:hover { background:var(--canvas); } .cx-row.cx-hdr { border-top:0;cursor:default;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);background:var(--canvas); }
+.cx-name { font-weight:600;font-size:0.88rem; } .cx-why { font-size:0.78rem;color:var(--ink-mid);line-height:1.4; }
+.cx-sec { border:1px solid var(--border);border-radius:10px;margin-bottom:0.6rem;overflow:hidden; }
+.cx-sec-h { width:100%;display:flex;gap:0.6rem;align-items:center;padding:0.7rem 0.9rem;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left;font-family:inherit;min-height:44px; }
+.cx-sec-t { font-weight:600;font-size:0.88rem; } .cx-sec-h .cx-sub { flex:1; }
+.cx-li { display:flex;flex-wrap:wrap;gap:0.3rem 0.8rem;justify-content:space-between;padding:0.5rem 0.9rem 0.5rem 2rem;border-top:1px solid var(--border);font-size:0.82rem; }
+.cx-q { padding:0.7rem 0.9rem 0.8rem 2rem;border-top:1px solid var(--border);font-size:0.84rem; }
+.cx-btns { display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;align-items:center; }
+.cx-opt { border:1px solid var(--border) !important;border-radius:8px !important;padding:0.45rem 0.8rem !important;color:var(--ink) !important; }
+.cx-confirm { border:1px solid var(--brand);border-radius:10px;padding:0.8rem 0.9rem;margin:0.4rem 0 0.9rem;font-size:0.84rem; }
+.cx-warn { border:1px solid var(--red);background:var(--red-bg);color:var(--red);border-radius:10px;padding:0.6rem 0.9rem;margin:0.4rem 0 0.9rem;font-size:0.82rem; }
+.cx-run { display:flex;gap:0.7rem;align-items:flex-start;border:1px solid var(--border);border-radius:10px;padding:0.7rem 0.9rem;margin-bottom:0.9rem;font-size:0.84rem; }
+.cx-dot { width:10px;height:10px;border-radius:50%;background:var(--brand);margin-top:0.3rem;animation:cxPulse 1.2s ease-in-out infinite; }
+@keyframes cxPulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
+.cx-card { border:1px solid var(--border);border-radius:12px;padding:0.9rem;margin:0.6rem 0;display:flex;flex-direction:column;gap:0.4rem; }
+.cx-ttl { font-size:1.1rem;font-weight:700;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center; }
+.cx-ask { color:#9a5a00;font-size:0.9rem;font-weight:600; } body.dark .cx-ask { color:#f5cf8e; }
+.cx-ev { display:flex;gap:0.6rem;font-size:0.84rem;line-height:1.4; } .cx-ev span:first-child { flex:0 0 3.6rem;font-size:0.68rem;font-weight:700;text-transform:uppercase;color:var(--ink-soft);padding-top:2px; }
+.cx-rev { max-width:30rem;margin:0 auto; } .cx-rev-top { display:flex;justify-content:space-between;align-items:center; }
+.cx-bar { height:5px;border-radius:3px;background:var(--border);overflow:hidden; } .cx-bar div { height:5px;background:var(--brand); }
+.cx-rev-btns { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.5rem;margin:0.6rem 0; } .cx-rev-choices { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.cx-big { min-height:50px;border:1px solid var(--border) !important;border-radius:10px !important;color:var(--ink) !important;font-weight:600 !important; } .btn-primary.cx-big { color:#fff !important;border:0 !important; }
+@media (max-width: 760px) {
+  .cx-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cx-row { grid-template-columns:minmax(0,1fr) auto;gap:0.3rem 0.6rem; } .cx-row > div:nth-child(3) { grid-column:1 / -1; } .cx-row > div:nth-child(4) { display:none; } .cx-row.cx-hdr { display:none; }
+}
+
 </style>
 </head>
 <body>
@@ -1754,6 +1796,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="nav-item" onclick="nav('followups',this)"><span class="nav-icon">⚑</span> Follow Ups <span class="nav-badges"><span class="nav-badge blue" id="badge-followups" style="display:none;">0</span></span></div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Clients</div>
       <div class="nav-item" onclick="nav('households',this)"><span class="nav-icon">🏠</span> Households</div>
+      <div class="nav-item" id="nav-clientindex" style="display:none;" onclick="nav('clientindex',this)"><span class="nav-icon">◎</span> Client Index <span class="nav-badges"><span class="nav-badge" id="badge-clientindex" title="Needs you" style="display:none;">0</span></span></div>
       <div class="nav-item m-hide" onclick="nav('proactive',this)"><span class="nav-icon">📣</span> Proactive Outreach</div>
       <div class="nav-group-label" style="margin-top:0.5rem;">Reports</div>
       <div class="nav-item m-hide" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
@@ -1771,7 +1814,7 @@ select.fld-input { appearance:auto;cursor:pointer; }
       <div class="user-menu">
         <div class="user-menu-item" onclick="openUserSettings(event)">⚙&nbsp; Settings</div>
         <div class="user-menu-item danger" onclick="doLogout(event)">⎋&nbsp; Log out</div>
-        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.98.3</div>
+        <div style="padding:0.4rem 0.65rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.35);">Dashboard v1.99.0</div>
       </div>
       <div class="sidebar-rw">Powered by <span>RestWerks</span></div>
     </div>
@@ -1984,6 +2027,12 @@ select.fld-input { appearance:auto;cursor:pointer; }
           <div class="panel-chrome-header"><div class="panel-chrome-title">Analytics</div></div>
           <div id="analytics-body" style="padding:1.1rem 1.25rem;"><div class="hh-empty">Loading...</div></div>
           <div class="placeholder-body" style="border-top:1px solid var(--border);font-size:0.8rem;">Resolution rate trends and brand and issue breakdowns are coming next.</div>
+        </div>
+      </div>
+      <div id="panel-clientindex" class="panel">
+        <div class="panel-chrome">
+          <div class="panel-chrome-header"><div class="panel-chrome-title">Client Index</div></div>
+          <div id="cx-body" style="padding:1.1rem 1.25rem;"><div class="hh-empty">Loading...</div></div>
         </div>
       </div>
       <div id="panel-flagged" class="panel">
@@ -2970,6 +3019,7 @@ function applyIntegratorContext(user) {
   applyAccountState(user);
   loadCompanyContext();
   loadCounts();
+  cxShowNav();
   // First-login gate. Owner only (a member cannot complete account setup).
   if (user.setup_completed === false && user.role === 'owner') {
     setTimeout(function() { openWizard(); }, 200);
@@ -5697,6 +5747,18 @@ function hdSlackHtml(h) {
     '<button class="btn-ghost" onclick="hdSlackPick()">' + (h.slack_channel_id ? 'Change' : 'Pick a channel') + '</button>' +
     (h.slack_channel_id ? '<button class="btn-ghost" onclick="hdSlackSave(null, null)">Clear</button>' : '') + '</div><div class="hd-err" id="hd-slack-err"></div>';
 }
+var _hdChans = { guess: [], rest: [] };
+function hdSlackSelect(q) {
+  q = String(q || '').toLowerCase().replace(/^#/, '').trim();
+  var keep = function(c){ return !q || c.name.indexOf(q) >= 0; };
+  var g = _hdChans.guess.filter(keep), r = _hdChans.rest.filter(keep);
+  var opt = function(c){ return '<option value="' + esc(c.id) + '" data-name="' + esc(c.name) + '">#' + esc(c.name) + (c.is_private ? ' (private)' : '') + (c.is_member ? '' : ' (app not in it yet)') + '</option>'; };
+  var h = '<select class="fld-input" id="hd-slack-sel"><option value="">' + (g.length + r.length ? 'Pick a channel (' + (g.length + r.length) + ')' : 'No channel matches') + '</option>';
+  if (g.length) h += '<optgroup label="Looks like this client">' + g.map(opt).join('') + '</optgroup>';
+  if (r.length) h += '<optgroup label="All channels">' + r.map(opt).join('') + '</optgroup>';
+  return h + '</select>';
+}
+function hdSlackFilter(q) { var w = document.getElementById('hd-slack-selwrap'); if (w) w.innerHTML = hdSlackSelect(q); }
 async function hdSlackPick() {
   var row = document.getElementById('hd-slack-row'), err = document.getElementById('hd-slack-err');
   if (err) err.textContent = '';
@@ -5711,12 +5773,13 @@ async function hdSlackPick() {
     // A likely match first (a word of the household name in the channel name), the rest after. Never picked for you.
     var guess = chans.filter(function(c){ return want.some(function(w){ return c.name.indexOf(w) >= 0; }); });
     var rest = chans.filter(function(c){ return guess.indexOf(c) < 0; });
-    var opt = function(c){ return '<option value="' + esc(c.id) + '" data-name="' + esc(c.name) + '">#' + esc(c.name) + (c.is_private ? ' (private)' : '') + (c.is_member ? '' : ' (app not in it yet)') + '</option>'; };
-    var h = '<select class="fld-input" id="hd-slack-sel"><option value="">Pick a channel</option>';
-    if (guess.length) h += '<optgroup label="Looks like this client">' + guess.map(opt).join('') + '</optgroup>';
-    h += '<optgroup label="All channels">' + rest.map(opt).join('') + '</optgroup></select>';
+    // v1.99.0: a search box over the list (Andy, Oct 31: "Need a search here"), and the full deduped list from portal 1.93.0.
+    _hdChans = { guess: guess, rest: rest };
+    var h = '<input class="fld-input" id="hd-slack-q" placeholder="Search channels" oninput="hdSlackFilter(this.value)" style="max-width:14rem;">' +
+      '<span id="hd-slack-selwrap">' + hdSlackSelect('') + '</span>';
     h += '<button class="btn-primary" onclick="hdSlackSave()">Save</button><button class="btn-ghost" onclick="renderHdSlack()">Cancel</button>';
     if (row) row.innerHTML = h;
+    if (data.partial && err) err.textContent = 'Slack stopped the list early; some channels may be missing. Try again in a minute.';
   } catch (e) { if (row) row.innerHTML = ''; if (err) err.textContent = 'Connection error.'; }
 }
 function renderHdSlack() { var el = document.getElementById('hd-slack'); if (el && _hd) el.innerHTML = hdSlackHtml(_hd); }
@@ -7002,6 +7065,7 @@ function tickResumeCountdowns() {
   }
 }
 setInterval(tickResumeCountdowns, 15000);
+setInterval(function () { if (window._rwUser) cxBadge(); }, 5 * 60 * 1000);
 
 function humanStatusHtml(anchorIso) {
   return '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2D7DD2;margin-right:5px;vertical-align:middle;"></span>You are handling this <span class="status-sep">·</span> ' + resumeCountdownSpan(anchorIso || new Date().toISOString());
@@ -8357,7 +8421,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ── NAV ──────────────────────────────────────────────────────────────────────
-var panelTitles = { dashboard:'Dashboard',myandi:'My Andi',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',proactive:'Proactive Outreach',analytics:'Analytics',settings:'Settings',flagged:'Flagged for Andi' };
+var panelTitles = { dashboard:'Dashboard',myandi:'My Andi',conversations:'Conversations',resolved:'Resolved',tickets:'Tickets',followups:'Follow Ups',households:'Households',proactive:'Proactive Outreach',analytics:'Analytics',settings:'Settings',flagged:'Flagged for Andi',clientindex:'Client Index' };
 // v1.94.0: ROLES. What the signed in teammate may change comes from the portal: the permissions on their role (Owner,
 // Manager, Member). An older portal sends none, and then only an owner may, exactly as before.
 function rwCan(p) { var u = window._rwUser; if (!u) return false; if (Array.isArray(u.permissions)) return u.permissions.indexOf(p) >= 0; return u.role === 'owner'; }
@@ -8624,6 +8688,10 @@ function nav(name, el) {
   if (name === 'settings') loadSettings();
   if (name === 'flagged') loadFlags();
   if (name === 'myandi') loadMyAndi();
+  // v1.99.0: the Client Index code sits later in this script, and on a phone nav runs while the page loads; nothing
+  // here may touch it before it exists.
+  if (name === 'clientindex') { if (typeof loadClientIndex === 'function' && window._cx) loadClientIndex(); }
+  else if (window._cx && _cx.poll && typeof cxStopPoll === 'function') cxStopPoll();
 }
 
 // ── DEMO CONV DATA ───────────────────────────────────────────────────────────
@@ -10524,6 +10592,295 @@ initPwEyes();
     });
   }
 })();
+// ── v1.99.0 THE CLIENT INDEX (pairs with portal 1.93.0, DEPLOY PORTAL FIRST) ───────────────────────────────────────
+// Andy, Oct 31: one list of every client the shop's SharePoint, Slack, iPoint and OvrC know about, each marked Load,
+// John reviews or Ignore with the reasons, and a Needs you count. Phase 1 reads names and dates only and writes nothing
+// to a household; Yes is recorded and loads in a later step.
+window._cx = window._cx || null;
+var _cx = { filter: 'all', q: '', data: null, rows: [], total: 0, poll: null, view: 'list', cards: [], ci: 0, confirm: false, joinConfirm: false, open: {}, qOpen: false, notesOpen: false, joinOpen: false, seq: 0 };
+var CX_STATUS = { load: 'Load', review: 'John reviews', ignore: 'Ignore' };
+function cxJs(s) { return esc(String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")); }
+function cxChip(s) { return '<span class="cx-chip cx-' + esc(s) + '">' + esc(CX_STATUS[s] || s) + '</span>'; }
+function cxWhen(iso) { if (!iso) return ''; var d = new Date(iso); if (isNaN(d)) return ''; return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }); }
+function cxMonth(iso) { if (!iso) return ''; var d = new Date(iso); if (isNaN(d)) return ''; return d.toLocaleString('en-US', { month: 'short', year: 'numeric', timeZone: 'America/Chicago' }); }
+async function cxBadge() {
+  if (!rwCan('imports')) return;
+  try { var r = await rwFetch('/api/library-index/badge'); var j = await r.json(); setBadge('clientindex', j.needs || 0); } catch (e) {}
+}
+function cxShowNav() { var n = document.getElementById('nav-clientindex'); if (n) n.style.display = rwCan('imports') ? '' : 'none'; if (rwCan('imports')) cxBadge(); if (typeof cxIfOpen === 'function') cxIfOpen(); }
+async function loadClientIndex() {
+  var body = document.getElementById('cx-body');
+  if (!rwCan('imports')) { body.innerHTML = '<div class="hh-empty">The Client Index needs the imports permission. An owner can give it in Settings, Team.</div>'; return; }
+  _cx.view = _cx.view === 'review' ? 'review' : 'list';
+  try {
+    var r = await rwFetch('/api/library-index'); var j = await r.json();
+    if (!r.ok) { body.innerHTML = '<div class="hh-empty">' + esc(j.error || 'Could not load the index.') + '</div>'; return; }
+    _cx.data = j;
+    setBadge('clientindex', (j.counts.needs || 0) + (j.counts.questions || 0));
+    if (j.running) cxStartPoll(); else cxStopPoll();
+    if (_cx.view === 'review') return cxReviewLoad();
+    if (_cx.view === 'detail' && _cx.detailKey) return cxOpen(_cx.detailKey);
+    cxRender(); cxList();
+  } catch (e) { body.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+function cxStartPoll() { if (_cx.poll) return; _cx.poll = setInterval(async function () {
+  try { var r = await rwFetch('/api/library-index'); var j = await r.json(); if (!r.ok) return;
+    var was = _cx.data && _cx.data.running; _cx.data = j;
+    if (!j.running) { cxStopPoll(); if (was) { cxBadge(); if (_cx.view === 'list') { cxRender(); cxList(); } } return; }
+    var p = document.getElementById('cx-progress'); if (p) p.innerHTML = cxProgressHtml(j.running);
+  } catch (e) {} }, 5000); }
+function cxStopPoll() { if (window._cx && _cx.poll) { clearInterval(_cx.poll); _cx.poll = null; } }
+function cxProgressHtml(run) {
+  return '<div class="cx-run"><span class="cx-dot"></span><div><b>Indexing.</b> ' + esc(run.progress_note || run.stage || 'starting') + '<div class="cx-sub">Started ' + esc(cxWhen(run.created_at)) + ' by ' + esc(run.started_by || '') + '. This page updates on its own; you can leave it.</div></div></div>';
+}
+function cxRender() {
+  var j = _cx.data, body = document.getElementById('cx-body'); if (!j) return;
+  var c = j.counts || {}, last = j.done;
+  var h = '<div class="cx-head"><div><div class="cx-sub">' + (last ? 'Last indexed ' + esc(cxWhen(last.finished_at)) + ' by ' + esc(last.started_by || '') + (last.partial ? ' · <b>partial</b>, run again to finish' : '') : 'Not indexed yet') +
+    ' · SharePoint, Slack, iPoint, OvrC · nothing loads until a person says so</div></div>' +
+    (j.running && !(j.running.updated_at && Date.now() - new Date(j.running.updated_at).getTime() > 4 * 60 * 1000) ? '' : '<button class="btn-primary" onclick="cxRun()">' + (last ? 'Run full rescan' : 'Run the index') + '</button>') + '</div>';
+  if (j.last && j.last.status === 'failed') h += '<div class="cx-warn">The last index stopped: ' + esc(j.last.error || 'unknown error') + '</div>';
+  if (j.last && j.last.status === 'interrupted') h += '<div class="cx-warn">' + esc(j.last.error || 'The last index was cut off.') + '</div>';
+  if (j.last && j.last.status === 'partial') h += '<div class="cx-warn">' + esc(j.last.error || 'The last index did not finish, so the one before it was kept.') + '</div>';
+  if (_cx.confirm) h += '<div class="cx-confirm"><div>' + esc(j.fee_note || '') + '</div><div class="cx-sub">The full rescan reads every folder and channel again and replaces this list. Decisions people made stay.</div>' +
+    '<div class="cx-btns"><button class="btn-primary" onclick="cxRun(true)">Run the full rescan</button><button class="btn-ghost" onclick="_cx.confirm=false;cxRender();cxList();">Cancel</button></div></div>';
+  h += '<div id="cx-progress">' + (j.running ? cxProgressHtml(j.running) : '') + '</div>';
+  var tile = function (key, label, count, hint) { return '<button class="cx-tile' + (_cx.filter === key ? ' on' : '') + '" onclick="cxFilter(\'' + key + '\')"><span class="cx-tl">' + label + '</span><span class="cx-tn">' + count + '</span><span class="cx-th">' + hint + '</span></button>'; };
+  h += '<div class="cx-tiles">' +
+    tile('needs', 'Needs you', (c.needs || 0) + (c.questions || 0), (c.needClients || 0) + ' clients' + (c.questions ? ', ' + c.questions + ' questions' : '')) +
+    tile('all', 'All clients', c.all || 0, 'every folder, channel and row') +
+    tile('load', 'Load', c.load || 0, 'strong evidence') +
+    tile('review', 'John reviews', c.review || 0, 'a person says yes or no') +
+    tile('ignore', 'Ignore', c.ignore || 0, 'kept here, never loaded') + '</div>';
+  if (c.review) h += '<div class="cx-btns" style="margin:0 0 0.9rem;"><button class="btn-primary" onclick="cxReview()">Review clients (' + c.review + ')</button></div>';
+  var qs = j.questions || [];
+  if (qs.length) {
+    h += '<div class="cx-sec"><button class="cx-sec-h" onclick="_cx.qOpen=!_cx.qOpen;cxRender();cxList();"><span>' + (_cx.qOpen ? '▾' : '▸') + '</span><span class="cx-sec-t">Questions for you</span><span class="cx-sub">Patterns the index does not know yet. Each answer becomes a rule for the next index.</span><span class="cx-need">' + qs.length + '</span></button>';
+    if (_cx.qOpen) h += qs.map(function (q) {
+      return '<div class="cx-q"><div>' + esc(q.text) + '</div><div class="cx-sub">For example ' + esc((q.examples || []).join(', ')) + '</div><div class="cx-btns">' +
+        (q.options || []).map(function (o) { return '<button class="btn-ghost cx-opt" onclick="cxAnswer(\'' + cxJs(q.key) + '\',\'' + esc(o[0]) + '\')">' + esc(o[1]) + '</button>'; }).join('') + '</div></div>';
+    }).join('');
+    h += '</div>';
+  }
+  if (j.can_join && last && last.summary) {
+    var jn = (last.summary.joinable || []);
+    h += '<div class="cx-sec"><button class="cx-sec-h" onclick="_cx.joinOpen=!_cx.joinOpen;cxRender();cxList();"><span>' + (_cx.joinOpen ? '▾' : '▸') + '</span><span class="cx-sec-t">Slack join</span><span class="cx-sub">' + jn.length + ' live job channels the app is not in yet</span></button>';
+    if (_cx.joinOpen) {
+      h += '<div class="cx-q"><div>The index reads a channel\'s last post only after the RestWerks app joins it. Each join shows a grey "joined the channel" line there. Nothing joins until you start it here.</div>' +
+        '<div class="cx-btns"><input class="fld-input" id="cx-join-one" placeholder="One channel, like i-lenk" style="max-width:16rem;"><button class="btn-ghost cx-opt" onclick="cxJoinOne()">Join this one</button></div>' +
+        (jn.length ? (_cx.joinConfirm ? '<div class="cx-confirm"><div>Join all ' + jn.length + ' live public job and service channels? Archived, old numbered, design and private channels are never joined.</div><div class="cx-btns"><button class="btn-primary" onclick="cxJoinAll()">Join all ' + jn.length + '</button><button class="btn-ghost" onclick="_cx.joinConfirm=false;cxRender();cxList();">Cancel</button></div></div>'
+          : '<div class="cx-btns"><button class="btn-ghost cx-opt" onclick="_cx.joinConfirm=true;cxRender();cxList();">Join all ' + jn.length + '</button></div>') : '') +
+        '<div class="hd-err" id="cx-join-msg"></div></div>';
+    }
+    h += '</div>';
+  }
+  if (last && last.summary && ((last.summary.notes || []).length || (last.summary.setAside || []).length || (last.summary.autoTemplates || []).length)) {
+    var s = last.summary;
+    h += '<div class="cx-sec"><button class="cx-sec-h" onclick="_cx.notesOpen=!_cx.notesOpen;cxRender();cxList();"><span>' + (_cx.notesOpen ? '▾' : '▸') + '</span><span class="cx-sec-t">About this index</span><span class="cx-sub">' + (s.counts ? s.counts.folders + ' folders, ' + s.counts.channels + ' channels, ' + s.counts.ipoint + ' iPoint rows, ' + s.counts.ovrc + ' OvrC rows' : '') + '</span></button>';
+    if (_cx.notesOpen) {
+      h += (s.notes || []).map(function (n) { return '<div class="cx-li">' + esc(n) + '</div>'; }).join('');
+      if ((s.autoTemplates || []).length) h += '<div class="cx-li">Set aside as blank templates (in five or more client folders): ' + esc(s.autoTemplates.join(', ')) + '</div>';
+      if ((s.setAside || []).length) h += '<div class="cx-li">Folders that do not look like clients, set aside: ' + esc(s.setAside.slice(0, 40).map(function (x) { return x.name; }).join(', ')) + (s.setAside.length > 40 ? ' and ' + (s.setAside.length - 40) + ' more' : '') + '</div>';
+    }
+    h += '</div>';
+  }
+  h += '<div class="cx-search"><input class="fld-input" id="cx-q" placeholder="Search by name, town, channel or reason" value="' + esc(_cx.q) + '" oninput="cxSearch(this.value)"><span class="cx-sub" id="cx-count"></span></div>';
+  h += '<div class="cx-list" id="cx-list"><div class="hh-empty">Loading...</div></div>';
+  body.innerHTML = h;
+}
+var _cxT = null;
+function cxMore() { _cx.more = true; _cx.moreSeq = _cx.listKey; cxList(); }
+function cxSearch(v) { _cx.q = v; clearTimeout(_cxT); _cxT = setTimeout(cxList, 250); }
+function cxFilter(k) { _cx.filter = k; cxRender(); cxList(); }
+async function cxList() {
+  var el = document.getElementById('cx-list'); if (!el) return;
+  var seq = ++_cx.seq;
+  try {
+    var more = _cx.more && _cx.moreSeq === _cx.listKey; var off = more ? _cx.rows.length : 0;
+    _cx.listKey = _cx.filter + '|' + _cx.q;
+    var r = await rwFetch('/api/library-index/clients?filter=' + encodeURIComponent(_cx.filter) + '&q=' + encodeURIComponent(_cx.q) + '&limit=300&offset=' + off);
+    var j = await r.json(); if (seq !== _cx.seq) return;
+    if (!r.ok) { el.innerHTML = '<div class="hh-empty">' + esc(j.error || 'Could not load.') + '</div>'; return; }
+    _cx.rows = (off ? _cx.rows : []).concat(j.clients || []); _cx.total = j.total || 0; _cx.more = false;
+    var cnt = document.getElementById('cx-count'); if (cnt) cnt.textContent = 'Showing ' + _cx.rows.length + ' of ' + _cx.total;
+    if (!_cx.rows.length) { el.innerHTML = '<div class="hh-empty">' + (_cx.data && _cx.data.done ? 'Nothing here.' : 'Run the index to see your clients.') + '</div>'; return; }
+    el.innerHTML = '<div class="cx-row cx-hdr"><div>Client</div><div>Status</div><div>Why</div><div>Found in</div><div style="text-align:right;">Needs you</div></div>' + _cx.rows.map(function (c) {
+      return '<div class="cx-row" onclick="cxOpen(\'' + cxJs(c.client_key) + '\')"><div><div class="cx-name">' + esc(c.name) + '</div><div class="cx-sub">' + esc(c.place || '') + (c.household_id ? ' · in RestWerks' : '') + '</div></div>' +
+        '<div>' + cxChip(c.status) + '</div><div class="cx-why">' + esc(c.why || '') + '</div><div class="cx-sub">' + esc((c.found || []).join(' · ')) + '</div>' +
+        '<div style="text-align:right;">' + (c.needs ? '<span class="cx-need">' + c.needs + '</span>' : '') + '</div></div>';
+    }).join('') + (_cx.rows.length < _cx.total ? '<div style="padding:0.7rem;text-align:center;"><button class="btn-ghost cx-opt" onclick="cxMore()">Show more (' + (_cx.total - _cx.rows.length) + ' left)</button></div>' : '');
+  } catch (e) { el.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+async function cxRun(confirmed) {
+  try {
+    var r = await rwFetch('/api/library-index/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm: !!confirmed }) });
+    var j = await r.json();
+    if (r.status === 409 && j.needs_confirm) { _cx.confirm = true; cxRender(); cxList(); return; }
+    if (!r.ok) { alertInline(j.error || 'Could not start the index.'); return; }
+    _cx.confirm = false; loadClientIndex();
+  } catch (e) { alertInline('Connection error.'); }
+}
+function alertInline(msg) { var p = document.getElementById('cx-progress'); if (p) p.innerHTML = '<div class="cx-warn">' + esc(msg) + '</div>'; }
+async function cxAnswer(key, answer) {
+  try {
+    var r = await rwFetch('/api/library-index/questions/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: key, answer: answer }) });
+    var j = await r.json(); if (!r.ok) { alertInline(j.error || 'Could not save.'); return; }
+    loadClientIndex();
+  } catch (e) { alertInline('Connection error.'); }
+}
+async function cxJoinOne() {
+  var v = String((document.getElementById('cx-join-one') || {}).value || '').trim().replace(/^#/, '').toLowerCase();
+  var msg = document.getElementById('cx-join-msg'); if (!v) { msg.textContent = 'Type a channel name.'; return; }
+  var jn = (_cx.data && _cx.data.done && _cx.data.done.summary && _cx.data.done.summary.joinable) || [];
+  var hit = jn.find(function (c) { return c.name === v; });
+  if (!hit) { msg.textContent = '#' + v + ' is not in the list of live job channels the app is not in. It may be joined already, archived, private, or not a job channel.'; return; }
+  await cxJoin({ channel_id: hit.id });
+}
+async function cxJoinAll() { _cx.joinConfirm = false; await cxJoin({ all: true, confirm: true }); }
+async function cxJoin(body) {
+  var msg = document.getElementById('cx-join-msg'); if (msg) msg.textContent = 'Joining...';
+  try {
+    var r = await rwFetch('/api/library-index/slack-join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    var j = await r.json(); msg = document.getElementById('cx-join-msg');
+    if (!r.ok) { if (msg) msg.textContent = j.error || 'Could not join.'; return; }
+    var ok = (j.results || []).filter(function (x) { return x.ok; }).length, bad = (j.results || []).filter(function (x) { return !x.ok; });
+    if (msg) msg.textContent = j.note || ('Joined ' + ok + (bad.length ? '; ' + bad.length + ' not joined (' + bad.slice(0, 3).map(function (x) { return '#' + x.name + ': ' + x.error; }).join(', ') + ')' : '') + '. Run the index again to read their last posts.');
+  } catch (e) { if (msg) msg.textContent = 'Connection error.'; }
+}
+
+// One client, laid out like the household: collapsible sections with a count of what needs a person.
+async function cxOpen(key) {
+  _cx.view = 'detail'; _cx.detailKey = key;
+  var body = document.getElementById('cx-body'); body.innerHTML = '<div class="hh-empty">Loading...</div>';
+  try {
+    var r = await rwFetch('/api/library-index/clients/' + encodeURIComponent(key)); var j = await r.json();
+    if (!r.ok) { body.innerHTML = '<div class="hh-empty">' + esc(j.error || 'Not found.') + '</div>'; return; }
+    _cx.client = j.client; cxDetail();
+  } catch (e) { body.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+function cxBack() { _cx.view = 'list'; _cx.detailKey = null; cxRender(); cxList(); }
+function cxSecs(c) {
+  var d = c.detail || {}, S = [];
+  var fl = (d.folders || []), sa = (d.sales || []), ch = (d.channels || []);
+  var src = [];
+  fl.forEach(function (f) { src.push({ t: 'Folder: ' + f.name + ' (' + f.files + ' files' + (f.mb ? ', ' + f.mb + ' MB' : '') + (f.newest ? ', newest ' + cxMonth(f.newest) : '') + ')', s: f.site, url: f.url }); });
+  sa.forEach(function (f) { src.push({ t: 'Presale folder: ' + f.name + ' (' + f.files + ' files)', s: f.site, url: f.url }); });
+  ch.forEach(function (x) { src.push({ t: '#' + x.name + ' (' + ({ job: 'job or service', design: 'design, team only', old: 'old numbered format' }[x.kind] || x.kind) + (x.archived ? ', archived' : '') + (x.private ? ', private' : '') + ')' + (x.lastAt ? ' last post ' + cxMonth(x.lastAt) : (x.member ? ' no real post found' : ' app not in it')), s: 'Slack' }); });
+  (d.ipoint || []).forEach(function (x) { src.push({ t: x.label + (x.job ? ' : ' + x.job : '') + (x.city ? ', ' + x.city : ''), s: 'iPoint' }); });
+  (d.ovrc || []).forEach(function (x) { src.push({ t: x.label + (x.status ? ' (' + x.status + ')' : ''), s: 'OvrC' }); });
+  (d.households || []).forEach(function (x) { src.push({ t: x.name, s: 'RestWerks household', hh: x.id }); });
+  S.push({ id: 'src', title: 'Where this came from', sum: src.length + ' places', items: src });
+  if ((c.need_items || []).length) S.push({ id: 'need', title: 'Needs you', sum: '', items: c.need_items.map(function (n) { return { t: n.text, ask: true }; }) });
+  var all = function (k) { return [].concat.apply([], fl.map(function (f) { return f[k] || []; })); };
+  var sold = all('sold'); S.push({ id: 'sold', title: 'Sold documents', sum: sold.length + ' found, read in the next step', items: sold.map(function (x) { return { t: x.name, s: x.label + (x.date ? ', ' + cxMonth(x.date) : ''), url: x.url }; }) });
+  var pre = all('presale'); if (pre.length) S.push({ id: 'pre', title: 'Presale documents', sum: pre.length + ' · never equipment', items: pre.map(function (x) { return { t: x.name, s: x.label + (x.date ? ', ' + cxMonth(x.date) : '') }; }) });
+  var ctl = all('control'); if (ctl.length) S.push({ id: 'ctl', title: 'Control files', sum: ctl.length + ' · history from their names, never opened', items: ctl.map(function (x) { return { t: x.name, s: (x.change ? 'note: ' + x.change + ', ' : '') + (x.date ? cxMonth(x.date) : '') }; }) });
+  var pun = all('second'); if (pun.length) S.push({ id: 'pun', title: 'Punch lists', sum: pun.length + ' · checked for open items later', items: pun.map(function (x) { return { t: x.name, s: x.date ? cxMonth(x.date) : '' }; }) });
+  var nt = all('noted'); if (nt.length) S.push({ id: 'nt', title: 'Noted, never read', sum: nt.length, items: nt.map(function (x) { return { t: x.name, s: x.label }; }) });
+  var un = all('unsure'); if (un.length) S.push({ id: 'un', title: 'Documents Andi does not recognize yet', sum: un.length, items: un.map(function (x) { return { t: x.name, s: x.path || '' }; }) });
+  var med = [].concat.apply([], fl.map(function (f) { return f.media || []; })), mc = fl.reduce(function (n, f) { return n + (f.mediaCount || 0); }, 0);
+  if (mc) S.push({ id: 'med', title: 'Photos, recordings and backups', sum: mc + ' files, counted only', items: med.map(function (m) { return { t: m.path, s: m.count + ' items' }; }) });
+  return S;
+}
+function cxDetail() {
+  var c = _cx.client, body = document.getElementById('cx-body'); if (!c) return;
+  var S = cxSecs(c);
+  var h = '<button class="btn-ghost" onclick="cxBack()">← Back to Client Index</button>';
+  h += '<div class="cx-card"><div class="cx-ttl">' + esc(c.name) + ' ' + cxChip(c.status) + (c.household_id ? ' <button class="btn-ghost" onclick="navToHousehold(' + parseInt(c.household_id, 10) + ')">Open household</button>' : ' <span class="cx-chip cx-ignore">Not in RestWerks yet</span>') + '</div>' +
+    '<div class="cx-sub">' + esc(c.place || '') + (c.place ? ' · ' : '') + esc(c.why || '') + '</div>' +
+    (c.ask ? '<div class="cx-ask">' + esc(c.ask) + '</div>' : '') + cxDecideBtns(c) +
+    (c.decision ? '<div class="cx-sub">' + esc({ yes: 'Marked yes', no: 'Marked not a client', unsure: 'Left for later', belongs: 'Marked as another client\'s' }[c.decision] || c.decision) + ' by ' + esc(c.decided_by || '') + ' ' + esc(cxWhen(c.decided_at)) + ' · <button class="btn-ghost" onclick="cxDecide(\'' + cxJs(c.client_key) + '\',\'clear\')">Clear</button></div>' : '') +
+    '<div class="hd-err" id="cx-dec-err"></div></div>';
+  h += S.map(function (s) {
+    var open = !!_cx.open[s.id] || (s.id === 'need');
+    var needs = s.items.filter(function (i) { return i.ask; }).length;
+    return '<div class="cx-sec"><button class="cx-sec-h" onclick="_cx.open[\'' + s.id + '\']=!' + open + ';cxDetail();"><span>' + (open ? '▾' : '▸') + '</span><span class="cx-sec-t">' + esc(s.title) + '</span><span class="cx-sub">' + esc(String(s.sum)) + '</span>' + (needs ? '<span class="cx-need">' + needs + '</span>' : '') + '</button>' +
+      (open ? (s.items.length ? s.items.map(function (i) {
+        var t = i.url ? '<a href="' + esc(i.url) + '" target="_blank" rel="noopener">' + esc(i.t) + '</a>' : (i.hh ? '<a href="#" onclick="navToHousehold(' + parseInt(i.hh, 10) + ');return false;">' + esc(i.t) + '</a>' : esc(i.t));
+        return '<div class="cx-li"><span>' + t + '</span><span class="cx-sub">' + esc(i.s || '') + '</span></div>';
+      }).join('') : '<div class="cx-li cx-sub">None found.</div>') : '') + '</div>';
+  }).join('');
+  h += '<div class="cx-sub" style="margin-top:0.8rem;">Phase 1 reads names and dates only. Reading these documents and creating the household come in the next steps; nothing here changes a household.</div>';
+  body.innerHTML = h;
+}
+function cxDecideBtns(c) {
+  var k = cxJs(c.client_key);
+  var choices = (c.detail && c.detail.choices) || [];
+  var h = '<div class="cx-btns">';
+  // A person can always overrule what the index decided.
+  if (c.status === 'load') return h + '<button class="btn-ghost cx-opt" onclick="cxDecide(\'' + k + '\',\'no\')">Not a client</button></div>';
+  if (c.status === 'ignore' && !c.decision) return h + '<button class="btn-ghost cx-opt" onclick="cxDecide(\'' + k + '\',\'yes\')">Yes, this is a client</button></div>';
+  if (c.status !== 'review') return '';
+  if (choices.length && c.status === 'review') h += choices.map(function (x) { return '<button class="btn-ghost cx-opt" onclick="cxDecide(\'' + k + '\',\'belongs\',\'' + cxJs(x.key) + '\')">' + esc(x.label) + '\'s</button>'; }).join('');
+  if (c.status === 'review') h += '<button class="btn-ghost cx-opt" onclick="cxDecide(\'' + k + '\',\'no\')">Not a client</button><button class="btn-ghost cx-opt" onclick="cxDecide(\'' + k + '\',\'unsure\')">Not sure</button><button class="btn-primary" onclick="cxDecide(\'' + k + '\',\'yes\')">Yes, load</button>';
+  return h + '</div>';
+}
+async function cxDecide(key, decision, target) {
+  var err = document.getElementById('cx-dec-err'); if (err) err.textContent = '';
+  try {
+    var r = await rwFetch('/api/library-index/decisions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_key: key, decision: decision, target_key: target || null }) });
+    var j = await r.json();
+    if (!r.ok) { if (err) err.textContent = j.error || 'Could not save.'; return false; }
+    cxBadge();
+    if (_cx.view === 'detail') cxOpen(key);
+    return true;
+  } catch (e) { if (err) err.textContent = 'Connection error.'; return false; }
+}
+
+// John's review: one card at a time, made for a phone.
+async function cxReview() { _cx.view = 'review'; cxReviewLoad(); }
+async function cxReviewLoad() {
+  var body = document.getElementById('cx-body'); body.innerHTML = '<div class="hh-empty">Loading...</div>';
+  try {
+    var r = await rwFetch('/api/library-index/review'); var j = await r.json();
+    if (!r.ok) { body.innerHTML = '<div class="hh-empty">' + esc(j.error || 'Could not load.') + '</div>'; return; }
+    _cx.cards = j.cards || []; _cx.ci = 0; _cx.lastNote = ''; cxCard();
+  } catch (e) { body.innerHTML = '<div class="hh-empty">Connection error.</div>'; }
+}
+function cxEvidence(c) {
+  var d = c.detail || {}, ev = [];
+  (d.channels || []).forEach(function (x) { ev.push(['Slack', '#' + x.name + (x.archived ? ' archived' : '') + (x.kind === 'design' ? ' (design)' : x.kind === 'old' ? ' (old numbered)' : '') + (x.lastAt ? '. Last real post ' + cxMonth(x.lastAt) + '.' : x.member ? '. No real post found.' : '. App not in it, last post unknown.')]); });
+  if (!(d.channels || []).length) ev.push(['Slack', 'No channel found.']);
+  (d.folders || []).forEach(function (f) { ev.push(['Folder', f.name + ': ' + (f.soldCount ? f.soldCount + ' sold documents' + (f.sold && f.sold[0] ? ', newest ' + f.sold[0].label + ' ' + cxMonth(f.sold[0].date) : '') : 'no sold documents') + (f.mediaCount ? ', ' + f.mediaCount + ' photos or recordings' : '') + '.']); });
+  if (!(d.folders || []).length) ev.push(['Folder', 'No install folder found.']);
+  (d.sales || []).forEach(function (f) { ev.push(['Sales', 'Presale folder ' + f.name + '.']); });
+  (d.ipoint || []).forEach(function (x) { ev.push(['iPoint', x.label + (x.job ? ' : ' + x.job : '') + (x.city ? ', ' + x.city : '') + '.']); });
+  if (!(d.ipoint || []).length) ev.push(['iPoint', 'Not found.']);
+  (d.ovrc || []).forEach(function (x) { ev.push(['OvrC', x.label + (x.status ? ', ' + x.status : '') + '.']); });
+  (c.need_items || []).forEach(function (n) { if (n.kind !== 'whose') ev.push(['Note', n.text]); });
+  return ev;
+}
+function cxCard() {
+  var body = document.getElementById('cx-body'), n = _cx.cards.length;
+  var h = '<div class="cx-rev"><div class="cx-rev-top"><button class="btn-ghost" onclick="_cx.view=\'list\';loadClientIndex();">← Client Index</button><span class="cx-sub">' + Math.min(_cx.ci + 1, n) + ' of ' + n + '</span></div>' +
+    '<div class="cx-bar"><div style="width:' + (n ? Math.round(Math.min(_cx.ci, n) / n * 100) : 100) + '%;"></div></div>';
+  if (_cx.ci >= n) { body.innerHTML = h + '<div class="cx-card"><div class="cx-ttl">All caught up</div><div class="cx-sub">' + (n ? 'Every client waiting on a person has an answer or was left for later.' : 'Nobody is waiting on a review.') + '</div></div></div>'; return; }
+  var c = _cx.cards[_cx.ci], k = cxJs(c.client_key);
+  var choices = (c.detail && c.detail.choices) || [];
+  h += '<div class="cx-card"><div class="cx-ttl">' + esc(c.name) + '</div><div class="cx-sub">' + esc(c.place || '') + (c.unsure ? ' · left for later before' : '') + '</div>' +
+    '<div class="cx-ask">' + esc(c.ask || 'Still a client?') + '</div>' +
+    cxEvidence(c).map(function (e) { return '<div class="cx-ev"><span>' + esc(e[0]) + '</span><span>' + esc(e[1]) + '</span></div>'; }).join('') + '</div>';
+  if (_cx.lastNote) h += '<div class="cx-sub" style="text-align:center;">' + esc(_cx.lastNote) + '</div>';
+  if (choices.length) h += '<div class="cx-rev-btns cx-rev-choices">' + choices.map(function (x) { return '<button class="btn-ghost cx-big" onclick="cxCardDo(\'' + k + '\',\'belongs\',\'' + cxJs(x.key) + '\',\'' + cxJs(x.label) + '\')">' + esc(x.label) + '\'s</button>'; }).join('') + '</div>';
+  h += '<div class="cx-rev-btns"><button class="btn-ghost cx-big" onclick="cxCardDo(\'' + k + '\',\'no\')">Not a client</button><button class="btn-ghost cx-big" onclick="cxCardDo(\'' + k + '\',\'unsure\')">Not sure</button><button class="btn-primary cx-big" onclick="cxCardDo(\'' + k + '\',\'yes\')">Yes, load</button></div>' +
+    '<div class="cx-sub" style="text-align:center;">Not a client stays in the index. If they ever text in, they tie in then. Yes loads in a later step.</div><div class="hd-err" id="cx-dec-err"></div></div>';
+  body.innerHTML = h;
+}
+async function cxCardDo(key, decision, target, label) {
+  if (_cx.busy) return;
+  var c = _cx.cards[_cx.ci];
+  _cx.busy = true;
+  var ok = false;
+  try { ok = await cxDecide(key, decision, target); } finally { _cx.busy = false; }
+  if (!ok) return;
+  _cx.lastNote = c.name + ': ' + ({ yes: 'marked to load', no: 'kept in the index, not a client', unsure: 'left for later', belongs: 'marked as ' + (label || 'another client') + '\'s' }[decision] || decision);
+  _cx.ci++; cxCard();
+}
+
+
+// If the page opened straight onto the Client Index before this code had run, load it now.
+function cxIfOpen() { try { var p = document.getElementById('panel-clientindex'); if (p && p.classList.contains('active') && window._rwUser) loadClientIndex(); } catch (e) {} }
+cxIfOpen();
 </script>
 <script>
 /* ── Equipment section (dashboard half of the sales-order parser). The PDF is parsed in the
@@ -11601,6 +11958,7 @@ async function eqOnFile(input){
     eqStatus(''); openHouseholdDetail(_hd.id);
   }catch(e){ console.error('[equipment import]',e); eqStatus('Import failed: '+(e.message||'error')); }
 }
+
 </script>
 
 </body>
